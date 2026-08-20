@@ -1,0 +1,72 @@
+# ── Secrets & Environment ──────────────────────────────────
+.env
+.env.local
+.env.production
+**/.env
+
+# ── Python ─────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+ENV/
+
+# ── Node / Frontend ────────────────────────────────────────
+node_modules/
+agrisetu-frontend/node_modules/
+agrisetu-frontend/dist/
+agrisetu-frontend/.vite/
+.cache/
+
+# ── ML Models (large binary files) ────────────────────────
+*.pth
+*.pt
+*.onnx
+*.pkl
+*.h5
+*.hdf5
+models/disease_model/disease_model_best.pth
+models/crop_model/xgboost_crop.json
+
+# ── Datasets (large files, download separately) ───────────
+data/plantvillage/
+data/crop/
+data/datasets/
+New Plant Diseases Dataset(Augmented)/
+*.zip
+*.tar.gz
+*.rar
+Crop_recommendation.csv
+
+# ── OS / IDE ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Jupyter / Colab ────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Logs ───────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Kaggle credentials (never commit) ─────────────────────
+kaggle.json
+
+# ── Supabase ───────────────────────────────────────────────
+.supabase/
+
+# ── Misc ───────────────────────────────────────────────────
+*.tmp
+*.bak

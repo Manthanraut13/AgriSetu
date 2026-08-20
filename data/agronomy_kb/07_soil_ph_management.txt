@@ -1,0 +1,18 @@
+Soil pH Management:
+Optimal pH ranges for major crops:
+- Wheat: 6.0-7.5
+- Rice: 5.5-7.0
+- Maize: 5.8-7.0
+- Cotton: 5.8-8.0
+- Soybean: 6.0-7.0
+- Vegetables: 6.0-7.5
+
+To raise pH (if acidic, below 6.0):
+- Apply agricultural lime (CaCO3) at 2-4 tons/hectare
+- Use dolomite lime for Mg-deficient soils
+- Wood ash is a cheap alternative for small farms
+
+To lower pH (if alkaline, above 8.0):
+- Apply elemental sulfur at 200-400 kg/hectare
+- Add organic matter (compost, manure)
+- Use acidifying fertilizers like ammonium sulfate

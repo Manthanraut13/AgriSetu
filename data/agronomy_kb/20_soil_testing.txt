@@ -1,0 +1,30 @@
+Soil Testing and Interpretation:
+How to read soil test results:
+1. pH (Power of Hydrogen):
+   - < 5.5: Strongly acidic (add lime)
+   - 5.5-6.5: Slightly acidic (ideal for most crops)
+   - 6.5-7.5: Neutral (good for most crops)
+   - 7.5-8.5: Slightly alkaline (add sulfur or organic matter)
+   - > 8.5: Strongly alkaline (needs serious amendment)
+
+2. Organic Carbon (OC):
+   - < 0.5%: Low (add organic matter urgently)
+   - 0.5-0.75%: Medium (maintain with compost)
+   - > 0.75%: High (good soil health)
+
+3. Available Nitrogen (N):
+   - < 280 kg/ha: Low (apply full recommended N)
+   - 280-560 kg/ha: Medium (apply 75% of recommended N)
+   - > 560 kg/ha: High (apply 50% of recommended N)
+
+4. Available Phosphorus (P):
+   - < 10 kg/ha: Low
+   - 10-25 kg/ha: Medium
+   - > 25 kg/ha: High
+
+5. Available Potassium (K):
+   - < 108 kg/ha: Low
+   - 108-280 kg/ha: Medium
+   - > 280 kg/ha: High
+
+Test your soil every 2-3 years. Collect samples from 0-15cm depth, 10-15 spots in the field.

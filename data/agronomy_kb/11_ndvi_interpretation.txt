@@ -1,0 +1,15 @@
+NDVI Interpretation for Crop Health:
+NDVI (Normalized Difference Vegetation Index) ranges from -1 to +1.
+Values for agriculture:
+- < 0.1: Bare soil, water, or dead vegetation (no crop cover)
+- 0.1-0.3: Sparse vegetation, stressed crops, early growth stage
+- 0.3-0.5: Moderate vegetation, crops in early-mid vegetative stage
+- 0.5-0.7: Good vegetation, healthy crops, active growth
+- 0.7-0.9: Dense, very healthy vegetation
+
+Action thresholds:
+- NDVI < 0.3: Investigate immediately. Possible issues: water stress, nutrient deficiency, pest damage, or poor germination.
+- NDVI 0.3-0.5: Monitor closely. Consider irrigation or fertilizer application.
+- NDVI > 0.5: Healthy crop. Continue current management practices.
+
+NDVI trends over time are more useful than single values. Declining NDVI during vegetative growth signals problems.

@@ -1,0 +1,34 @@
+{
+  "app_name": "AgriSetu",
+  "tagline": "BRICS Digital Agriculture Network",
+  "language_select": "Select your language",
+  "register_farm": "Register Farm",
+  "login": "Login",
+  "onboarding": {
+    "title": "Register Your Farm",
+    "subtitle": "Draw your farm boundary or enter your location",
+    "village": "Village",
+    "district": "District",
+    "state": "State",
+    "current_crop": "Current Crop",
+    "last_crop": "Previous Crop",
+    "submit": "Save Farm & Get Data",
+    "loading": "Fetching farm data...",
+    "success": "Farm registered successfully!"
+  },
+  "dashboard": {
+    "crop_health": "Crop Health",
+    "water_today": "Water Today?",
+    "weather_risk": "Weather Risk",
+    "disease_alert": "Disease Alert",
+    "get_advisory": "Get Advisory",
+    "diagnose_disease": "Diagnose Disease",
+    "chat": "Chat with Advisor",
+    "healthy": "Healthy",
+    "caution": "Watch",
+    "alert": "Alert"
+  },
+  "chat": {
+    "placeholder": "Ask me anything about your farm..."
+  }
+}

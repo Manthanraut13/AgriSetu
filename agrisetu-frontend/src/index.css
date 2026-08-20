@@ -1,0 +1,29 @@
+@import 'leaflet/dist/leaflet.css';
+@import 'leaflet-draw/dist/leaflet.draw.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --green-primary: #2d6a4f;
+  --green-light: #52b788;
+  --green-bg: #d8f3dc;
+  --yellow-alert: #f4a261;
+  --yellow-bg: #fff3e0;
+  --red-danger: #e63946;
+  --red-bg: #ffe8e8;
+  --blue-data: #1b4f72;
+  --neutral-dark: #212529;
+  --neutral-mid: #6c757d;
+  --neutral-light: #f8f9fa;
+  --white: #ffffff;
+  --brics-gold: #c9a84c;
+}
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--neutral-light);
+  color: var(--neutral-dark);
+  margin: 0;
+}

@@ -1,0 +1,154 @@
+{
+  "Apple___Apple_scab": {
+    "treatment": "Apply fungicides (captan or myclobutanil) during wet periods. Prune for air circulation.",
+    "organic_remedy": "Spray neem oil or baking soda solution (1 tbsp per gallon). Remove fallen leaves."
+  },
+  "Apple___Black_rot": {
+    "treatment": "Remove mummified fruit and cankers. Apply fungicide during wet weather.",
+    "organic_remedy": "Prune dead wood. Apply lime sulfur during dormancy."
+  },
+  "Apple___Cedar_apple_rust": {
+    "treatment": "Remove nearby cedar trees if possible. Apply fungicides in spring.",
+    "organic_remedy": "Apply sulfur-based sprays. Choose resistant varieties."
+  },
+  "Apple___healthy": {
+    "treatment": "No treatment needed. Plant is healthy.",
+    "organic_remedy": "Continue regular maintenance and monitoring."
+  },
+  "Blueberry___healthy": {
+    "treatment": "No treatment needed. Plant is healthy.",
+    "organic_remedy": "Continue regular maintenance."
+  },
+  "Cherry_(including_sour)___Powdery_mildew": {
+    "treatment": "Apply sulfur or fungicides at first sign. Improve air circulation.",
+    "organic_remedy": "Spray milk solution (40% milk, 60% water). Remove affected leaves."
+  },
+  "Cherry_(including_sour)___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular care."
+  },
+  "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
+    "treatment": "Apply fungicides (strobilurins). Practice crop rotation.",
+    "organic_remedy": "Remove infected debris. Rotate with non-host crops."
+  },
+  "Corn_(maize)___Common_rust_": {
+    "treatment": "Apply fungicides if severe. Choose resistant hybrids.",
+    "organic_remedy": "Remove infected plants early. Use resistant varieties."
+  },
+  "Corn_(maize)___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular maintenance."
+  },
+  "Corn_(maize)___Northern_Leaf_Blight": {
+    "treatment": "Apply fungicides. Use resistant hybrids.",
+    "organic_remedy": "Rotate crops. Till under infected residue."
+  },
+  "Grape___Black_rot": {
+    "treatment": "Apply fungicides before bloom. Remove infected fruit.",
+    "organic_remedy": "Prune for air flow. Remove mummified berries."
+  },
+  "Grape___Esca_(Black_Measles)": {
+    "treatment": "No cure. Remove infected vines. Manage trunk wounds.",
+    "organic_remedy": "Protect pruning wounds. Maintain vine vigor."
+  },
+  "Grape___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular vineyard management."
+  },
+  "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
+    "treatment": "Apply fungicides. Remove fallen leaves.",
+    "organic_remedy": "Improve air circulation. Apply copper sprays."
+  },
+  "Orange___Haunglongbing_(Citrus_greening)": {
+    "treatment": "No cure. Remove infected trees. Control psyllid vector.",
+    "organic_remedy": "Remove affected trees. Plant disease-free nursery stock."
+  },
+  "Peach___Bacterial_spot": {
+    "treatment": "Apply copper sprays. Use resistant varieties.",
+    "organic_remedy": "Prune for air circulation. Avoid overhead irrigation."
+  },
+  "Peach___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular care."
+  },
+  "Pepper,_bell___Bacterial_spot": {
+    "treatment": "Apply copper-based bactericides. Use disease-free seed.",
+    "organic_remedy": "Remove infected plants. Avoid wetting leaves."
+  },
+  "Pepper,_bell___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular maintenance."
+  },
+  "Potato___Early_blight": {
+    "treatment": "Apply fungicides (chlorothalonil or mancozeb). Remove infected leaves.",
+    "organic_remedy": "Mulch around plants. Rotate crops. Remove infected debris."
+  },
+  "Potato___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular care."
+  },
+  "Potato___Late_blight": {
+    "treatment": "Apply fungicides immediately (metalaxyl). Destroy infected plants.",
+    "organic_remedy": "Remove and destroy infected plants. Apply copper spray."
+  },
+  "Raspberry___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular maintenance."
+  },
+  "Soybean___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular maintenance."
+  },
+  "Squash___Powdery_mildew": {
+    "treatment": "Apply fungicides (sulfur or potassium bicarbonate).",
+    "organic_remedy": "Spray milk solution. Plant resistant varieties."
+  },
+  "Strawberry___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular care."
+  },
+  "Strawberry___Leaf_scorch": {
+    "treatment": "Apply fungicides. Remove infected leaves.",
+    "organic_remedy": "Remove affected leaves. Mulch to prevent splashing."
+  },
+  "Tomato___Bacterial_spot": {
+    "treatment": "Apply copper-based sprays. Use disease-free transplants.",
+    "organic_remedy": "Remove infected plants. Avoid overhead watering."
+  },
+  "Tomato___Early_blight": {
+    "treatment": "Apply fungicides. Remove lower infected leaves.",
+    "organic_remedy": "Mulch around plants. Water at base. Rotate crops."
+  },
+  "Tomato___healthy": {
+    "treatment": "No treatment needed. Plant is healthy!",
+    "organic_remedy": "Continue regular care and monitoring."
+  },
+  "Tomato___Late_blight": {
+    "treatment": "Apply fungicides (metalaxyl). Remove and destroy infected plants.",
+    "organic_remedy": "Remove infected plants immediately. Apply copper spray."
+  },
+  "Tomato___Leaf_Mold": {
+    "treatment": "Improve air circulation. Apply fungicides.",
+    "organic_remedy": "Increase spacing. Remove affected leaves."
+  },
+  "Tomato___Septoria_leaf_spot": {
+    "treatment": "Apply fungicides (chlorothalonil). Remove infected leaves.",
+    "organic_remedy": "Remove affected leaves. Mulch to prevent soil splash."
+  },
+  "Tomato___Spider_mites Two-spotted_spider_mite": {
+    "treatment": "Apply miticide. Increase humidity.",
+    "organic_remedy": "Spray with water to dislodge mites. Introduce ladybugs."
+  },
+  "Tomato___Target_Spot": {
+    "treatment": "Apply fungicides. Remove infected plant debris.",
+    "organic_remedy": "Improve air circulation. Remove fallen leaves."
+  },
+  "Tomato___Tomato_mosaic_virus": {
+    "treatment": "No cure. Remove infected plants. Disinfect tools.",
+    "organic_remedy": "Remove infected plants. Use disease-free seed."
+  },
+  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+    "treatment": "No cure. Control whitefly vector. Remove infected plants.",
+    "organic_remedy": "Use reflective mulch to repel whiteflies. Remove weeds."
+  }
+}

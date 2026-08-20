@@ -1,0 +1,1 @@
+"""AgriSetu Schemas Package"""

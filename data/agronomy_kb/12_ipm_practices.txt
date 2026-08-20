@@ -1,0 +1,27 @@
+IPM (Integrated Pest Management) for Indian Crops:
+IPM combines biological, cultural, physical, and chemical methods.
+Hierarchy: Prevention > Monitoring > Biological Control > Chemical (last resort)
+
+1. Cultural Controls:
+   - Crop rotation breaks pest cycles
+   - Remove crop residue that harbors pests
+   - Use resistant/tolerant varieties
+   - Adjust planting dates to avoid peak pest periods
+
+2. Biological Controls:
+   - Trichogramma cards for stem borer (release 50,000/ha)
+   - Trichoderma viride for soil-borne diseases (5 kg/ha)
+   - Pseudomonas fluorescens for bacterial diseases (2.5 kg/ha)
+   - NPV (Nuclear Polyhedrosis Virus) for Helicoverpa (250 LE/ha)
+   - Beauveria bassiana for whitefly and aphids
+
+3. Physical Controls:
+   - Yellow sticky traps for whitefly monitoring (12/ha)
+   - Pheromone traps for fruit borers (5/ha)
+   - Light traps for moths
+   - Bird perches (20/ha) for predatory birds
+
+4. Chemical (last resort):
+   - Use only recommended pesticides at correct dosage
+   - Rotate chemical classes to prevent resistance
+   - Observe pre-harvest intervals strictly

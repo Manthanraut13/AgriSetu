@@ -1,0 +1,32 @@
+# AgriSetu Backend Dependencies
+# Python 3.11+
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+httpx>=0.27.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+supabase>=2.0.0
+apscheduler>=3.10.0
+python-dotenv>=1.0.0
+python-multipart>=0.0.6
+Pillow>=10.0.0
+
+# ML / AI
+torch>=2.1.0
+torchvision>=0.16.0
+timm>=0.9.0
+xgboost>=2.0.0
+scikit-learn>=1.3.0
+sentence-transformers>=2.2.0
+google-generativeai>=0.5.0
+
+# WhatsApp
+twilio>=9.0.0
+
+# Security
+slowapi>=0.1.9
+
+# Utilities
+ruff>=0.1.0
+numpy

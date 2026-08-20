@@ -61,7 +61,7 @@ All choices optimised for: (a) fastest path to a working, demo-able prototype by
 | Training environment | Google Colab / Kaggle Notebooks | Free GPU; runs unattended |
 | Model serving | FastAPI endpoint | Load model into memory at startup; inference per request |
 | Crop recommender | XGBoost / LightGBM | Scikit-learn compatible; lightweight; no GPU needed |
-| LLM (conversational advisor) | Anthropic Claude API (`claude-sonnet-4-6`) | RAG via retrieved context; not fine-tuned |
+| LLM (conversational advisor) | Gemini API Key  | RAG via retrieved context; not fine-tuned |
 | RAG retrieval | pgvector (Supabase) + sentence-transformers | Embed agronomy KB chunks; cosine similarity search |
 | Indian language ASR | Bhashini API (Digital India) | Free developer access; covers Hindi, Marathi, 20+ Indian languages |
 | International ASR | OpenAI Whisper (open-source, local) | `openai-whisper` Python package; run inference on CPU/GPU |
