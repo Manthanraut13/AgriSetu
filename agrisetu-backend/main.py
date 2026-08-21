@@ -28,12 +28,12 @@ async def lifespan(app: FastAPI):
     validate_config()
 
     # Load ML models (lazy import to avoid circular deps)
-    from services.disease_model import load_disease_model
+    from services.disease_model import load_cnn_model
     from services.crop_model import load_crop_model
 
     try:
-        load_disease_model()
-        logger.info("✓ Disease CNN model loaded")
+        load_cnn_model()
+        logger.info("✓ Disease model loaded (Gemini Vision + CNN)")
     except Exception as e:
         logger.warning(f"Disease model load failed: {e}")
 

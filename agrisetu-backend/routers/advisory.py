@@ -140,7 +140,7 @@ async def get_advisory(plot_id: str):
             "confidence": recommendations[0].confidence,
             "sowing_window": recommendations[0].sowing_window,
             "irrigation_schedule": f"Every {recommendations[0].irrigation_days} days",
-            "regenerative_practices": [p.practice for p in regen_practices],
+            "regenerative_practices": [p["practice"] if isinstance(p, dict) else p.practice for p in regen_practices],
             "risk_alerts": risk_alerts,
             "raw_input_snapshot": {"soil": soil, "weather": weather, "ndvi": ndvi},
         }).execute()
