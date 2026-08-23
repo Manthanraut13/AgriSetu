@@ -163,6 +163,36 @@ export default function OnboardingPage() {
       </nav>
 
       <div className="max-w-xl mx-auto px-4">
+        {/* Prominent Language Switcher Tab Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between bg-surface-container-lowest border border-outline-variant/40 rounded-2xl px-4 py-3 mb-6 shadow-sm gap-3">
+          <div className="flex items-center gap-2 text-xs font-mono font-semibold text-on-surface-variant">
+            <span className="material-symbols-outlined text-primary text-base">translate</span>
+            <span>
+              {i18n.language === 'mr' ? 'भाषा निवडा / Language:' : i18n.language === 'hi' ? 'भाषा चुनें / Language:' : 'Select Language:'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-surface-container-low p-1 rounded-xl border border-outline-variant/30">
+            {[
+              { code: 'hi', label: '🇮🇳 हिंदी', name: 'Hindi' },
+              { code: 'mr', label: '🚩 मराठी', name: 'Marathi' },
+              { code: 'en', label: '🌐 English', name: 'English' },
+            ].map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => i18n.changeLanguage(lang.code)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  i18n.language === lang.code
+                    ? 'bg-primary text-on-primary shadow-sm font-bold scale-[1.02]'
+                    : 'text-on-surface-variant hover:text-primary hover:bg-surface-container'
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <h1 className="text-2xl md:text-3xl font-display font-bold mb-2 text-primary text-center">
           {t('onboarding.title')}
         </h1>

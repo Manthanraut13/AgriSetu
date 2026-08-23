@@ -47,7 +47,7 @@ export default function LandingPage() {
                   onClick={() => switchLang(lang.code)}
                   className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                     i18n.language === lang.code
-                      ? 'bg-primary text-on-primary shadow-sm'
+                      ? 'bg-primary text-on-primary shadow-sm font-bold'
                       : 'text-on-surface-variant hover:text-primary'
                   }`}
                 >
@@ -59,9 +59,29 @@ export default function LandingPage() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-3">
+            {/* Language Selection on Mobile */}
+            <div className="flex md:hidden items-center gap-1 bg-surface-container p-0.5 rounded-full border border-outline-variant/40">
+              {[
+                { code: 'hi', label: 'हिं' },
+                { code: 'mr', label: 'मरा' },
+                { code: 'en', label: 'EN' },
+              ].map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => switchLang(lang.code)}
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-semibold transition-all ${
+                    i18n.language === lang.code
+                      ? 'bg-primary text-on-primary shadow-sm font-bold'
+                      : 'text-on-surface-variant'
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => navigate('/onboarding')}
-              className="bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary-container transition-all active:scale-95 shadow-sm"
+              className="bg-primary text-on-primary text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-primary-container transition-all active:scale-95 shadow-sm"
             >
               {t('landing.get_started')}
             </button>
