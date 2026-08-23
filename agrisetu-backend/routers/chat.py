@@ -88,10 +88,18 @@ def chat_ask(body: ChatRequest):
     from services.llm import detect_language_from_text
     detected_lang = detect_language_from_text(body.message, fallback_lang=body.language)
 
-    # 3. RAG retrieval
-    kb_chunks = retrieve_relevant_chunks(body.message, top_k=3)
+    # 3. Translate query to English for KB lookup if non-English
+    query_en = body.message
+    if detected_lang != "en":
+        try:
+            query_en = translate_to_english(body.message, detected_lang)
+        except Exception as te:
+            logger.debug(f"Query translation fallback: {te}")
 
-    # 4. Generate advisory with Gemini matching input query language
+    # 4. RAG retrieval using translated English query
+    kb_chunks = retrieve_relevant_chunks(query_en, top_k=3)
+
+    # 5. Generate advisory with Gemini matching input query language
     response_final = generate_advisory(plot_context, kb_chunks, body.message, detected_lang)
     if not response_final:
         raise HTTPException(status_code=500, detail="AI advisor is temporarily unavailable. Please try again.")

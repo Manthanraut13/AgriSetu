@@ -26,11 +26,10 @@ RULES:
 
 
 GEMINI_LLM_MODELS = [
-    "gemini-3.6-flash",
-    "gemini-3.5-flash",
-    "gemini-flash-latest",
-    "gemini-2.5-flash-lite",
-    "gemini-3.1-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+    "gemini-2.5-flash",
 ]
 
 
@@ -112,10 +111,11 @@ def generate_advisory(
 
 CRITICAL INSTRUCTIONS:
 1. You MUST write your response ONLY in {target_lang_name}. Match the exact language of the farmer's question.
-2. Format your output strictly in clear, point-wise bullet points (using • or -).
-3. Provide direct, practical, and concise farming advice tailored to the farmer's specific query.
-4. Do NOT dump long unrequested reports. Answer ONLY what the farmer asked.
-5. Use the provided farm context and agronomy knowledge base when relevant.
+2. Format your output strictly in clear, point-wise bullet points (using • on a NEW line for each point).
+3. Never merge multiple bullet points into a single continuous paragraph or line.
+4. Provide direct, practical, and concise farming advice tailored to the farmer's specific query.
+5. Do NOT dump long unrequested reports. Answer ONLY what the farmer asked.
+6. You MUST strictly base your recommendations on the retrieved Agronomy Knowledge Base facts provided below when answering.
 """
 
     context_text = f"Farm Context: {plot_context}" if plot_context else "No specific farm data available."

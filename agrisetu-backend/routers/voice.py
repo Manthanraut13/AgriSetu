@@ -32,11 +32,14 @@ def voice_ask(
         raise HTTPException(status_code=400, detail="Empty audio file")
 
     # 2. Transcribe
+    from services.asr import transcribe_audio, is_hallucination
     transcription = transcribe_audio(audio_bytes, language)
-    if not transcription.get("text"):
-        raise HTTPException(status_code=422, detail="Could not transcribe audio. Please try speaking clearly.")
-
-    question_text = transcription["text"]
+    question_text = (transcription.get("text") or "").strip()
+    if not question_text or is_hallucination(question_text):
+        raise HTTPException(
+            status_code=422,
+            detail="Could not hear clear speech in audio recording. Please speak closer to your microphone and try again."
+        )
 
     # 3. Get plot context
     plot_context = {}

@@ -24,8 +24,13 @@ export const predictDisease = (formData) =>
 // ── Advisory ────────────────────────────────────────────────
 export const getAdvisory = (plotId) => api.get(`/api/v1/advisory/${plotId}`)
 
-// ── Chat ────────────────────────────────────────────────────
+// ── Chat & Voice ────────────────────────────────────────────
 export const sendChatMessage = (data) => api.post('/api/v1/chat/ask', data)
+export const sendVoiceQuestion = (formData) =>
+  api.post('/api/v1/voice/ask', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
 
 // ── Dashboard ───────────────────────────────────────────────
 export const getFarmerPlots = (farmerId) => api.get(`/api/v1/dashboard/plots/${farmerId}`)
