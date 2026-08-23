@@ -22,7 +22,7 @@ class ChatResponse(BaseModel):
 
 
 @router.post("/ask", response_model=ChatResponse, tags=["Chat"])
-async def chat_ask(body: ChatRequest):
+def chat_ask(body: ChatRequest):
     """
     Ask the AI advisor a farming question.
 

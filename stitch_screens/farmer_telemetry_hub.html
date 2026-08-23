@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriSetu - Farmer Telemetry Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#ebe8de",
+                        "on-primary": "#ffffff",
+                        "surface": "#fdf9ef",
+                        "tertiary-fixed": "#ffe08e",
+                        "primary-fixed": "#c6ecce",
+                        "background": "#fdf9ef",
+                        "tertiary": "#755b00",
+                        "surface-container-low": "#f7f3e9",
+                        "on-primary-fixed": "#00210f",
+                        "on-surface-variant": "#424842",
+                        "surface-dim": "#dddad0",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#072a17",
+                        "on-primary-container": "#87ac90",
+                        "surface-container": "#f1eee3",
+                        "surface-bright": "#fdf9ef",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#1c1c16",
+                        "on-primary-fixed-variant": "#2d4e38",
+                        "on-secondary-fixed-variant": "#2e4e35",
+                        "secondary-fixed-dim": "#abd0af",
+                        "on-secondary-fixed": "#02210c",
+                        "on-tertiary-container": "#4f3d00",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#4a6a4f",
+                        "inverse-surface": "#31312a",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e6e2d8",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#aad0b3",
+                        "tertiary-container": "#cea72c",
+                        "on-tertiary-fixed": "#241a00",
+                        "secondary-fixed": "#c7ecca",
+                        "primary-container": "#1f402b",
+                        "tertiary-fixed-dim": "#ecc246",
+                        "outline": "#727972",
+                        "on-background": "#1c1c16",
+                        "outline-variant": "#c2c8c0",
+                        "surface-container-highest": "#e6e2d8",
+                        "surface-tint": "#44664e",
+                        "inverse-on-surface": "#f4f1e6",
+                        "secondary": "#45664b",
+                        "secondary-container": "#c4e9c7",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#584400",
+                        "primary-fixed-dim": "#aad0b3"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "40px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "container-max": "1280px",
+                        "stack-md": "16px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "data-mono": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["32px", { lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "body-sm": ["14px", { lineHeight: "1.4", fontWeight: "500" }],
+                        "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "data-mono": ["13px", { lineHeight: "1.5", letterSpacing: "0.02em", fontWeight: "500" }],
+                        "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "1.3", fontWeight: "700" }],
+                        "display-lg": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "800" }]
+                    },
+                    boxShadow: {
+                        'ambient': '0px 4px 20px rgba(19, 42, 19, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F4F6F4;
+            color: #132A13;
+        }
+        .glass-panel {
+            background: rgba(253, 249, 239, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+        .card-border {
+            border: 1px solid #E2E8F0;
+        }
+        .card-hover:hover {
+            border-color: #588157;
+            transition: border-color 0.3s ease;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen relative pb-24 md:pb-0">
+<!-- TopNavBar (Shared Component styling applied) -->
+<nav class="bg-surface/80 dark:bg-surface-container-high/80 backdrop-blur-md full-width top-0 sticky border-b border-outline-variant/30 shadow-sm z-50">
+<div class="flex justify-between items-center w-full px-margin-mobile py-3 max-w-container-max mx-auto md:hidden">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary text-lg">AgriSetu</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 bg-primary-fixed/20 px-3 py-1 rounded-full">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px]">System Online</span>
+</div>
+<div class="flex items-center gap-1 cursor-pointer">
+<span class="font-body-sm text-body-sm text-on-surface">हिंदी</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Desktop Nav Cluster (Hidden on mobile per rules) -->
+<div class="hidden md:flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary">AgriSetu</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-tertiary transition-colors duration-300" href="#">Product</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-tertiary transition-colors duration-300" href="#">For Farmers</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-tertiary transition-colors duration-300" href="#">For Agronomists</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-tertiary transition-colors duration-300" href="#">BRICS Network</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-tertiary transition-colors duration-300" href="#">Login</a>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-xl font-body-sm text-body-sm hover:opacity-90 transition-opacity">Get Started</button>
+</div>
+</div>
+</nav>
+<main class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto pt-4 md:pt-8 pb-12 space-y-6">
+<!-- Hero Card -->
+<section class="bg-surface-container-lowest rounded-2xl p-6 card-border shadow-ambient relative overflow-hidden card-hover">
+<!-- Subtle gradient wash -->
+<div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/10 to-transparent pointer-events-none"></div>
+<div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface mb-1">Namaste, Rajesh Ji</h1>
+<div class="flex items-center gap-1.5 text-on-surface-variant opacity-80">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span class="font-body-sm text-body-sm">Rampur Plot A — Nashik, Maharashtra</span>
+</div>
+</div>
+<div class="flex items-center gap-3 bg-surface p-3 rounded-xl card-border">
+<span class="material-symbols-outlined text-tertiary-container text-3xl" style="font-variation-settings: 'FILL' 1;">partly_cloudy_day</span>
+<div>
+<div class="font-headline-md text-headline-md text-on-surface leading-none">28°C</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant opacity-80">Humidity 65%</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Telemetry Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Crop Vitality -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 card-border shadow-ambient flex items-center gap-4 card-hover">
+<div class="relative w-16 h-16 flex-shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-variant stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+<path class="text-primary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="72, 100" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-data-mono text-data-mono text-primary">
+                        0.72
+                    </div>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase tracking-wider">Crop Vitality</div>
+<div class="font-body-lg text-body-lg text-on-surface">Optimal Growth</div>
+</div>
+</div>
+<!-- Soil Hydration -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 card-border shadow-ambient flex items-start gap-4 card-hover">
+<div class="p-3 bg-secondary-fixed/20 rounded-full text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase tracking-wider">Soil Hydration</div>
+<div class="font-body-lg text-body-lg text-on-surface mb-0.5">No Irrigation Needed Today</div>
+<div class="font-data-mono text-data-mono text-on-surface-variant opacity-70">Soil Moisture 22.4%</div>
+</div>
+</div>
+<!-- Weather Risk -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 card-border shadow-ambient flex items-start gap-4 card-hover">
+<div class="p-3 bg-tertiary-fixed/30 rounded-full text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pixel_4_4xl_4a_5_5a_5g</span>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase tracking-wider">Weather Risk</div>
+<div class="font-body-lg text-body-lg text-on-surface mb-0.5">Low Weather Risk</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant opacity-70">Rain expected in 5 days</div>
+</div>
+</div>
+<!-- Plant Protection -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 card-border shadow-ambient flex items-start gap-4 card-hover">
+<div class="p-3 bg-primary-fixed/30 rounded-full text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shield</span>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase tracking-wider">Plant Protection</div>
+<div class="font-body-lg text-body-lg text-on-surface">Zero Active Disease Alerts</div>
+</div>
+</div>
+</section>
+<!-- Quick Action Dock -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<button class="bg-secondary-fixed/30 hover:bg-secondary-fixed/50 transition-colors rounded-2xl p-4 flex items-center justify-center gap-2 card-border text-primary font-body-sm text-body-sm h-14">
+<span class="material-symbols-outlined text-lg">smart_toy</span>
+                Request AI Crop Advisory
+            </button>
+<button class="bg-surface-container-lowest hover:bg-surface transition-colors rounded-2xl p-4 flex items-center justify-center gap-2 border border-primary text-primary font-body-sm text-body-sm h-14">
+<span class="material-symbols-outlined text-lg">search</span>
+                Diagnose Plant Disease
+            </button>
+</section>
+<!-- Soil Nutrient Telemetry Panel -->
+<section class="mt-8">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mb-4 flex items-center gap-2">
+<span class="w-4 h-[1px] bg-outline-variant"></span>
+                Soil Nutrient Telemetry
+                <span class="flex-grow h-[1px] bg-outline-variant"></span>
+</h2>
+<div class="flex flex-wrap gap-3">
+<!-- Metric Tiles -->
+<div class="glass-panel rounded-xl px-4 py-3 flex flex-col min-w-[120px] flex-grow">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">Nitrogen</span>
+<span class="font-data-mono text-data-mono text-on-surface text-lg">140 <span class="text-xs opacity-60">kg/ha</span></span>
+</div>
+<div class="glass-panel rounded-xl px-4 py-3 flex flex-col min-w-[120px] flex-grow">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">Phosphorus</span>
+<span class="font-data-mono text-data-mono text-on-surface text-lg">45 <span class="text-xs opacity-60">kg/ha</span></span>
+</div>
+<div class="glass-panel rounded-xl px-4 py-3 flex flex-col min-w-[120px] flex-grow">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">Potassium</span>
+<span class="font-data-mono text-data-mono text-on-surface text-lg">190 <span class="text-xs opacity-60">kg/ha</span></span>
+</div>
+<div class="glass-panel rounded-xl px-4 py-3 flex flex-col min-w-[100px] flex-grow">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">Soil pH</span>
+<span class="font-data-mono text-data-mono text-on-surface text-lg">6.5</span>
+</div>
+</div>
+<div class="mt-3 text-right font-body-sm text-body-sm text-on-surface-variant opacity-60 text-xs">
+                Source: ISRIC SoilGrids
+            </div>
+</section>
+</main>
+<!-- Floating Action Button (FAB) -->
+<button class="fixed bottom-6 right-6 md:bottom-10 md:right-10 w-14 h-14 bg-primary text-on-primary rounded-full shadow-ambient flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat</span>
+</button>
+</body></html>

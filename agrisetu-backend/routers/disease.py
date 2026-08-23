@@ -23,13 +23,13 @@ def _validate_image(file: UploadFile) -> None:
 
 
 @router.post("/predict", response_model=DiseaseResult, tags=["Disease"])
-async def predict_disease_endpoint(
+def predict_disease_endpoint(
     file: UploadFile = File(...),
     plot_id: Optional[str] = Form(None),
 ):
     _validate_image(file)
 
-    content = await file.read()
+    content = file.file.read()
     if len(content) > MAX_IMAGE_SIZE_BYTES:
         raise HTTPException(status_code=413, detail="Image must be under 10MB")
 
@@ -73,14 +73,16 @@ async def predict_disease_endpoint(
         from uuid import uuid4
 
         supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
-        supabase.table("disease_reports").insert({
-            "plot_id": plot_id if plot_id else str(uuid4()),
+        report_data = {
             "disease_name": disease_result.disease_name,
             "confidence": disease_result.confidence_pct / 100,
             "treatment": disease_result.treatment,
             "organic_remedy": disease_result.organic_remedy,
             "severity": disease_result.severity,
-        }).execute()
+        }
+        if plot_id:
+            report_data["plot_id"] = plot_id
+        supabase.table("disease_reports").insert(report_data).execute()
     except Exception as e:
         logger.error(f"Failed to save disease report: {e}")
 

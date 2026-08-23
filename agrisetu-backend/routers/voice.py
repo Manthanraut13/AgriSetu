@@ -8,7 +8,7 @@ router = APIRouter(prefix="/voice")
 
 
 @router.post("/ask", tags=["Voice"])
-async def voice_ask(
+def voice_ask(
     audio: UploadFile = File(...),
     language: str = Form("hi"),
     plot_id: str = Form(""),
@@ -27,7 +27,7 @@ async def voice_ask(
     from supabase import create_client
 
     # 1. Read audio
-    audio_bytes = await audio.read()
+    audio_bytes = audio.file.read()
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=400, detail="Empty audio file")
 

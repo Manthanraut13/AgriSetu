@@ -109,4 +109,23 @@ def retrieve_relevant_chunks(query: str, top_k: int = RAG_TOP_K) -> List[str]:
 
     except Exception as e:
         logger.error(f"Knowledge base search failed: {e}")
-        return []
+
+    # Fallback 2: Direct file search in data/agronomy_kb
+    try:
+        kb_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "agronomy_kb")
+        if os.path.exists(kb_dir):
+            matched = []
+            keywords = [w.lower() for w in query.split() if len(w) > 3]
+            for fname in os.listdir(kb_dir):
+                if fname.endswith(".txt"):
+                    fpath = os.path.join(kb_dir, fname)
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        text = f.read()
+                        if any(kw in text.lower() for kw in keywords):
+                            matched.append(text[:1000])
+            if matched:
+                return matched[:top_k]
+    except Exception as e:
+        logger.error(f"File KB fallback failed: {e}")
+
+    return []

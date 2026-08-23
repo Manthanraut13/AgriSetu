@@ -28,6 +28,7 @@ class Settings(BaseSettings):
 
     # ── Gemini (LLM) ──────────────────────────────────────────
     GEMINI_API_KEY: str
+    GEMINI_BACKUP_API_KEY: str = ""
 
     # ── Twilio (WhatsApp) ─────────────────────────────────────
     TWILIO_ACCOUNT_SID: str

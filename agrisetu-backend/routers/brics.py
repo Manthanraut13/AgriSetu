@@ -9,7 +9,7 @@ router = APIRouter(prefix="/brics")
 
 
 @router.get("/advisory/{plot_id}", tags=["BRICS API"])
-async def get_brics_advisory(plot_id: str):
+def get_brics_advisory(plot_id: str):
     """Get advisory in BRICS Agri Data Model schema."""
     from config import settings
     from supabase import create_client
@@ -71,7 +71,7 @@ async def get_brics_advisory(plot_id: str):
 
 
 @router.post("/disease-report", tags=["BRICS API"])
-async def submit_brics_disease_report(body: BRICSDiseaseReportRequest):
+def submit_brics_disease_report(body: BRICSDiseaseReportRequest):
     """Submit a disease report in BRICS shared schema."""
     from config import settings
     from supabase import create_client
@@ -87,7 +87,7 @@ async def submit_brics_disease_report(body: BRICSDiseaseReportRequest):
 
 
 @router.get("/aggregate", tags=["BRICS API"])
-async def get_brics_aggregate(country: str = "IN"):
+def get_brics_aggregate(country: str = "IN"):
     """Get anonymised aggregate stats for a country."""
     from config import settings
     from supabase import create_client
