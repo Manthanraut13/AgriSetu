@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
 import api, { getAllPlots } from '../api/agrisetu'
 
@@ -21,6 +22,7 @@ function ndviColor(ndvi) {
 }
 
 export default function AgronomistDashboard() {
+  const { t, i18n } = useTranslation()
   const [plots, setPlots] = useState([])
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -99,16 +101,31 @@ export default function AgronomistDashboard() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-xs font-mono text-outline-variant mr-4">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-            <span>Live Satellite Stream: Sentinel-2</span>
+          <div className="flex items-center gap-1 bg-[#1f402b]/60 p-1 rounded-full border border-outline-variant/30">
+            {[
+              { code: 'hi', label: 'हिंदी' },
+              { code: 'mr', label: 'मराठी' },
+              { code: 'en', label: 'EN' },
+            ].map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => i18n.changeLanguage(lang.code)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  i18n.language === lang.code
+                    ? 'bg-inverse-primary text-[#072a17] shadow-sm font-bold'
+                    : 'text-outline-variant hover:text-white'
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
           </div>
           
           <button onClick={() => window.location.href = '/dashboard/farmer'} className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-surface-tint/20 text-inverse-primary border border-inverse-primary/30 hover:bg-surface-tint/40 transition-colors">
-            Farmer View
+            {t('fpo.farmer_view')}
           </button>
           <button onClick={() => window.location.href = '/'} className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-inverse-surface text-white border border-outline-variant/30 hover:bg-surface-variant/20 transition-colors">
-            Exit Command
+            {t('fpo.exit')}
           </button>
         </div>
       </nav>
@@ -120,17 +137,17 @@ export default function AgronomistDashboard() {
           {/* Key Metrics */}
           <div className="p-5 border-b border-outline-variant/20 grid grid-cols-2 gap-4">
             <div>
-              <div className="text-[11px] font-mono text-outline-variant uppercase mb-1">Total Plots</div>
+              <div className="text-[11px] font-mono text-outline-variant uppercase mb-1">{t('fpo.total_plots')}</div>
               <div className="text-2xl font-bold font-mono text-white">{plots.length || 24}</div>
             </div>
             <div>
-              <div className="text-[11px] font-mono text-outline-variant uppercase mb-1">Regional Avg NDVI</div>
+              <div className="text-[11px] font-mono text-outline-variant uppercase mb-1">{t('fpo.avg_ndvi')}</div>
               <div className="text-2xl font-bold font-mono text-inverse-primary">{avgNdvi}</div>
             </div>
             <div className="col-span-2 bg-error/20 border border-error/30 rounded-xl p-3 flex items-center gap-3">
               <span className="material-symbols-outlined text-error">warning</span>
               <span className="text-xs font-semibold text-error">
-                {activeAlerts > 0 ? `${activeAlerts} Plots Require Attention` : 'All Plots In Good Range'}
+                {activeAlerts > 0 ? t('fpo.attention_req', { count: activeAlerts }) : t('fpo.good_range')}
               </span>
             </div>
           </div>
@@ -145,7 +162,7 @@ export default function AgronomistDashboard() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search plot by crop, district, farmer..."
+                placeholder={t('fpo.search_placeholder')}
                 className="w-full bg-[#1c1c16] border border-outline-variant/30 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-outline-variant focus:outline-none focus:border-inverse-primary"
               />
             </div>

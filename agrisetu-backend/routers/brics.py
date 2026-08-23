@@ -43,10 +43,10 @@ def get_brics_advisory(plot_id: str):
             "area_ha": plot.get("area_ha", 0),
         },
         "soil": {
-            "N": soil.get("N", 0),
-            "P": soil.get("P", 0),
-            "K": soil.get("K", 0),
-            "pH": soil.get("pH", 0),
+            "N": soil.get("N") if soil.get("N") is not None else soil.get("n", 0),
+            "P": soil.get("P") if soil.get("P") is not None else soil.get("p", 0),
+            "K": soil.get("K") if soil.get("K") is not None else soil.get("k", 0),
+            "pH": soil.get("pH") if soil.get("pH") is not None else soil.get("ph", 0),
             "moisture_pct": soil.get("moisture_pct", 0),
         },
         "weather": {

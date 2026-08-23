@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { predictDisease } from '../api/agrisetu'
 
 export default function DiseaseUploader() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
@@ -21,6 +21,7 @@ export default function DiseaseUploader() {
 
     const formData = new FormData()
     formData.append('file', file)
+    formData.append('language', i18n.language || 'hi')
 
     try {
       const res = await predictDisease(formData)
@@ -46,8 +47,8 @@ export default function DiseaseUploader() {
           <span className="material-symbols-outlined">camera_alt</span>
         </div>
         <div>
-          <h3 className="text-xl font-display font-bold text-primary">AI Disease Scanner</h3>
-          <p className="text-xs text-on-surface-variant">Powered by Gemini 1.5 Flash Vision & Deep Learning</p>
+          <h3 className="text-xl font-display font-bold text-primary">{t('disease.title')}</h3>
+          <p className="text-xs text-on-surface-variant">Powered by Gemini 3.6 Flash Vision & Deep Learning</p>
         </div>
       </div>
 
@@ -63,8 +64,8 @@ export default function DiseaseUploader() {
         <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
           <span className="material-symbols-outlined text-3xl">add_a_photo</span>
         </div>
-        <p className="text-sm font-semibold text-primary mb-1">Take photo or upload leaf image</p>
-        <p className="text-xs text-on-surface-variant font-mono">Supports: Tomato, Rice, Wheat, Potato, Maize, Citrus & more</p>
+        <p className="text-sm font-semibold text-primary mb-1">{t('disease.upload_hint')}</p>
+        <p className="text-xs text-on-surface-variant font-mono">{t('disease.upload_sub')}</p>
       </div>
 
       {/* Preview */}
@@ -81,15 +82,15 @@ export default function DiseaseUploader() {
       {loading && (
         <div className="text-center py-8">
           <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-3" />
-          <p className="text-sm font-bold text-primary">Analyzing Plant Pathology...</p>
-          <p className="text-xs text-on-surface-variant font-mono">Comparing visual symptoms against knowledge base</p>
+          <p className="text-sm font-bold text-primary">{t('disease.analyzing')}</p>
+          <p className="text-xs text-on-surface-variant font-mono">{t('disease.analyzing_sub')}</p>
         </div>
       )}
 
       {/* Error state */}
       {error && (
         <div className="mt-4 p-4 rounded-2xl bg-error-container text-on-error-container text-xs font-mono">
-          <strong className="block font-bold mb-1">Analysis Notice</strong>
+          <strong className="block font-bold mb-1">{t('disease.error')}</strong>
           <span>{error}</span>
         </div>
       )}
@@ -115,9 +116,9 @@ export default function DiseaseUploader() {
             {/* Severity spectrum */}
             <div className="mt-4">
               <div className="flex justify-between text-xs font-mono text-on-surface-variant mb-1.5">
-                <span>Low</span>
-                <span>Moderate</span>
-                <span className={result.severity === 'high' ? 'text-error font-bold' : ''}>High Severity</span>
+                <span>{t('dashboard.healthy')}</span>
+                <span>{t('dashboard.caution')}</span>
+                <span className={result.severity === 'high' ? 'text-error font-bold' : ''}>{t('disease.severity')}: {result.severity?.toUpperCase()}</span>
               </div>
               <div className="h-2.5 w-full bg-surface-container-high rounded-full overflow-hidden flex">
                 <div className={`w-1/3 h-full ${result.severity === 'low' ? 'bg-primary' : 'bg-primary-fixed'}`} />
@@ -136,7 +137,7 @@ export default function DiseaseUploader() {
                   activeTab === 'organic' ? 'border-b-2 border-primary text-primary' : 'text-on-surface-variant'
                 }`}
               >
-                <span>🌿</span> Organic & Eco-Remedy
+                <span>🌿</span> {t('disease.organic_remedy')}
               </button>
               <button
                 onClick={() => setActiveTab('chemical')}
@@ -144,7 +145,7 @@ export default function DiseaseUploader() {
                   activeTab === 'chemical' ? 'border-b-2 border-primary text-primary' : 'text-on-surface-variant'
                 }`}
               >
-                <span>🧪</span> Chemical Treatment
+                <span>🧪</span> {t('disease.treatment')}
               </button>
             </div>
 

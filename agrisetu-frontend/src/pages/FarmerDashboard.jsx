@@ -18,16 +18,39 @@ export default function FarmerDashboard() {
 
   const loadData = async () => {
     try {
+      const savedFarmer = JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}')
+      const isRegistered = Boolean(savedFarmer && (savedFarmer.is_registered || savedFarmer.name))
+      const activePlotId = localStorage.getItem('agrisetu_active_plot_id')
+      
       const plotsRes = await getAllPlots()
-      if (plotsRes.data?.length > 0) {
-        const p = plotsRes.data[0]
-        setPlotId(p.id)
-        const summaryRes = await getPlotSummary(p.id)
-        setPlot(summaryRes.data)
+      const allPlots = plotsRes.data || []
+      
+      let targetPlot = null
+      if (isRegistered && activePlotId) {
+        targetPlot = allPlots.find(p => p.id === activePlotId) || allPlots[allPlots.length - 1]
+      } else if (isRegistered) {
+        targetPlot = allPlots[allPlots.length - 1]
+      }
+      
+      if (targetPlot) {
+        setPlotId(targetPlot.id)
+        const summaryRes = await getPlotSummary(targetPlot.id)
+        const summaryData = summaryRes.data || {}
+        if (summaryData.plot && savedFarmer.name) {
+          summaryData.plot.farmer_name = savedFarmer.name
+          summaryData.plot.district = savedFarmer.district || summaryData.plot.district
+          summaryData.plot.state = savedFarmer.state || summaryData.plot.state
+          summaryData.plot.current_crop = savedFarmer.crop || summaryData.plot.current_crop
+        }
+        setPlot(summaryData)
         try {
-          const advRes = await getAdvisory(p.id)
+          const advRes = await getAdvisory(targetPlot.id)
           setAdvisory(advRes.data)
         } catch { /* advisory not yet generated */ }
+      } else if (allPlots.length > 0) {
+        setPlotId(allPlots[0].id)
+        const summaryRes = await getPlotSummary(allPlots[0].id)
+        setPlot(summaryRes.data || {})
       }
     } catch (err) {
       console.error('Dashboard load failed:', err)
@@ -47,6 +70,22 @@ export default function FarmerDashboard() {
     </div>
   )
 
+  const handleRequestAdvisory = async () => {
+    if (!showAdvisory && plotId) {
+      setLoading(true)
+      try {
+        const advRes = await getAdvisory(plotId)
+        setAdvisory(advRes.data)
+      } catch (e) {
+        console.error('Advisory fetch failed:', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    setShowAdvisory(!showAdvisory)
+    setShowDisease(false)
+  }
+
   return (
     <div className="bg-background text-on-background font-sans min-h-screen pb-16 selection:bg-secondary-container">
       {/* Navbar */}
@@ -61,18 +100,31 @@ export default function FarmerDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => i18n.changeLanguage(i18n.language === 'hi' ? 'en' : 'hi')}
-              className="px-3 py-1.5 rounded-full text-xs font-semibold border border-outline-variant/50 hover:bg-surface-container transition-colors"
-            >
-              {i18n.language === 'hi' ? 'EN' : 'हिंदी'}
-            </button>
+            <div className="flex items-center gap-1 bg-surface-container p-1 rounded-full border border-outline-variant/40">
+              {[
+                { code: 'hi', label: 'हिंदी' },
+                { code: 'mr', label: 'मराठी' },
+                { code: 'en', label: 'EN' },
+              ].map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => i18n.changeLanguage(lang.code)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                    i18n.language === lang.code
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'text-on-surface-variant hover:text-primary'
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => window.location.href = '/dashboard/agronomist'}
               className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary-container text-on-primary hover:bg-primary transition-colors flex items-center gap-1"
             >
               <span className="material-symbols-outlined text-sm">map</span>
-              <span>FPO View</span>
+              <span>{t('agronomist_hub')}</span>
             </button>
           </div>
         </div>
@@ -80,18 +132,34 @@ export default function FarmerDashboard() {
 
       {/* Content Container */}
       <main className="px-4 md:px-10 max-w-7xl mx-auto pt-6 space-y-6">
+        {/* Unregistered Banner */}
+        {!(JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}').name) && (
+          <div className="bg-primary-container/30 border border-primary/30 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-on-surface">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-xl">app_registration</span>
+              <span className="text-xs sm:text-sm font-medium">{t('onboarding.not_registered_banner')}</span>
+            </div>
+            <button
+              onClick={() => window.location.href = '/onboarding'}
+              className="px-4 py-2 bg-primary text-on-primary font-bold text-xs rounded-xl shadow-sm hover:opacity-90 transition-all flex-shrink-0"
+            >
+              {t('onboarding.register_button')}
+            </button>
+          </div>
+        )}
+
         {/* Hero Card */}
         <section className="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/40 ambient-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary-fixed/20 to-transparent rounded-bl-full pointer-events-none"></div>
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface mb-1">
-                Namaste, {plot?.plot?.farmer_name || 'Rajesh Ji'}
+                {t('welcome_farmer')}, {JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}').name || (i18n.language === 'mr' ? 'शेतकरी' : i18n.language === 'hi' ? 'किसान' : 'Farmer')}
               </h1>
               <div className="flex items-center gap-1.5 text-on-surface-variant opacity-85 text-sm">
                 <span className="material-symbols-outlined text-base text-primary">location_on</span>
                 <span>
-                  {plot?.plot?.district || 'Nashik'}, {plot?.plot?.state || 'Maharashtra'} — {plot?.plot?.current_crop || 'Soybean'} ({plot?.plot?.area_ha || '2.4'} Ha)
+                  {JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}').district || (i18n.language === 'mr' ? 'शेतजमीन' : i18n.language === 'hi' ? 'खेत' : 'Farm Plot')} — {JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}').crop || (i18n.language === 'mr' ? 'पीक' : i18n.language === 'hi' ? 'फसल' : 'Crop')}
                 </span>
               </div>
             </div>
@@ -101,10 +169,10 @@ export default function FarmerDashboard() {
               <span className="material-symbols-outlined text-tertiary-container text-4xl">partly_cloudy_day</span>
               <div>
                 <div className="text-xl font-bold text-on-surface leading-none">
-                  {plot?.weather?.temp_c ? `${plot.weather.temp_c}°C` : '28°C'}
+                  {plot?.weather?.temp_c != null ? `${plot.weather.temp_c}°C` : '--'}
                 </div>
                 <div className="text-xs text-on-surface-variant opacity-80 mt-1">
-                  Humidity {plot?.weather?.humidity_pct ? `${plot.weather.humidity_pct}%` : '65%'}
+                  {t('dashboard.humidity')} {plot?.weather?.humidity_pct != null ? `${plot.weather.humidity_pct}%` : '--'}
                 </div>
               </div>
             </div>
@@ -125,8 +193,8 @@ export default function FarmerDashboard() {
               </div>
             </div>
             <div>
-              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Crop Vitality</div>
-              <div className="text-base font-bold text-on-surface">Optimal Health</div>
+              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">{t('dashboard.crop_health')}</div>
+              <div className="text-base font-bold text-on-surface">{t('dashboard.healthy')}</div>
               <div className="text-xs text-secondary font-medium">NDVI Satellite</div>
             </div>
           </div>
@@ -137,10 +205,10 @@ export default function FarmerDashboard() {
               <span className="material-symbols-outlined">water_drop</span>
             </div>
             <div>
-              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Soil Hydration</div>
-              <div className="text-base font-bold text-on-surface mb-0.5">Sufficient Moisture</div>
+              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">{t('dashboard.water_today')}</div>
+              <div className="text-base font-bold text-on-surface mb-0.5">{plot?.soil?.moisture_pct != null ? `${plot.soil.moisture_pct.toFixed(1)}%` : t('dashboard.healthy')}</div>
               <div className="text-xs font-mono text-on-surface-variant opacity-75">
-                Moisture: {plot?.soil?.moisture_pct?.toFixed(1) || '22.4'}%
+                {t('dashboard.moisture')}: {plot?.soil?.moisture_pct?.toFixed(1) || '--'}%
               </div>
             </div>
           </div>
@@ -151,10 +219,10 @@ export default function FarmerDashboard() {
               <span className="material-symbols-outlined">umbrella</span>
             </div>
             <div>
-              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Weather Risk</div>
-              <div className="text-base font-bold text-on-surface mb-0.5">Low Weather Risk</div>
+              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">{t('dashboard.weather_risk')}</div>
+              <div className="text-base font-bold text-on-surface mb-0.5">{plot?.weather?.rainfall_mm ? `${plot.weather.rainfall_mm} mm` : t('dashboard.healthy')}</div>
               <div className="text-xs text-on-surface-variant opacity-75">
-                {plot?.weather?.description || 'Rain expected in 5 days'}
+                {plot?.weather?.description || '--'}
               </div>
             </div>
           </div>
@@ -165,9 +233,8 @@ export default function FarmerDashboard() {
               <span className="material-symbols-outlined">shield</span>
             </div>
             <div>
-              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Plant Protection</div>
-              <div className="text-base font-bold text-on-surface">Zero Active Alerts</div>
-              <div className="text-xs text-primary font-medium">Scan recommended</div>
+              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">{t('dashboard.disease_alert')}</div>
+              <div className="text-base font-bold text-on-surface">{t('dashboard.no_disease')}</div>
             </div>
           </div>
         </section>
@@ -175,11 +242,11 @@ export default function FarmerDashboard() {
         {/* Action Buttons */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <button
-            onClick={() => { setShowAdvisory(!showAdvisory); setShowDisease(false) }}
+            onClick={handleRequestAdvisory}
             className="bg-primary text-on-primary hover:bg-primary-container transition-all rounded-2xl p-4 flex items-center justify-center gap-2 shadow-sm font-semibold text-sm h-14"
           >
             <span className="material-symbols-outlined">smart_toy</span>
-            <span>Request AI Crop Advisory</span>
+            <span>{t('dashboard.get_advisory')}</span>
           </button>
           
           <button
@@ -187,7 +254,7 @@ export default function FarmerDashboard() {
             className="bg-surface-container-lowest border-2 border-primary text-primary hover:bg-surface-container transition-all rounded-2xl p-4 flex items-center justify-center gap-2 shadow-sm font-semibold text-sm h-14"
           >
             <span className="material-symbols-outlined">camera_alt</span>
-            <span>Diagnose Plant Disease</span>
+            <span>{t('dashboard.diagnose_disease')}</span>
           </button>
         </section>
 
@@ -209,37 +276,37 @@ export default function FarmerDashboard() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-mono font-bold text-on-surface uppercase tracking-wider flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-base">science</span>
-              Soil Nutrient Telemetry
+              {t('dashboard.soil_data')}
             </h2>
             <span className="text-xs text-on-surface-variant font-mono">Source: ISRIC SoilGrids</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Nitrogen</span>
+              <span className="text-xs text-on-surface-variant font-mono">{t('dashboard.nitrogen')}</span>
               <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.N ?? 140} <span className="text-xs opacity-60">kg/ha</span>
+                {plot?.soil?.N ?? '--'} <span className="text-xs opacity-60">kg/ha</span>
               </span>
             </div>
 
             <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Phosphorus</span>
+              <span className="text-xs text-on-surface-variant font-mono">{t('dashboard.phosphorus')}</span>
               <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.P ?? 45} <span className="text-xs opacity-60">kg/ha</span>
+                {plot?.soil?.P ?? '--'} <span className="text-xs opacity-60">kg/ha</span>
               </span>
             </div>
 
             <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Potassium</span>
+              <span className="text-xs text-on-surface-variant font-mono">{t('dashboard.potassium')}</span>
               <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.K ?? 190} <span className="text-xs opacity-60">kg/ha</span>
+                {plot?.soil?.K ?? '--'} <span className="text-xs opacity-60">kg/ha</span>
               </span>
             </div>
 
             <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Soil pH</span>
+              <span className="text-xs text-on-surface-variant font-mono">{t('dashboard.ph')}</span>
               <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.pH?.toFixed(1) ?? '6.5'}
+                {plot?.soil?.pH?.toFixed(1) ?? '--'}
               </span>
             </div>
 
@@ -258,13 +325,13 @@ export default function FarmerDashboard() {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-700/60 text-emerald-200 text-[11px] font-mono font-bold uppercase">
-                  WhatsApp Bot Integration
+                  {t('whatsapp.badge')}
                 </span>
-                <span className="text-xs font-mono text-emerald-300">Twilio Webhook Channel</span>
+                <span className="text-xs font-mono text-emerald-300">{t('whatsapp.channel')}</span>
               </div>
-              <h3 className="text-xl font-bold font-display text-white">AgriSetu WhatsApp Farmer Bot</h3>
+              <h3 className="text-xl font-bold font-display text-white">{t('whatsapp.title')}</h3>
               <p className="text-xs text-emerald-100/80 max-w-xl">
-                Get crop advisories, disease scanning, and answers directly on WhatsApp. Send a leaf photo or question anytime!
+                {t('whatsapp.desc')}
               </p>
             </div>
 
@@ -276,13 +343,13 @@ export default function FarmerDashboard() {
                 className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all shadow"
               >
                 <span className="material-symbols-outlined text-base">chat</span>
-                <span>Open WhatsApp (+1 415 523 8886)</span>
+                <span>{t('whatsapp.open_btn')}</span>
               </a>
               <button
                 onClick={() => alert('WhatsApp Webhook Endpoint:\nPOST http://127.0.0.1:8000/api/v1/whatsapp/webhook')}
                 className="bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-200 border border-emerald-700/50 px-4 py-2.5 rounded-xl text-xs font-mono transition-colors"
               >
-                View Webhook URL
+                {t('whatsapp.view_webhook')}
               </button>
             </div>
           </div>

@@ -45,15 +45,31 @@ def get_advisory(plot_id: str):
     ndvi_res = supabase.table("ndvi_snapshots").select("*").eq("plot_id", plot_id).order("fetched_at", desc=True).limit(1).execute()
     ndvi = ndvi_res.data[0] if ndvi_res.data else {}
 
+    # Normalize soil columns
+    if soil:
+        soil = {
+            "N": soil.get("N") if soil.get("N") is not None else soil.get("n"),
+            "P": soil.get("P") if soil.get("P") is not None else soil.get("p"),
+            "K": soil.get("K") if soil.get("K") is not None else soil.get("k"),
+            "pH": soil.get("pH") if soil.get("pH") is not None else soil.get("ph"),
+            "moisture_pct": soil.get("moisture_pct"),
+            "source": soil.get("source"),
+        }
+
+    # Normalize weather
+    if weather and not weather.get("description"):
+        forecast = weather.get("forecast_json")
+        if forecast and isinstance(forecast, dict):
+            weather["description"] = forecast.get("description", "")
     # Get soil/weather values with defaults
-    N = soil.get("N", 50)
-    P = soil.get("P", 40)
-    K = soil.get("K", 45)
-    pH = soil.get("pH", 6.5)
-    temp = weather.get("temp_c", 25)
-    humidity = weather.get("humidity_pct", 60)
-    rainfall = weather.get("rainfall_mm", 100)
-    ndvi_val = ndvi.get("ndvi", 0.5)
+    N = soil.get("N") if soil.get("N") is not None else 50.0
+    P = soil.get("P") if soil.get("P") is not None else 40.0
+    K = soil.get("K") if soil.get("K") is not None else 45.0
+    pH = soil.get("pH") if soil.get("pH") is not None else 6.5
+    temp = weather.get("temp_c") if weather.get("temp_c") is not None else 25.0
+    humidity = weather.get("humidity_pct") if weather.get("humidity_pct") is not None else 60.0
+    rainfall = weather.get("rainfall_mm") if weather.get("rainfall_mm") is not None else 100.0
+    ndvi_val = ndvi.get("ndvi") if ndvi.get("ndvi") is not None else 0.5
 
     # Run crop model
     crop_recs = predict_crop(N, P, K, temp, humidity, pH, rainfall)
@@ -97,14 +113,25 @@ def get_advisory(plot_id: str):
         "soybean": 5, "groundnut": 7, "default": 7,
     }
 
+    current_crop = (plot.get("current_crop") or "").strip().lower()
     recommendations = []
+    if current_crop:
+        recommendations.append(CropRecommendation(
+            crop=current_crop.title(),
+            confidence=0.95,
+            sowing_window=sowing_windows.get(current_crop, "Consult local agricultural calendar"),
+            irrigation_days=irrigation_days.get(current_crop, 7),
+        ))
+
     for rec in crop_recs:
         crop = rec["crop"]
+        if current_crop and crop.lower() == current_crop:
+            continue
         recommendations.append(CropRecommendation(
-            crop=crop,
+            crop=crop.title(),
             confidence=rec["confidence"],
-            sowing_window=sowing_windows.get(crop, "Consult local agricultural calendar"),
-            irrigation_days=irrigation_days.get(crop, irrigation_days["default"]),
+            sowing_window=sowing_windows.get(crop.lower(), "Consult local agricultural calendar"),
+            irrigation_days=irrigation_days.get(crop.lower(), irrigation_days["default"]),
         ))
 
     # Apply regenerative rules
@@ -116,9 +143,9 @@ def get_advisory(plot_id: str):
     risk_alerts = []
     if ndvi_val is not None and ndvi_val < 0.3:
         risk_alerts.append("Low NDVI indicates poor crop health. Consider soil testing.")
-    if weather.get("rainfall_mm", 0) > 100:
+    if rainfall > 100:
         risk_alerts.append("Heavy rainfall detected. Watch for waterlogging.")
-    if soil.get("pH", 7) < 5.5 or soil.get("pH", 7) > 8.0:
+    if pH < 5.5 or pH > 8.0:
         risk_alerts.append("Soil pH is outside optimal range. Consider soil amendment.")
 
     # Build response

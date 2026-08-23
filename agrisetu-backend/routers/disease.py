@@ -15,7 +15,11 @@ router = APIRouter(prefix="/disease")
 
 
 def _validate_image(file: UploadFile) -> None:
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
+    content_type = (file.content_type or "").lower()
+    filename = (file.filename or "").lower()
+    is_valid_type = content_type in ALLOWED_IMAGE_TYPES or content_type.startswith("image/")
+    is_valid_ext = any(filename.endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".webp", ".jfif"])
+    if not (is_valid_type or is_valid_ext):
         raise HTTPException(
             status_code=400,
             detail=f"Only JPEG, PNG, and WebP images are accepted. Got: {file.content_type}"
@@ -26,6 +30,7 @@ def _validate_image(file: UploadFile) -> None:
 def predict_disease_endpoint(
     file: UploadFile = File(...),
     plot_id: Optional[str] = Form(None),
+    language: Optional[str] = Form("hi"),
 ):
     _validate_image(file)
 
@@ -33,7 +38,8 @@ def predict_disease_endpoint(
     if len(content) > MAX_IMAGE_SIZE_BYTES:
         raise HTTPException(status_code=413, detail="Image must be under 10MB")
 
-    result = predict_disease(content)
+    lang_code = language or "hi"
+    result = predict_disease(content, language=lang_code)
     if result is None:
         raise HTTPException(status_code=500, detail="Could not analyze the image. Please try a clearer photo.")
 

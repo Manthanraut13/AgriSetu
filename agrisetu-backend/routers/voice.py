@@ -53,7 +53,11 @@ def voice_ask(
                 soil_res = supabase.table("soil_data").select("*").eq("plot_id", plot_id).order("fetched_at", desc=True).limit(1).execute()
                 if soil_res.data:
                     s = soil_res.data[0]
-                    plot_context["soil"] = {"N": s.get("N"), "P": s.get("P"), "K": s.get("K"), "pH": s.get("pH")}
+                    N = s.get("N") if s.get("N") is not None else s.get("n")
+                    P = s.get("P") if s.get("P") is not None else s.get("p")
+                    K = s.get("K") if s.get("K") is not None else s.get("k")
+                    pH = s.get("pH") if s.get("pH") is not None else s.get("ph")
+                    plot_context["soil"] = {"N": N, "P": P, "K": K, "pH": pH}
         except Exception as e:
             logger.error(f"Failed to fetch plot context: {e}")
 

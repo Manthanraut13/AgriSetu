@@ -9,7 +9,7 @@ OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent"
 
 # ── File Upload ─────────────────────────────────────────────
-ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/jpg", "image/pjpeg", "image/jfif", "application/octet-stream"}
 MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 # ── Disease Model ───────────────────────────────────────────

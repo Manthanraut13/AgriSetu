@@ -29,10 +29,10 @@ export default function LandingPage() {
               {t('register_farm')}
             </button>
             <button onClick={() => navigate('/dashboard/farmer')} className="hover:text-primary transition-colors">
-              Farmer Hub
+              {t('farmer_hub')}
             </button>
             <button onClick={() => navigate('/dashboard/agronomist')} className="hover:text-primary transition-colors">
-              Agronomist Command
+              {t('agronomist_hub')}
             </button>
 
             {/* Language Selection Pills */}
@@ -63,7 +63,7 @@ export default function LandingPage() {
               onClick={() => navigate('/onboarding')}
               className="bg-primary text-on-primary text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary-container transition-all active:scale-95 shadow-sm"
             >
-              Get Started
+              {t('landing.get_started')}
             </button>
           </div>
         </div>
@@ -76,15 +76,15 @@ export default function LandingPage() {
           <div className="flex flex-col gap-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-container/50 border border-secondary-container text-secondary text-xs font-semibold w-fit">
               <span className="material-symbols-outlined text-sm">hub</span>
-              BRICS Digital Agriculture Network
+              {t('landing.network_badge')}
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold text-primary tracking-tight leading-tight">
-              Bridging Satellites, Soil Science & AI.
+              {t('landing.hero_title')}
             </h1>
             
             <p className="text-lg text-on-surface-variant max-w-lg leading-relaxed">
-              AgriSetu is the interoperable digital agriculture platform empowering farmers with high-resolution satellite insights, soil health analytics, and AI disease diagnosis.
+              {t('landing.hero_subtitle')}
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -92,7 +92,7 @@ export default function LandingPage() {
                 onClick={() => navigate('/onboarding')}
                 className="bg-primary text-on-primary text-base font-semibold px-6 py-3.5 rounded-xl hover:bg-primary-container transition-all shadow-sm flex items-center gap-2 group"
               >
-                <span>Register Your Farm</span>
+                <span>{t('landing.register_farm')}</span>
                 <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">
                   arrow_forward
                 </span>
@@ -102,7 +102,7 @@ export default function LandingPage() {
                 className="bg-surface-container border border-outline-variant text-primary text-base font-semibold px-6 py-3.5 rounded-xl hover:bg-surface-container-high transition-all flex items-center gap-2"
               >
                 <span className="material-symbols-outlined text-xl">dashboard</span>
-                <span>Open Dashboard</span>
+                <span>{t('landing.open_dashboard')}</span>
               </button>
             </div>
           </div>
@@ -183,8 +183,8 @@ export default function LandingPage() {
         {/* Feature Cards Grid */}
         <section className="py-12">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-3xl font-display font-bold text-primary mb-3">Complete Precision Agriculture Suite</h2>
-            <p className="text-on-surface-variant">Interoperable tools tailored for farmers, FPO managers, and agronomists.</p>
+            <h2 className="text-3xl font-display font-bold text-primary mb-3">{t('landing.suite_title')}</h2>
+            <p className="text-on-surface-variant">{t('landing.suite_subtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -193,12 +193,12 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-2xl bg-secondary-container flex items-center justify-center text-on-secondary-container mb-5">
                 <span className="material-symbols-outlined text-2xl">agriculture</span>
               </div>
-              <h3 className="text-xl font-bold text-primary mb-2">Farmer Telemetry Hub</h3>
+              <h3 className="text-xl font-bold text-primary mb-2">{t('landing.hub_title')}</h3>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-4">
-                Real-time NDVI vegetation monitoring, soil hydration tracking, weather forecasts, and customized crop advisory.
+                {t('landing.hub_desc')}
               </p>
               <span className="text-sm font-semibold text-primary inline-flex items-center gap-1 group">
-                Launch Hub <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                {t('landing.launch_hub')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </span>
             </div>
 
@@ -207,12 +207,12 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-2xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed mb-5">
                 <span className="material-symbols-outlined text-2xl">camera_alt</span>
               </div>
-              <h3 className="text-xl font-bold text-primary mb-2">AI Disease Diagnosis</h3>
+              <h3 className="text-xl font-bold text-primary mb-2">{t('landing.disease_title')}</h3>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-4">
-                Instant crop leaf scanner powered by deep learning models with local language audio recommendations.
+                {t('landing.disease_desc')}
               </p>
               <span className="text-sm font-semibold text-primary inline-flex items-center gap-1">
-                Scan Crop <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                {t('landing.scan_crop')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </span>
             </div>
 
@@ -221,12 +221,12 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-2xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed mb-5">
                 <span className="material-symbols-outlined text-2xl">map</span>
               </div>
-              <h3 className="text-xl font-bold text-primary mb-2">Agronomist Command</h3>
+              <h3 className="text-xl font-bold text-primary mb-2">{t('landing.agronomist_title')}</h3>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-4">
-                District-level spatial GIS map, plot health filtering, batch advisory management, and FPO analytics.
+                {t('landing.agronomist_desc')}
               </p>
               <span className="text-sm font-semibold text-primary inline-flex items-center gap-1">
-                Open Command Center <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                {t('landing.open_command')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </span>
             </div>
           </div>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { sendChatMessage } from '../api/agrisetu'
 
 export default function ChatWidget({ plotId }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -25,7 +25,7 @@ export default function ChatWidget({ plotId }) {
     try {
       const res = await sendChatMessage({
         message: userMsg,
-        language: 'hi',
+        language: i18n.language || 'hi',
         plot_id: plotId || '00000000-0000-0000-0000-000000000000',
       })
       setMessages(prev => [...prev, { role: 'advisor', text: res.data.response }])
@@ -70,7 +70,7 @@ export default function ChatWidget({ plotId }) {
       const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
       const formData = new FormData()
       formData.append('audio', audioBlob, 'voice.webm')
-      formData.append('language', 'hi')
+      formData.append('language', i18n.language || 'hi')
       formData.append('plot_id', plotId || '')
       const res = await fetch(`${API_BASE}/api/v1/voice/ask`, { method: 'POST', body: formData })
       const data = await res.json()

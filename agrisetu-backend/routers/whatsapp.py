@@ -46,9 +46,12 @@ async def _get_farmer_plot(sender_phone: str):
 
 def _advisory_text(plot_data: dict, soil: dict) -> str:
     from services.crop_model import predict_crop
+    N = soil.get("N") if soil.get("N") is not None else soil.get("n", 50)
+    P = soil.get("P") if soil.get("P") is not None else soil.get("p", 40)
+    K = soil.get("K") if soil.get("K") is not None else soil.get("k", 45)
+    pH = soil.get("pH") if soil.get("pH") is not None else soil.get("ph", 6.5)
     crop_recs = predict_crop(
-        soil.get("N", 50), soil.get("P", 40), soil.get("K", 45),
-        25, 60, soil.get("pH", 6.5), 100
+        N, P, K, 25, 60, pH, 100
     )
     if not crop_recs:
         return "Could not generate advisory."
@@ -56,7 +59,7 @@ def _advisory_text(plot_data: dict, soil: dict) -> str:
     return (
         f"AgriSetu Advisory:\n"
         f"Recommended crop: {top['crop']} ({top['confidence']*100:.0f}%)\n"
-        f"Soil: N={soil.get('N','?')}, P={soil.get('P','?')}, K={soil.get('K','?')}, pH={soil.get('pH','?')}\n"
+        f"Soil: N={N}, P={P}, K={K}, pH={pH}\n"
         f"Current crop: {plot_data.get('current_crop', 'N/A')}\n"
         f"Location: {plot_data.get('district','?')}, {plot_data.get('state','?')}"
     )
