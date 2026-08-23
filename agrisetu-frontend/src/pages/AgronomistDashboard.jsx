@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
 import api, { getAllPlots } from '../api/agrisetu'
+import { autoDetectAndSwitchLanguage } from '../utils/langDetect'
 
 function MapBounds({ plots }) {
   const map = useMap()
@@ -161,7 +162,10 @@ export default function AgronomistDashboard() {
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  autoDetectAndSwitchLanguage(e.target.value)
+                }}
                 placeholder={t('fpo.search_placeholder')}
                 className="w-full bg-[#1c1c16] border border-outline-variant/30 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-outline-variant focus:outline-none focus:border-inverse-primary"
               />

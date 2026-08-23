@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sendChatMessage } from '../api/agrisetu'
+import { autoDetectAndSwitchLanguage } from '../utils/langDetect'
 
 export default function ChatWidget({ plotId }) {
   const { t, i18n } = useTranslation()
@@ -174,9 +175,12 @@ export default function ChatWidget({ plotId }) {
         <input
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setInput(e.target.value)
+            autoDetectAndSwitchLanguage(e.target.value)
+          }}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Type query or tap mic..."
+          placeholder={t('chat_input')}
           className="flex-1 px-3.5 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary"
         />
 
