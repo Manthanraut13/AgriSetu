@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriSetu - AI Disease Scanner</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#87ac90",
+                        "on-surface-variant": "#424842",
+                        "on-primary-fixed-variant": "#2d4e38",
+                        "tertiary-container": "#cea72c",
+                        "tertiary": "#755b00",
+                        "outline": "#727972",
+                        "surface-bright": "#fdf9ef",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e6e2d8",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f4f1e6",
+                        "on-surface": "#1c1c16",
+                        "tertiary-fixed": "#ffe08e",
+                        "surface-container-low": "#f7f3e9",
+                        "surface": "#fdf9ef",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#c4e9c7",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#c7ecca",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#241a00",
+                        "surface-container-high": "#ebe8de",
+                        "inverse-primary": "#aad0b3",
+                        "on-secondary-fixed": "#02210c",
+                        "surface-container-highest": "#e6e2d8",
+                        "on-tertiary-fixed-variant": "#584400",
+                        "surface-dim": "#dddad0",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1c1c16",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#fdf9ef",
+                        "surface-container": "#f1eee3",
+                        "outline-variant": "#c2c8c0",
+                        "primary-fixed": "#c6ecce",
+                        "secondary": "#45664b",
+                        "on-secondary-container": "#4a6a4f",
+                        "surface-tint": "#44664e",
+                        "on-secondary-fixed-variant": "#2e4e35",
+                        "inverse-surface": "#31312a",
+                        "on-primary-fixed": "#00210f",
+                        "primary": "#072a17",
+                        "primary-container": "#1f402b",
+                        "primary-fixed-dim": "#aad0b3",
+                        "tertiary-fixed-dim": "#ecc246",
+                        "on-tertiary-container": "#4f3d00",
+                        "secondary-fixed-dim": "#abd0af"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "data-mono": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "data-mono": ["13px", { "lineHeight": "1.5", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom Utilities */
+        .glass-backdrop {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .slide-up-enter {
+            transform: translateY(100%);
+        }
+        .slide-up-enter-active {
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface h-full w-full font-body-md text-on-surface antialiased overflow-hidden">
+<!-- Mock Background Content (to show glassmorphism over something) -->
+<div class="h-full w-full p-4 flex flex-col gap-4 opacity-30">
+<div class="h-48 rounded-xl bg-surface-container-high w-full"></div>
+<div class="h-32 rounded-xl bg-surface-container-high w-full"></div>
+<div class="h-64 rounded-xl bg-surface-container-high w-full"></div>
+</div>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 glass-backdrop z-40 flex items-end sm:items-center sm:justify-center transition-opacity duration-300" id="modalBackdrop">
+<!-- Drawer / Modal Content -->
+<div class="bg-surface w-full max-w-md h-[795px] sm:h-auto sm:max-h-[751px] rounded-t-[20px] sm:rounded-[20px] shadow-[0px_4px_20px_rgba(19,42,19,0.05)] border border-outline-variant/30 flex flex-col slide-up-enter-active z-50" id="modalDrawer">
+<!-- Handle for mobile -->
+<div class="w-full flex justify-center pt-3 pb-1 sm:hidden cursor-grab active:cursor-grabbing">
+<div class="w-12 h-1.5 bg-outline-variant/50 rounded-full"></div>
+</div>
+<!-- Header -->
+<div class="px-6 py-4 flex justify-between items-center border-b border-outline-variant/30 shrink-0">
+<h2 class="font-headline-md text-headline-md text-on-surface">Diagnose Plant Disease</h2>
+<button aria-label="Close" class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+</button>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- Upload Dropzone -->
+<div class="bg-surface-container-lowest border-2 border-dashed border-primary/40 rounded-[20px] p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-primary text-[32px]">camera</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-2 font-medium">Drop leaf image here, or tap to open camera</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Supports: Tomato, Potato, Apple, Citrus &amp; 12 more crops.</p>
+</div>
+<!-- Analysis Result Section (Mocked Active State) -->
+<div class="space-y-4 pt-2">
+<!-- Title & Confidence -->
+<div class="bg-surface-container-lowest rounded-[20px] p-5 border border-outline-variant/30 shadow-sm flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div>
+<span class="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full font-label-caps text-label-caps mb-2">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                                    Gemini 1.5 Flash Vision
+                                </span>
+<h3 class="font-headline-md text-[20px] font-bold text-primary">Tomato Late Blight</h3>
+</div>
+<div class="bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded-full font-data-mono text-data-mono flex items-center gap-1 border border-secondary-fixed/50">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                88.4%
+                            </div>
+</div>
+<!-- Severity Bar -->
+<div class="mt-2">
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface-variant mb-1.5 px-1">
+<span>Low</span>
+<span>Moderate</span>
+<span class="text-error font-bold">High</span>
+</div>
+<div class="h-2.5 w-full bg-surface-container-high rounded-full overflow-hidden flex">
+<div class="w-1/3 h-full bg-secondary-fixed"></div>
+<div class="w-1/3 h-full bg-tertiary-fixed"></div>
+<div class="w-1/3 h-full bg-gradient-to-r from-tertiary-fixed to-error"></div>
+</div>
+</div>
+</div>
+<!-- Remedies Tabs -->
+<div class="pt-2">
+<div class="flex gap-4 border-b border-outline-variant/30 mb-4 px-2">
+<button class="pb-3 border-b-2 border-primary text-primary font-body-sm text-body-sm font-semibold flex items-center gap-2">
+<span>🌿</span> Organic &amp; Eco-Remedy
+                            </button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant font-body-sm text-body-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
+<span>🧪</span> Chemical Treatment
+                            </button>
+</div>
+<!-- Tab Content (Organic) -->
+<div class="space-y-3 px-2">
+<div class="flex gap-3 items-start">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="font-data-mono text-[11px] font-bold">1</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong class="text-on-surface font-medium">Remove infected parts:</strong> Immediately prune and destroy affected leaves and stems to prevent spore spread. Do not compost.
+                                </p>
+</div>
+<div class="flex gap-3 items-start">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="font-data-mono text-[11px] font-bold">2</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong class="text-on-surface font-medium">Improve ventilation:</strong> Ensure adequate spacing between plants to reduce humidity around foliage.
+                                </p>
+</div>
+<div class="flex gap-3 items-start">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="font-data-mono text-[11px] font-bold">3</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong class="text-on-surface font-medium">Copper spray:</strong> Apply a preventative organic copper-based fungicide to healthy nearby plants.
+                                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer Action -->
+<div class="p-4 border-t border-outline-variant/30 bg-surface shrink-0 sm:rounded-b-[20px]">
+<button class="w-full bg-primary text-on-primary py-3.5 px-6 rounded-[12px] font-body-md text-body-md font-medium hover:bg-primary-container transition-colors shadow-sm flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">add_task</span>
+                    Save to Crop Log
+                </button>
+</div>
+</div>
+</div>
+</body></html>

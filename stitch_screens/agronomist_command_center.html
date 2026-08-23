@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriSetu — FPO Command Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#31312a",
+                        "on-primary-fixed": "#00210f",
+                        "primary-container": "#1f402b",
+                        "tertiary-container": "#cea72c",
+                        "secondary": "#45664b",
+                        "surface-tint": "#44664e",
+                        "inverse-primary": "#aad0b3",
+                        "primary-fixed": "#c6ecce",
+                        "inverse-on-surface": "#f4f1e6",
+                        "surface-container-high": "#ebe8de",
+                        "error": "#ba1a1a",
+                        "background": "#fdf9ef",
+                        "outline-variant": "#c2c8c0",
+                        "outline": "#727972",
+                        "on-tertiary-fixed-variant": "#584400",
+                        "primary-fixed-dim": "#aad0b3",
+                        "on-secondary-fixed-variant": "#2e4e35",
+                        "surface-container-highest": "#e6e2d8",
+                        "primary": "#072a17",
+                        "surface-variant": "#e6e2d8",
+                        "on-surface": "#1c1c16",
+                        "surface-container-low": "#f7f3e9",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#241a00",
+                        "tertiary-fixed-dim": "#ecc246",
+                        "on-primary-container": "#87ac90",
+                        "on-primary-fixed-variant": "#2d4e38",
+                        "tertiary": "#755b00",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffe08e",
+                        "surface-container": "#f1eee3",
+                        "secondary-fixed-dim": "#abd0af",
+                        "surface-bright": "#fdf9ef",
+                        "on-tertiary-container": "#4f3d00",
+                        "on-surface-variant": "#424842",
+                        "on-secondary-fixed": "#02210c",
+                        "surface": "#fdf9ef",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#4a6a4f",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#c7ecca",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dddad0",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1c1c16",
+                        "secondary-container": "#c4e9c7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "stack-md": "16px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-sm": ["Inter"],
+                        "data-mono": ["JetBrains Mono"],
+                        "label-caps": ["Inter"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-sm": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "data-mono": ["13px", { "lineHeight": "1.5", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom overrides for the executive dark mode variant while attempting to maintain brand anchors */
+        .executive-dark-bg { background-color: #0F172A; }
+        .executive-surface { background-color: #1E293B; }
+        .executive-text-light { color: #CBD5E1; }
+        .glass-panel { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .custom-shadow { box-shadow: 0px 4px 20px rgba(19, 42, 19, 0.2); }
+    </style>
+</head>
+<body class="executive-dark-bg text-white h-screen overflow-hidden flex flex-col font-body-md text-body-md antialiased selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar Component (Adapted for Command Center) -->
+<header class="executive-surface backdrop-blur-md full-width top-0 sticky border-b border-outline-variant/20 shadow-sm flex justify-between items-center w-full px-margin-desktop py-4 z-50">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md font-bold text-inverse-primary">AgriSetu</span>
+<span class="text-on-surface-variant text-body-sm font-body-sm hidden md:inline-block">|</span>
+<span class="text-white text-body-sm font-body-sm hidden md:inline-block font-medium">FPO Command Center</span>
+</div>
+<div class="flex items-center gap-gutter">
+<!-- District Selector -->
+<button class="flex items-center gap-2 executive-surface px-4 py-2 rounded-[12px] border border-outline-variant/30 hover:border-outline-variant/60 transition-colors">
+<span class="text-body-sm font-body-sm text-white">Sangli District, MH</span>
+<span class="material-symbols-outlined text-outline-variant" style="font-size: 18px;">arrow_drop_down</span>
+</button>
+<!-- Navigation Links - Suppressed mostly for Command Center focus, keeping a minimal profile link -->
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-outline-variant font-medium text-body-sm font-body-sm hover:text-inverse-primary transition-colors duration-300" href="#">For Agronomists</a>
+</nav>
+<!-- Export Button -->
+<button class="bg-primary text-on-primary px-6 py-2 rounded-[12px] text-body-sm font-body-sm font-medium hover:bg-primary-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                Export CSV
+            </button>
+</div>
+</header>
+<!-- Main Content Area - 3 Zone Split -->
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Left Panel: Directory & Filters -->
+<aside class="w-96 executive-surface border-r border-outline-variant/20 flex flex-col z-10 h-full">
+<!-- KPIs -->
+<div class="p-6 border-b border-outline-variant/20 grid grid-cols-2 gap-4">
+<div>
+<div class="text-label-caps font-label-caps text-outline-variant uppercase mb-1">Total Plots</div>
+<div class="text-headline-md font-headline-md text-white">24</div>
+</div>
+<div>
+<div class="text-label-caps font-label-caps text-outline-variant uppercase mb-1">Regional Avg NDVI</div>
+<div class="text-headline-md font-headline-md text-inverse-primary">0.68</div>
+</div>
+<div class="col-span-2 mt-2 bg-error/20 border border-error/30 rounded-[12px] p-3 flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-body-sm font-body-sm text-error">3 Active Disease Alerts</span>
+</div>
+</div>
+<!-- Filters -->
+<div class="p-6 border-b border-outline-variant/20 flex flex-col gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" style="font-size: 20px;">search</span>
+<input class="w-full bg-inverse-surface border border-outline-variant/30 rounded-[12px] py-2 pl-10 pr-4 text-white text-body-sm font-body-sm focus:border-inverse-primary focus:ring-1 focus:ring-inverse-primary outline-none placeholder:text-outline" placeholder="Search plot by district/farmer" type="text"/>
+</div>
+<div class="flex bg-inverse-surface rounded-[12px] p-1 border border-outline-variant/20">
+<button class="flex-1 py-1.5 rounded-lg bg-primary-container text-inverse-primary text-label-caps font-label-caps font-bold">All</button>
+<button class="flex-1 py-1.5 rounded-lg text-outline-variant hover:text-white text-label-caps font-label-caps transition-colors flex items-center justify-center gap-1">
+<div class="w-2 h-2 rounded-full bg-primary-fixed"></div> High
+                    </button>
+<button class="flex-1 py-1.5 rounded-lg text-outline-variant hover:text-white text-label-caps font-label-caps transition-colors flex items-center justify-center gap-1">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div> Warn
+                    </button>
+<button class="flex-1 py-1.5 rounded-lg text-outline-variant hover:text-white text-label-caps font-label-caps transition-colors flex items-center justify-center gap-1">
+<div class="w-2 h-2 rounded-full bg-error"></div> Crit
+                    </button>
+</div>
+</div>
+<!-- Scrollable Directory -->
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-2 custom-scrollbar">
+<!-- Plot Item 1 (Active) -->
+<div class="bg-inverse-surface border border-inverse-primary rounded-[16px] p-4 cursor-pointer hover:border-inverse-primary/70 transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-primary-fixed shadow-[0_0_8px_rgba(198,236,206,0.6)]"></div>
+<span class="text-body-sm font-body-sm font-bold text-white">Plot Alpha-7</span>
+</div>
+<span class="text-data-mono font-data-mono text-inverse-primary text-[11px]">NDVI 0.72</span>
+</div>
+<div class="text-data-mono font-data-mono text-outline-variant text-[10px] mb-3">ID: SGL-4829-A</div>
+<div class="flex gap-2">
+<span class="bg-primary-container/50 text-inverse-primary border border-primary-container px-2 py-0.5 rounded text-[10px] font-label-caps uppercase">Wheat</span>
+<span class="bg-surface-tint/20 text-outline-variant border border-surface-tint/30 px-2 py-0.5 rounded text-[10px] font-label-caps uppercase">4.2 Hectares</span>
+</div>
+</div>
+<!-- Plot Item 2 -->
+<div class="bg-transparent border border-outline-variant/20 rounded-[16px] p-4 cursor-pointer hover:bg-inverse-surface transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-error shadow-[0_0_8px_rgba(186,26,26,0.6)]"></div>
+<span class="text-body-sm font-body-sm font-medium text-white">Plot Delta-2</span>
+</div>
+<span class="text-data-mono font-data-mono text-error text-[11px]">NDVI 0.41</span>
+</div>
+<div class="text-data-mono font-data-mono text-outline-variant text-[10px] mb-3">ID: SGL-1102-B</div>
+<div class="flex gap-2">
+<span class="bg-primary-container/50 text-inverse-primary border border-primary-container px-2 py-0.5 rounded text-[10px] font-label-caps uppercase">Soybean</span>
+<span class="bg-error/10 text-error border border-error/20 px-2 py-0.5 rounded text-[10px] font-label-caps uppercase">Blight Risk</span>
+</div>
+</div>
+<!-- Plot Item 3 -->
+<div class="bg-transparent border border-outline-variant/20 rounded-[16px] p-4 cursor-pointer hover:bg-inverse-surface transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed shadow-[0_0_8px_rgba(255,224,142,0.6)]"></div>
+<span class="text-body-sm font-body-sm font-medium text-white">Plot Gamma-9</span>
+</div>
+<span class="text-data-mono font-data-mono text-tertiary-fixed text-[11px]">NDVI 0.58</span>
+</div>
+<div class="text-data-mono font-data-mono text-outline-variant text-[10px] mb-3">ID: SGL-8834-C</div>
+<div class="flex gap-2">
+<span class="bg-primary-container/50 text-inverse-primary border border-primary-container px-2 py-0.5 rounded text-[10px] font-label-caps uppercase">Sugarcane</span>
+<span class="bg-surface-tint/20 text-outline-variant border border-surface-tint/30 px-2 py-0.5 rounded text-[10px] font-label-caps uppercase">Irrigation Due</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Center/Right Zone: GIS Map Canvas -->
+<div class="flex-1 relative bg-[#0a0f1a] overflow-hidden">
+<!-- Simulated Map Background -->
+<div class="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity" data-alt="A highly detailed, dark-mode satellite map view of agricultural land. The map uses a deep slate and charcoal palette with subtle topographical lines. The lighting is low-key, giving a technical, command-center aesthetic. The mood is analytical and precise." data-location="Sangli District" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBcgME91WiEdSp0oVgYYZHvRu2xnO2Ie7rtXSsMbFI6JaxvVGIlvulJJLyhyZALtWSH2V4Oi45p3QINaDo3rmLDP2Bw3t34DtYLPEaiabp-yubmGZNRIOrLGHK0QQY0lH0O-Vm4ejI_ghOSO9VHNPs5Kj7OHJY9SYqpZ9mDcFifbPqTKyCD5crZ-_-hG8W4am6zY_gDjeiQ7KQ_rpmQljoP-RlfN_8Zg4v6OvbD6L0M81fusnXBfx1nPg')"></div>
+<!-- Simulated Map Grids/Overlays -->
+<div class="absolute inset-0 border-[0.5px] border-outline-variant/5 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+<!-- Polygons (Simulated GIS data) -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 1000 800">
+<!-- Healthy Plot -->
+<polygon class="fill-primary-fixed/20 stroke-primary-fixed stroke-2 hover:fill-primary-fixed/40 transition-all cursor-pointer" points="300,200 450,180 500,300 320,350"></polygon>
+<!-- Warning Plot -->
+<polygon class="fill-tertiary-fixed/20 stroke-tertiary-fixed stroke-2 hover:fill-tertiary-fixed/40 transition-all cursor-pointer" points="550,400 700,380 720,500 580,550"></polygon>
+<!-- Critical Plot (Active) -->
+<polygon class="fill-error/30 stroke-error stroke-2 hover:fill-error/50 transition-all cursor-pointer" points="200,450 350,480 300,600 180,550"></polygon>
+<!-- Connection Line (Bridge Motif) -->
+<path class="stroke-outline-variant/30 stroke-[1.5] border-dashed" d="M 410,265 C 450,350 500,450 550,465" fill="none" stroke-dasharray="4 4"></path>
+</svg>
+<!-- Floating UI: Layers Toggle (Top Right) -->
+<div class="glass-panel absolute top-6 right-6 rounded-[16px] p-2 custom-shadow flex flex-col gap-1 w-48">
+<button class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/40 text-inverse-primary border border-inverse-primary/30 w-full text-left">
+<span class="material-symbols-outlined" style="font-size: 18px;">layers</span>
+<span class="text-body-sm font-body-sm font-medium">NDVI Heatmap</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-inverse-surface text-outline-variant hover:text-white transition-colors w-full text-left">
+<span class="material-symbols-outlined" style="font-size: 18px;">water_drop</span>
+<span class="text-body-sm font-body-sm font-medium">Soil Moisture</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-inverse-surface text-outline-variant hover:text-white transition-colors w-full text-left">
+<span class="material-symbols-outlined" style="font-size: 18px;">bug_report</span>
+<span class="text-body-sm font-body-sm font-medium">Disease Risks</span>
+</button>
+</div>
+<!-- Floating UI: Legend (Bottom Right, above drawer) -->
+<div class="glass-panel absolute bottom-72 right-6 rounded-[16px] p-4 custom-shadow w-48">
+<div class="text-label-caps font-label-caps text-outline-variant uppercase mb-3">NDVI Spectrum</div>
+<div class="h-2 w-full rounded-full bg-gradient-to-r from-error via-tertiary-fixed to-primary-fixed mb-2"></div>
+<div class="flex justify-between text-data-mono font-data-mono text-[10px] text-outline-variant">
+<span>0.0</span>
+<span>0.5</span>
+<span>1.0</span>
+</div>
+</div>
+</div>
+<!-- Bottom Sliding Drawer (Docked for this view) -->
+<div class="absolute bottom-0 left-96 right-0 glass-panel border-t border-outline-variant/20 h-64 z-20 flex flex-col transform transition-transform duration-300">
+<!-- Drawer Handle (Decorative) -->
+<div class="w-full flex justify-center py-2 absolute top-0">
+<div class="w-12 h-1 bg-outline-variant/30 rounded-full"></div>
+</div>
+<div class="p-6 pt-8 flex gap-8 h-full">
+<!-- Selected Plot Details -->
+<div class="w-1/4 border-r border-outline-variant/20 pr-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-error" style="font-size: 20px; font-variation-settings: 'FILL' 1;">warning</span>
+<h3 class="text-headline-md font-headline-md text-white">Plot Delta-2</h3>
+</div>
+<p class="text-data-mono font-data-mono text-outline-variant text-[12px] mb-4">ID: SGL-1102-B · SOYBEAN</p>
+<p class="text-body-sm font-body-sm text-error mb-2">Critical blight risk detected in NW quadrant. Immediate inspection recommended.</p>
+</div>
+<button class="bg-transparent border border-outline-variant text-white px-4 py-2 rounded-[12px] text-body-sm font-body-sm font-medium hover:border-white transition-colors flex items-center justify-center gap-2 w-full">
+<span class="material-symbols-outlined" style="font-size: 18px;">code</span>
+                        Export BRICS JSON
+                    </button>
+</div>
+<!-- Telemetry Charts -->
+<div class="flex-1 flex gap-8">
+<!-- NDVI Sparkline -->
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-end mb-4">
+<span class="text-label-caps font-label-caps text-outline-variant uppercase">30-Day NDVI Trend</span>
+<span class="text-headline-md font-headline-md text-error">0.41 <span class="text-body-sm font-body-sm text-error/70">↓ 0.12</span></span>
+</div>
+<!-- Simulated Chart Area -->
+<div class="flex-1 relative border-b border-l border-outline-variant/20 mt-2">
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 40">
+<polyline class="stroke-error stroke-[1.5]" fill="none" points="0,10 20,12 40,8 60,15 80,25 100,35" stroke-linejoin="round"></polyline>
+<circle class="fill-error" cx="100" cy="35" r="2"></circle>
+</svg>
+<div class="absolute bottom-[-20px] left-0 right-0 flex justify-between text-data-mono font-data-mono text-[10px] text-outline-variant">
+<span>-30d</span>
+<span>Today</span>
+</div>
+</div>
+</div>
+<!-- Soil NPK -->
+<div class="w-64 flex flex-col">
+<div class="flex justify-between items-end mb-4">
+<span class="text-label-caps font-label-caps text-outline-variant uppercase">Soil NPK Status</span>
+</div>
+<div class="flex-1 flex items-end justify-between gap-4 pb-2">
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-inverse-surface rounded-t-sm relative h-24 flex items-end">
+<div class="w-full bg-primary-fixed rounded-t-sm h-[60%]"></div>
+</div>
+<span class="text-data-mono font-data-mono text-[10px] text-outline-variant">N</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-inverse-surface rounded-t-sm relative h-24 flex items-end">
+<div class="w-full bg-error rounded-t-sm h-[30%]"></div>
+</div>
+<span class="text-data-mono font-data-mono text-[10px] text-outline-variant">P</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-inverse-surface rounded-t-sm relative h-24 flex items-end">
+<div class="w-full bg-tertiary-fixed rounded-t-sm h-[85%]"></div>
+</div>
+<span class="text-data-mono font-data-mono text-[10px] text-outline-variant">K</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer - Suppressed as per context rules for dense analytic tools/dashboards -->
+</body></html>

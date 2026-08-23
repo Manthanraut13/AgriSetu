@@ -71,7 +71,7 @@ async def _fetch_and_store_plot_data(plot_id: str, lat: float, lon: float):
 
 
 @router.post("/farmer", response_model=FarmerResponse, tags=["Onboarding"])
-async def create_farmer(body: FarmerCreate):
+def create_farmer(body: FarmerCreate):
     """Create a new farmer record."""
     from config import settings
     from supabase import create_client
@@ -92,7 +92,7 @@ async def create_farmer(body: FarmerCreate):
 
 
 @router.post("/plot", response_model=PlotResponse, tags=["Onboarding"])
-async def create_plot(body: PlotCreate, background_tasks: BackgroundTasks):
+def create_plot(body: PlotCreate, background_tasks: BackgroundTasks):
     """Create a new farm plot and trigger data fetch."""
     from config import settings
     from supabase import create_client
@@ -136,7 +136,7 @@ async def create_plot(body: PlotCreate, background_tasks: BackgroundTasks):
 
 
 @router.get("/plot/{plot_id}", response_model=PlotSummary, tags=["Onboarding"])
-async def get_plot_summary(plot_id: str):
+def get_plot_summary(plot_id: str):
     """Get plot with latest soil/weather/NDVI summary."""
     from config import settings
     from supabase import create_client

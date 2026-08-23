@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriSetu | Digital Agriculture Network</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-primary": "#aad0b3",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface": "#fdf9ef",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#87ac90",
+                      "tertiary": "#755b00",
+                      "on-secondary-fixed-variant": "#2e4e35",
+                      "surface-bright": "#fdf9ef",
+                      "on-surface-variant": "#424842",
+                      "outline-variant": "#c2c8c0",
+                      "on-background": "#1c1c16",
+                      "error": "#ba1a1a",
+                      "surface-container-highest": "#e6e2d8",
+                      "on-error-container": "#93000a",
+                      "tertiary-fixed": "#ffe08e",
+                      "surface-container-high": "#ebe8de",
+                      "on-tertiary-fixed": "#241a00",
+                      "outline": "#727972",
+                      "secondary-container": "#c4e9c7",
+                      "on-tertiary-container": "#4f3d00",
+                      "on-secondary-container": "#4a6a4f",
+                      "surface-variant": "#e6e2d8",
+                      "secondary-fixed": "#c7ecca",
+                      "on-primary-fixed": "#00210f",
+                      "inverse-surface": "#31312a",
+                      "tertiary-fixed-dim": "#ecc246",
+                      "background": "#fdf9ef",
+                      "primary": "#072a17",
+                      "primary-fixed": "#c6ecce",
+                      "on-tertiary": "#ffffff",
+                      "secondary-fixed-dim": "#abd0af",
+                      "surface-dim": "#dddad0",
+                      "on-secondary-fixed": "#02210c",
+                      "primary-container": "#1f402b",
+                      "tertiary-container": "#cea72c",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f4f1e6",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#584400",
+                      "secondary": "#45664b",
+                      "surface-tint": "#44664e",
+                      "primary-fixed-dim": "#aad0b3",
+                      "on-surface": "#1c1c16",
+                      "surface-container-low": "#f7f3e9",
+                      "surface-container": "#f1eee3",
+                      "on-primary-fixed-variant": "#2d4e38"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px",
+                      "2xl": "1.25rem"
+              },
+              "spacing": {
+                      "stack-md": "16px",
+                      "gutter": "24px",
+                      "container-max": "1280px",
+                      "margin-mobile": "16px",
+                      "stack-sm": "8px",
+                      "stack-lg": "32px",
+                      "margin-desktop": "40px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "data-mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Ambient subtle shadow for floating elements */
+        .ambient-shadow {
+            box-shadow: 0px 4px 20px rgba(19, 42, 19, 0.05);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        /* Bridge Motif Decorative Line */
+        .bridge-motif {
+            position: relative;
+        }
+        .bridge-motif::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 20px;
+            border-bottom: 1px solid #c2c8c0;
+            border-radius: 0 0 50px 50px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased overflow-x-hidden selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopNavBar -->
+<nav class="docked full-width top-0 sticky bg-surface/80 dark:bg-surface-container-high/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm z-50">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<!-- Brand -->
+<a class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary hover:opacity-80 transition-opacity" href="#">
+                AgriSetu
+            </a>
+<!-- Navigation Links (Desktop) -->
+<ul class="hidden md:flex items-center gap-gutter text-label-caps font-label-caps text-on-surface-variant dark:text-on-surface-variant font-medium">
+<li><a class="text-primary dark:text-inverse-primary border-b-2 border-tertiary font-bold hover:text-tertiary transition-colors duration-300" href="#">Product</a></li>
+<li><a class="hover:text-tertiary transition-colors duration-300" href="#">For Farmers</a></li>
+<li><a class="hover:text-tertiary transition-colors duration-300" href="#">For Agronomists</a></li>
+<li><a class="hover:text-tertiary transition-colors duration-300" href="#">BRICS Network</a></li>
+<li><a class="hover:text-tertiary transition-colors duration-300" href="#">Login</a></li>
+</ul>
+<!-- Trailing Action -->
+<button class="hidden md:flex bg-primary-container text-on-primary font-label-caps text-label-caps px-4 py-2 rounded-full hover:bg-primary transition-colors duration-300 scale-95 active:scale-90 shadow-sm">
+                Get Started
+            </button>
+<!-- Mobile Menu Toggle (Simplified) -->
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined text-headline-md">menu</span>
+</button>
+</div>
+</nav>
+<main class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<!-- Hero Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-gutter items-center min-h-[716px] py-stack-lg">
+<div class="flex flex-col gap-stack-lg z-10">
+<div class="bridge-motif self-start mb-stack-md"></div>
+<h1 class="text-display-lg font-display-lg text-primary tracking-tight">
+                    Bridging Satellites, Soil Science &amp; AI.
+                </h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-lg">
+                    AgriSetu is the interoperable digital agriculture network empowering BRICS farmers with precision insights, sustainable protocols, and secure data sovereignty.
+                </p>
+<div class="flex flex-wrap gap-stack-md mt-stack-sm">
+<button class="bg-primary-container text-on-primary font-body-md text-body-md font-semibold px-6 py-3 rounded-xl hover:bg-primary transition-colors shadow-sm flex items-center gap-2 group">
+                        Start Free
+                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<button class="bg-surface border border-outline text-secondary font-body-md text-body-md font-semibold px-6 py-3 rounded-xl hover:bg-surface-container-low transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">api</span>
+                        View BRICS API Docs
+                    </button>
+</div>
+</div>
+<!-- Hero Mockup area -->
+<div class="relative w-full h-[500px] lg:h-full flex items-center justify-center">
+<!-- Abstract background shapes -->
+<div class="absolute inset-0 bg-gradient-to-tr from-secondary-container/20 to-surface rounded-full blur-3xl opacity-60"></div>
+<!-- Main Device Mockup -->
+<div class="relative w-72 h-[550px] bg-surface-container-lowest border border-outline-variant rounded-[32px] ambient-shadow overflow-hidden flex flex-col transform rotate-[-2deg] transition-transform hover:rotate-0 duration-700 z-10">
+<!-- Top Bar -->
+<div class="h-6 w-full flex justify-center items-center mt-2">
+<div class="w-16 h-1.5 bg-surface-variant rounded-full"></div>
+</div>
+<!-- App Content Mockup -->
+<div class="p-4 flex flex-col gap-4 flex-1">
+<div class="flex justify-between items-center">
+<div>
+<h3 class="text-body-sm font-body-sm font-semibold text-primary">Farm Alpha</h3>
+<p class="text-label-caps font-label-caps text-outline">Indore, IN</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-on-secondary-container">eco</span>
+</div>
+</div>
+<!-- Stylized Map/Chart area -->
+<div class="w-full h-40 bg-surface-container rounded-xl overflow-hidden relative border border-outline-variant/50">
+<img class="w-full h-full object-cover opacity-80" data-alt="A highly detailed, flat vector-style minimalist map visualization of an agricultural field plot, showing subtle topographical lines and varied shades of green indicating crop health zones. The style is modern, clean, and UI-focused, typical of a high-end SaaS dashboard. Soft lighting, light mode aesthetic, crisp geometric edges." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0NxSkiKq2z973mbMq_Yh-2aY_vN5aBUOThsQ7YhRWvpy0GuGYki09jeWAcp0-y5VTm2_WD-15XyRs-kNC71nqnVDt2RgTVeb-YJPPPr1C-pzgDG3vPaoOxIf266EEG3icHrn4f_bOWjRaQc-6fiodhthSfg6ZzGFXp1sdnrjVf5pz0yRYcSl8Je7KlWg48Cb0jhs1yQBcHMd-S05gIzL60AXanoMosGjtom5y7DEnR_MwQkMrHCNsnQ"/>
+</div>
+<!-- Telemetry Cards -->
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/30 flex flex-col gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">water_drop</span>
+<span class="text-label-caps font-label-caps text-outline">Soil Moisture</span>
+<span class="text-data-mono font-data-mono text-primary font-bold">42.8%</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/30 flex flex-col gap-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary">thermostat</span>
+<span class="text-label-caps font-label-caps text-outline">Temp</span>
+<span class="text-data-mono font-data-mono text-primary font-bold">24°C</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Vitality Card -->
+<div class="absolute -right-4 lg:-right-8 top-1/3 glass-card p-3 rounded-xl ambient-shadow flex items-center gap-3 z-20 transform translate-y-4 animate-[bounce_4s_infinite_alternate]">
+<div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-on-surface-variant">Crop Vitality</span>
+<span class="text-data-mono font-data-mono font-bold text-primary">NDVI 0.72</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust Badges -->
+<section class="py-stack-lg border-y border-outline-variant/30 my-stack-lg">
+<p class="text-center text-label-caps font-label-caps text-outline mb-stack-md uppercase tracking-widest">Powered by Global Scientific Networks</p>
+<div class="flex flex-wrap justify-center items-center gap-gutter">
+<!-- Badges -->
+<div class="bg-surface-variant/50 px-4 py-2 rounded-full border border-outline-variant/50 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">satellite_alt</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Sentinel-2</span>
+</div>
+<div class="bg-surface-variant/50 px-4 py-2 rounded-full border border-outline-variant/50 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">public</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">NASA POWER</span>
+</div>
+<div class="bg-surface-variant/50 px-4 py-2 rounded-full border border-outline-variant/50 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">layers</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">ISRIC SoilGrids</span>
+</div>
+<div class="bg-tertiary-fixed/30 px-4 py-2 rounded-full border border-tertiary-fixed-dim/50 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="text-body-sm font-body-sm text-tertiary-container font-semibold">BRICS AgriN Aligned</span>
+</div>
+</div>
+</section>
+<!-- Stakeholders Section -->
+<section class="py-stack-lg flex flex-col gap-stack-lg">
+<div class="text-center max-w-2xl mx-auto flex flex-col gap-stack-sm">
+<h2 class="text-headline-lg font-headline-lg text-primary">Ecosystem Alignment</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Connecting every layer of the agricultural value chain through secure, shared protocols.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-stack-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 ambient-shadow hover:border-secondary transition-colors duration-300 group cursor-default">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[24px] text-on-secondary-container font-light">agriculture</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-primary mb-2 text-[20px]">Smallholder Farmer</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                        Accessible mobile interfaces providing hyper-local weather, soil nutrient prescriptions, and market linkages.
+                    </p>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 ambient-shadow hover:border-secondary transition-colors duration-300 group cursor-default">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[24px] text-on-secondary-container font-light">biotech</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-primary mb-2 text-[20px]">FPO Agronomist</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                        Fleet management tools, regional yield forecasting, and telemetry dashboards to manage hundreds of distinct plots.
+                    </p>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 ambient-shadow hover:border-secondary transition-colors duration-300 group cursor-default">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[24px] text-on-secondary-container font-light">account_balance</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-primary mb-2 text-[20px]">Policy Maker</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                        Anonymized macro-level data aggregates for resource planning, subsidy distribution, and climate resilience tracking.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Agronomist Preview (Dark Section) -->
+<section class="mt-stack-lg rounded-2xl overflow-hidden bg-[#0F172A] text-surface-container-lowest p-margin-mobile md:p-margin-desktop relative">
+<!-- Decorative geometric overlay -->
+<div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+<div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-stack-lg items-center">
+<div class="flex flex-col gap-stack-md">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-container/30 border border-primary/20 w-fit">
+<span class="material-symbols-outlined text-[16px] text-inverse-primary">map</span>
+<span class="text-label-caps font-label-caps text-inverse-primary">Executive GIS Suite</span>
+</div>
+<h2 class="text-headline-lg font-headline-lg text-white">Precision at Regional Scale</h2>
+<p class="text-body-md font-body-md text-slate-300 max-w-md">
+                        Deploy complex spatial queries, monitor multi-farm biomass indices, and generate audit-ready carbon sequestration reports across borders.
+                    </p>
+</div>
+<!-- Stylized Dark Mockup -->
+<div class="bg-slate-800/50 border border-slate-700 rounded-xl p-2 backdrop-blur-sm shadow-2xl">
+<div class="w-full h-64 bg-slate-900 rounded-lg overflow-hidden relative border border-slate-800 flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-70" data-alt="A stylized dark-mode geographic information system (GIS) interface mockup. It displays an abstract, geometric map with neon green and teal polygon highlights representing farm plots against a deep slate background. Technical UI elements, subtle data visualization layers, grid lines, and glowing nodes. High tech, serene executive styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA90veGvo9K6U3GdD4WnNPT6b-QlKD5qG3IxUkfFiZtYEF4QJJF5HwQHNNJXIN6e1IrzzWkPQW78j7XqCQxXreUoc9PyYEnK7Izb7N1NtLF3EF7loTtjrN9dORWvYDYU_qsF0EuQEq463uwXD8_7sbpEaAFa_IDrJ0SB2a64Lju0HMddsU0nA4E2RThijGuErv_FnOyHKIwfJGEM0w4JGBOiIpK9193Kj3uq50kmMkZIfaDcU4ElMrbMg"/>
+<!-- UI Overlay hints -->
+<div class="absolute bottom-4 left-4 bg-slate-800/80 p-2 rounded border border-slate-700 flex flex-col gap-1 backdrop-blur-md">
+<div class="w-24 h-2 bg-slate-700 rounded"></div>
+<div class="w-16 h-2 bg-inverse-primary rounded"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="full-width py-stack-lg bg-surface dark:bg-surface-dim border-t border-outline-variant mt-stack-lg flat no shadows">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-stack-lg px-margin-desktop max-w-container-max mx-auto">
+<!-- Brand & Copyright -->
+<div class="flex flex-col gap-stack-sm">
+<a class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary" href="#">
+                    AgriSetu
+                </a>
+<p class="text-body-sm font-body-sm text-on-surface-variant dark:text-on-surface-variant flex items-center gap-2">
+                    © 2024 AgriSetu. 
+                    <span class="inline-flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>
+                        BRICS Indore Declaration 2026 Aligned.
+                    </span>
+</p>
+</div>
+<!-- Links -->
+<div class="md:col-span-2 flex flex-wrap gap-gutter md:justify-end items-center text-body-sm font-body-sm text-label-caps font-label-caps">
+<a class="text-on-surface-variant dark:text-on-surface-variant opacity-80 hover:opacity-100 hover:text-tertiary transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant opacity-80 hover:opacity-100 hover:text-tertiary transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant opacity-80 hover:opacity-100 hover:text-tertiary transition-colors" href="#">Sustainability</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant opacity-80 hover:opacity-100 hover:text-tertiary transition-colors" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>

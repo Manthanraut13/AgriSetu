@@ -14,7 +14,7 @@ router = APIRouter(prefix="/advisory")
 
 
 @router.get("/{plot_id}", response_model=FullAdvisory, tags=["Advisory"])
-async def get_advisory(plot_id: str):
+def get_advisory(plot_id: str):
     """
     Get crop advisory for a registered plot.
 
@@ -134,18 +134,21 @@ async def get_advisory(plot_id: str):
 
     # Store advisory in DB
     try:
-        supabase.table("advisories").insert({
+        data_to_insert = {
             "plot_id": plot_id,
             "recommended_crop": recommendations[0].crop,
             "confidence": recommendations[0].confidence,
             "sowing_window": recommendations[0].sowing_window,
             "irrigation_schedule": f"Every {recommendations[0].irrigation_days} days",
             "regenerative_practices": [p["practice"] if isinstance(p, dict) else p.practice for p in regen_practices],
-            "risk_alerts": risk_alerts,
-            "raw_input_snapshot": {"soil": soil, "weather": weather, "ndvi": ndvi},
-        }).execute()
+            "raw_input_snapshot": {"soil": soil, "weather": weather, "ndvi": ndvi, "risk_alerts": risk_alerts},
+        }
+        try:
+            supabase.table("advisories").insert({**data_to_insert, "risk_alerts": risk_alerts}).execute()
+        except Exception:
+            supabase.table("advisories").insert(data_to_insert).execute()
         logger.info(f"Advisory stored for plot {plot_id}")
     except Exception as e:
-        logger.error(f"Failed to store advisory: {e}")
+        logger.warning(f"Advisory DB cache skipped: {e}")
 
     return advisory

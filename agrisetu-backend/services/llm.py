@@ -25,6 +25,15 @@ RULES:
 8. Format responses with bullet points for clarity when appropriate."""
 
 
+GEMINI_LLM_MODELS = [
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "gemini-flash-latest",
+    "gemini-2.5-flash-lite",
+    "gemini-3.1-flash-lite",
+]
+
+
 def generate_advisory(
     plot_context: dict,
     kb_chunks: List[str],
@@ -32,23 +41,12 @@ def generate_advisory(
     language: str = "hi",
 ) -> Optional[str]:
     """
-    Generate an agricultural advisory response using Gemini.
-
-    Args:
-        plot_context: Dictionary with soil, weather, NDVI data for the farmer's plot
-        kb_chunks: Retrieved knowledge base chunks relevant to the question
-        question: Farmer's question
-        language: Target language code
-
-    Returns:
-        Generated response text or None if failed
+    Generate an agricultural advisory response using Gemini with multi-model fallback.
     """
-    try:
-        # Build the prompt
-        context_text = f"Farm Context: {plot_context}" if plot_context else "No specific farm data available."
-        kb_text = "\n\n".join(kb_chunks) if kb_chunks else "No specific knowledge base matches found."
+    context_text = f"Farm Context: {plot_context}" if plot_context else "No specific farm data available."
+    kb_text = "\n\n".join(kb_chunks) if kb_chunks else "No specific knowledge base matches found."
 
-        user_prompt = f"""{context_text}
+    user_prompt = f"""{context_text}
 
 Knowledge Base:
 {kb_text}
@@ -57,20 +55,27 @@ Farmer Question: {question}
 
 Please provide a helpful, practical agricultural advisory response."""
 
-        model = genai.GenerativeModel(
-            model_name="gemini-3.6-flash",
-            system_instruction=SYSTEM_PROMPT,
-        )
+    api_keys = [settings.GEMINI_API_KEY]
+    if settings.GEMINI_BACKUP_API_KEY:
+        api_keys.append(settings.GEMINI_BACKUP_API_KEY)
 
-        response = model.generate_content(user_prompt)
+    for key in api_keys:
+        try:
+            genai.configure(api_key=key)
+            for m in GEMINI_LLM_MODELS:
+                try:
+                    model = genai.GenerativeModel(
+                        model_name=m,
+                        system_instruction=SYSTEM_PROMPT,
+                    )
+                    response = model.generate_content(user_prompt)
+                    if response and response.text:
+                        logger.info(f"Gemini response generated using model '{m}' for question: {question[:50]}...")
+                        return response.text
+                except Exception as e:
+                    logger.warning(f"Gemini LLM model '{m}' failed: {e}")
+        except Exception as key_err:
+            logger.warning(f"Gemini LLM key failed: {key_err}")
 
-        if response.text:
-            logger.info(f"Gemini response generated for question: {question[:50]}...")
-            return response.text
-        else:
-            logger.warning("Gemini returned empty response")
-            return None
-
-    except Exception as e:
-        logger.error(f"Gemini API error: {e}")
-        return None
+    logger.error("All Gemini LLM models and keys failed to generate response")
+    return None

@@ -7,7 +7,7 @@ router = APIRouter(prefix="/dashboard")
 
 
 @router.get("/plots", tags=["Dashboard"])
-async def get_all_plots():
+def get_all_plots():
     """Get all registered plots with their latest data."""
     from config import settings
     from supabase import create_client
@@ -18,7 +18,7 @@ async def get_all_plots():
 
 
 @router.get("/plots/{farmer_id}", tags=["Dashboard"])
-async def get_farmer_plots(farmer_id: str):
+def get_farmer_plots(farmer_id: str):
     """Get all plots for a specific farmer."""
     from config import settings
     from supabase import create_client

@@ -6,24 +6,65 @@
 @tailwind utilities;
 
 :root {
-  --green-primary: #2d6a4f;
-  --green-light: #52b788;
-  --green-bg: #d8f3dc;
-  --yellow-alert: #f4a261;
-  --yellow-bg: #fff3e0;
-  --red-danger: #e63946;
-  --red-bg: #ffe8e8;
-  --blue-data: #1b4f72;
-  --neutral-dark: #212529;
-  --neutral-mid: #6c757d;
-  --neutral-light: #f8f9fa;
+  --green-primary: #072a17;
+  --green-light: #1f402b;
+  --green-bg: #fdf9ef;
+  --yellow-alert: #cea72c;
+  --yellow-bg: #ffe08e;
+  --red-danger: #ba1a1a;
+  --red-bg: #ffdad6;
+  --blue-data: #45664b;
+  --neutral-dark: #1c1c16;
+  --neutral-mid: #424842;
+  --neutral-light: #fdf9ef;
   --white: #ffffff;
-  --brics-gold: #c9a84c;
+  --brics-gold: #cea72c;
 }
 
 body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--neutral-light);
-  color: var(--neutral-dark);
+  background-color: #fdf9ef;
+  color: #1c1c16;
   margin: 0;
+}
+
+.ambient-shadow {
+  box-shadow: 0px 4px 20px rgba(19, 42, 19, 0.05);
+}
+
+.glass-card, .glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(194, 200, 192, 0.4);
+}
+
+.card-border {
+  border: 1px solid rgba(194, 200, 192, 0.4);
+}
+
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 24px rgba(19, 42, 19, 0.08);
+}
+
+.bridge-motif {
+  position: relative;
+}
+
+.bridge-motif::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 16px;
+  border-bottom: 2px solid #cea72c;
+  border-radius: 0 0 40px 40px;
+  opacity: 0.7;
 }
