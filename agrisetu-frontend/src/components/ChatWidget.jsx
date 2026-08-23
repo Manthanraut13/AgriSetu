@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { sendChatMessage } from '../api/agrisetu'
 
 export default function ChatWidget({ plotId }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -12,9 +12,7 @@ export default function ChatWidget({ plotId }) {
   const [mediaRecorder, setMediaRecorder] = useState(null)
   const messagesEndRef = useRef(null)
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   const handleSend = async () => {
     if (!input.trim() || loading) return
@@ -23,17 +21,16 @@ export default function ChatWidget({ plotId }) {
     setMessages(prev => [...prev, { role: 'user', text: userMsg }])
     setLoading(true)
     try {
+      const lang = i18n.language === 'mr' ? 'mr' : i18n.language === 'hi' ? 'hi' : 'en'
       const res = await sendChatMessage({
         message: userMsg,
-        language: 'hi',
+        language: lang,
         plot_id: plotId || '00000000-0000-0000-0000-000000000000',
       })
       setMessages(prev => [...prev, { role: 'advisor', text: res.data.response }])
     } catch {
-      setMessages(prev => [...prev, { role: 'advisor', text: 'Sorry, I could not process your request right now.' }])
-    } finally {
-      setLoading(false)
-    }
+      setMessages(prev => [...prev, { role: 'advisor', text: 'Sorry, I could not process your question.' }])
+    } finally { setLoading(false) }
   }
 
   const startRecording = async () => {
@@ -51,7 +48,7 @@ export default function ChatWidget({ plotId }) {
       setMediaRecorder(recorder)
       setRecording(true)
     } catch {
-      setMessages(prev => [...prev, { role: 'advisor', text: 'Microphone access denied.' }])
+      setMessages(prev => [...prev, { role: 'advisor', text: t('chat.voice_denied') }])
     }
   }
 
@@ -64,127 +61,96 @@ export default function ChatWidget({ plotId }) {
   }
 
   const sendVoice = async (audioBlob) => {
-    setMessages(prev => [...prev, { role: 'user', text: '[Voice Note Received]' }])
+    setMessages(prev => [...prev, { role: 'user', text: '🎤' }])
     setLoading(true)
     try {
       const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
       const formData = new FormData()
       formData.append('audio', audioBlob, 'voice.webm')
-      formData.append('language', 'hi')
+      formData.append('language', i18n.language === 'mr' ? 'mr' : i18n.language === 'hi' ? 'hi' : 'en')
       formData.append('plot_id', plotId || '')
       const res = await fetch(`${API_BASE}/api/v1/voice/ask`, { method: 'POST', body: formData })
       const data = await res.json()
       if (data.text_response) {
         setMessages(prev => [...prev, { role: 'advisor', text: data.text_response }])
       } else {
-        setMessages(prev => [...prev, { role: 'advisor', text: data.detail || 'Could not process voice input.' }])
+        setMessages(prev => [...prev, { role: 'advisor', text: data.detail || t('chat.could_not_process') }])
       }
     } catch {
-      setMessages(prev => [...prev, { role: 'advisor', text: 'Voice service unavailable.' }])
-    } finally {
-      setLoading(false)
-    }
+      setMessages(prev => [...prev, { role: 'advisor', text: t('chat.unavailable') }])
+    } finally { setLoading(false) }
   }
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-50 border border-inverse-primary/30"
-      >
+      <button onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg flex items-center justify-center z-50 hover:shadow-xl transition-shadow">
         <span className="material-symbols-outlined text-2xl">smart_toy</span>
       </button>
     )
   }
 
   return (
-    <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-2rem)] h-[540px] bg-surface-container-lowest rounded-3xl shadow-2xl flex flex-col z-50 overflow-hidden border border-outline-variant/40 animate-in fade-in slide-in-from-bottom-5 duration-200">
-      {/* Header */}
-      <div className="p-4 bg-primary text-on-primary flex justify-between items-center">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
-            <span className="material-symbols-outlined text-base">smart_toy</span>
-          </div>
-          <div>
-            <h4 className="text-sm font-bold font-display">AgriSetu AI Advisor</h4>
-            <span className="text-[10px] font-mono opacity-80 block">RAG Agronomy Engine · BRICS Knowledge Base</span>
-          </div>
+    <div className="fixed bottom-6 right-6 w-80 h-[500px] bg-surface-container-lowest rounded-3xl shadow-2xl flex flex-col z-50 overflow-hidden border border-outline-variant/30">
+      <div className="p-4 bg-primary text-on-primary font-semibold flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined">smart_toy</span>
+          <span>{t('chat.title')}</span>
         </div>
-        <button
-          onClick={() => setIsOpen(false)}
-          className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center text-white transition-colors"
-        >
-          <span className="material-symbols-outlined text-xl">close</span>
+        <button onClick={() => setIsOpen(false)} className="text-on-primary hover:opacity-70">
+          <span className="material-symbols-outlined">close</span>
         </button>
       </div>
-
-      {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface-container-low/40">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface-container-low">
         {messages.length === 0 && (
-          <div className="text-center py-10 px-4">
-            <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
-              <span className="material-symbols-outlined text-2xl">chat</span>
-            </div>
-            <p className="text-sm font-semibold text-primary mb-1">Ask AgriSetu AI</p>
-            <p className="text-xs text-on-surface-variant font-mono">
-              "How much nitrogen to apply for wheat?" or tap 🎤 for voice query.
-            </p>
+          <div className="text-center mt-12">
+            <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">agriculture</span>
+            <p className="text-sm text-on-surface-variant mt-2">{t('chat.placeholder')}</p>
           </div>
         )}
-
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div
-              className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-primary text-on-primary rounded-br-none shadow-sm'
-                  : 'bg-surface-container-lowest text-on-surface border border-outline-variant/30 rounded-bl-none shadow-sm'
-              }`}
-            >
+            <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
+              msg.role === 'user'
+                ? 'bg-primary text-on-primary rounded-br-md'
+                : 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant/20 rounded-bl-md'
+            }`}>
               {msg.text}
             </div>
           </div>
         ))}
-
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl px-4 py-2 text-xs text-on-surface-variant flex items-center gap-1.5 shadow-sm">
-              <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
-              <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.15s]"></div>
-              <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.3s]"></div>
-              <span className="ml-1 text-[11px] font-mono">Synthesizing agronomic response...</span>
+            <div className="bg-surface-container-lowest shadow-sm border border-outline-variant/20 rounded-2xl rounded-bl-md px-3 py-2 text-sm text-on-surface-variant">
+              <span className="animate-bounce inline-block">●</span>{' '}
+              <span className="animate-bounce inline-block" style={{ animationDelay: '0.1s' }}>●</span>{' '}
+              <span className="animate-bounce inline-block" style={{ animationDelay: '0.2s' }}>●</span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Input controls */}
-      <div className="p-3 border-t border-outline-variant/30 bg-surface flex items-center gap-2">
-        <button
-          onClick={recording ? stopRecording : startRecording}
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-            recording ? 'bg-error text-on-error animate-pulse' : 'bg-tertiary-fixed text-on-tertiary-fixed hover:bg-tertiary-fixed-dim'
-          }`}
-          title="Voice Command"
-        >
-          <span className="material-symbols-outlined text-lg">{recording ? 'stop' : 'mic'}</span>
+      <div className="p-3 border-t border-outline-variant/30 bg-surface-container-lowest flex gap-2">
+        <button onClick={recording ? stopRecording : startRecording}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+            recording
+              ? 'bg-error text-on-error animate-pulse'
+              : 'bg-tertiary-container text-on-tertiary-container hover:opacity-80'
+          }`}>
+          <span className="material-symbols-outlined text-lg">
+            {recording ? 'stop' : 'mic'}
+          </span>
         </button>
-
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+        <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Type query or tap mic..."
-          className="flex-1 px-3.5 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary"
-        />
-
-        <button
-          onClick={handleSend}
-          disabled={loading || !input.trim()}
-          className="w-10 h-10 rounded-xl bg-primary text-on-primary disabled:opacity-40 flex items-center justify-center hover:bg-primary-container transition-colors"
-        >
+          placeholder={t('chat.placeholder')}
+          className="flex-1 px-3 py-2 border border-outline-variant/40 rounded-full text-sm bg-surface-container-low text-on-surface placeholder-on-surface-variant/50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
+        <button onClick={handleSend} disabled={loading || !input.trim()}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+            loading || !input.trim()
+              ? 'bg-surface-container-high text-on-surface-variant'
+              : 'bg-primary text-on-primary hover:opacity-90'
+          }`}>
           <span className="material-symbols-outlined text-lg">send</span>
         </button>
       </div>

@@ -36,260 +36,149 @@ export default function FarmerDashboard() {
     }
   }
 
-  const ndviValue = plot?.ndvi?.ndvi ?? 0.72
+  const ndviStatus = (() => {
+    const ndvi = plot?.ndvi?.ndvi
+    if (!ndvi) return { color: '#6C757D', label: 'No Data', bg: '#F8F9FA', icon: 'help' }
+    if (ndvi >= 0.5) return { color: 'text-primary', label: t('dashboard.healthy'), bg: 'bg-primary-fixed-dim/30', icon: 'check_circle' }
+    if (ndvi >= 0.3) return { color: 'text-tertiary', label: t('dashboard.caution'), bg: 'bg-tertiary-fixed/30', icon: 'warning' }
+    return { color: 'text-error', label: t('dashboard.alert'), bg: 'bg-error-container/30', icon: 'error' }
+  })()
 
   if (loading) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="flex flex-col items-center gap-3">
-        <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
-        <span className="text-sm font-mono text-on-surface-variant">Loading AgriSetu Telemetry...</span>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="animate-spin w-8 h-8 border-4 rounded-full border-primary border-t-transparent" />
     </div>
   )
 
   return (
-    <div className="bg-background text-on-background font-sans min-h-screen pb-16 selection:bg-secondary-container">
-      {/* Navbar */}
-      <nav className="sticky top-0 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 shadow-sm z-40">
-        <div className="flex justify-between items-center px-4 md:px-10 py-3.5 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background font-sans">
+      <nav className="sticky top-0 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 shadow-sm z-50">
+        <div className="flex justify-between items-center px-4 md:px-10 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.location.href = '/'}>
-            <span className="material-symbols-outlined text-primary text-2xl">eco</span>
-            <span className="text-xl font-display font-extrabold text-primary">AgriSetu</span>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-semibold ml-2">
-              Farmer Hub
-            </span>
+            <span className="material-symbols-outlined text-primary text-3xl">eco</span>
+            <span className="text-2xl font-display font-extrabold text-primary tracking-tight">{t('app_name')}</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => i18n.changeLanguage(i18n.language === 'hi' ? 'en' : 'hi')}
-              className="px-3 py-1.5 rounded-full text-xs font-semibold border border-outline-variant/50 hover:bg-surface-container transition-colors"
-            >
-              {i18n.language === 'hi' ? 'EN' : 'हिंदी'}
-            </button>
-            <button
-              onClick={() => window.location.href = '/dashboard/agronomist'}
-              className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary-container text-on-primary hover:bg-primary transition-colors flex items-center gap-1"
-            >
-              <span className="material-symbols-outlined text-sm">map</span>
-              <span>FPO View</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-surface-container-low p-1 rounded-full border border-outline-variant/40">
+              {[{ code: 'hi', label: 'हिंदी' }, { code: 'mr', label: 'मराठी' }, { code: 'en', label: 'EN' }].map((lang) => (
+                <button key={lang.code} onClick={() => i18n.changeLanguage(lang.code)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                    i18n.language === lang.code
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'text-on-surface-variant hover:text-primary'
+                  }`}>
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => window.location.href = '/dashboard/agronomist'}
+              className="px-4 py-2 rounded-full text-sm font-semibold bg-surface-container-low text-on-surface border border-outline-variant/40 hover:bg-surface-container transition-colors">
+              <span className="material-symbols-outlined text-sm align-middle mr-1">map</span>
+              {t('agronomist_hub')}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Content Container */}
-      <main className="px-4 md:px-10 max-w-7xl mx-auto pt-6 space-y-6">
-        {/* Hero Card */}
-        <section className="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/40 ambient-shadow relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary-fixed/20 to-transparent rounded-bl-full pointer-events-none"></div>
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface mb-1">
-                Namaste, {plot?.plot?.farmer_name || 'Rajesh Ji'}
-              </h1>
-              <div className="flex items-center gap-1.5 text-on-surface-variant opacity-85 text-sm">
-                <span className="material-symbols-outlined text-base text-primary">location_on</span>
-                <span>
-                  {plot?.plot?.district || 'Nashik'}, {plot?.plot?.state || 'Maharashtra'} — {plot?.plot?.current_crop || 'Soybean'} ({plot?.plot?.area_ha || '2.4'} Ha)
-                </span>
-              </div>
-            </div>
+      <div className="p-4 md:p-8 max-w-7xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-extrabold text-primary">{t('dashboard.crop_health')}</h1>
+          <p className="text-sm text-on-surface-variant">{plot?.plot?.district || 'Farm'} — {plot?.plot?.current_crop || 'N/A'}</p>
+        </div>
 
-            {/* Weather Pill */}
-            <div className="flex items-center gap-3 bg-surface p-3.5 rounded-2xl border border-outline-variant/40 shadow-sm">
-              <span className="material-symbols-outlined text-tertiary-container text-4xl">partly_cloudy_day</span>
-              <div>
-                <div className="text-xl font-bold text-on-surface leading-none">
-                  {plot?.weather?.temp_c ? `${plot.weather.temp_c}°C` : '28°C'}
-                </div>
-                <div className="text-xs text-on-surface-variant opacity-80 mt-1">
-                  Humidity {plot?.weather?.humidity_pct ? `${plot.weather.humidity_pct}%` : '65%'}
-                </div>
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className={`rounded-3xl p-5 shadow-sm border border-outline-variant/30 bg-surface-container-lowest ${ndviStatus.bg}`}>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="material-symbols-outlined text-2xl text-primary">satellite_alt</span>
+              <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">{t('dashboard.crop_health')}</p>
             </div>
-          </div>
-        </section>
-
-        {/* Telemetry Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Crop Vitality */}
-          <div className="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/40 shadow-sm flex items-center gap-4 hover:translate-y-[-2px] transition-transform">
-            <div className="relative w-14 h-14 flex-shrink-0">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <path className="text-surface-variant stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" strokeWidth="3.5"></path>
-                <path className="text-primary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" strokeDasharray={`${Math.round(ndviValue * 100)}, 100`} strokeWidth="3.5"></path>
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center font-mono text-sm text-primary font-bold">
-                {ndviValue.toFixed(2)}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Crop Vitality</div>
-              <div className="text-base font-bold text-on-surface">Optimal Health</div>
-              <div className="text-xs text-secondary font-medium">NDVI Satellite</div>
-            </div>
+            <p className={`text-2xl font-bold ${ndviStatus.color}`}>{ndviStatus.label}</p>
+            {plot?.ndvi?.ndvi && <p className="text-xs text-on-surface-variant mt-1">NDVI: {plot.ndvi.ndvi.toFixed(2)}</p>}
           </div>
 
-          {/* Soil Hydration */}
-          <div className="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/40 shadow-sm flex items-start gap-4 hover:translate-y-[-2px] transition-transform">
-            <div className="p-3 bg-secondary-fixed/40 rounded-2xl text-secondary">
-              <span className="material-symbols-outlined">water_drop</span>
+          <div className="rounded-3xl p-5 shadow-sm border border-outline-variant/30 bg-surface-container-lowest">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="material-symbols-outlined text-2xl text-primary">water_drop</span>
+              <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">{t('dashboard.water_today')}</p>
             </div>
-            <div>
-              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Soil Hydration</div>
-              <div className="text-base font-bold text-on-surface mb-0.5">Sufficient Moisture</div>
-              <div className="text-xs font-mono text-on-surface-variant opacity-75">
-                Moisture: {plot?.soil?.moisture_pct?.toFixed(1) || '22.4'}%
-              </div>
-            </div>
+            <p className="text-2xl font-bold text-on-surface">{plot?.weather?.temp_c ? `${plot.weather.temp_c}°C` : '--'}</p>
+            {plot?.weather?.humidity_pct && <p className="text-xs text-on-surface-variant mt-1">{t('dashboard.humidity')}: {plot.weather.humidity_pct}%</p>}
           </div>
 
-          {/* Weather Risk */}
-          <div className="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/40 shadow-sm flex items-start gap-4 hover:translate-y-[-2px] transition-transform">
-            <div className="p-3 bg-tertiary-fixed/40 rounded-2xl text-tertiary">
-              <span className="material-symbols-outlined">umbrella</span>
+          <div className="rounded-3xl p-5 shadow-sm border border-outline-variant/30 bg-surface-container-lowest">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="material-symbols-outlined text-2xl text-tertiary">weather_snowy</span>
+              <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">{t('dashboard.weather_risk')}</p>
             </div>
-            <div>
-              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Weather Risk</div>
-              <div className="text-base font-bold text-on-surface mb-0.5">Low Weather Risk</div>
-              <div className="text-xs text-on-surface-variant opacity-75">
-                {plot?.weather?.description || 'Rain expected in 5 days'}
-              </div>
-            </div>
+            <p className="text-2xl font-bold text-on-surface">{plot?.weather?.rainfall_mm ? `${plot.weather.rainfall_mm} mm` : 'Low'}</p>
+            {plot?.weather?.description && <p className="text-xs text-on-surface-variant mt-1">{plot.weather.description}</p>}
           </div>
 
-          {/* Plant Protection */}
-          <div className="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/40 shadow-sm flex items-start gap-4 hover:translate-y-[-2px] transition-transform">
-            <div className="p-3 bg-primary-fixed/40 rounded-2xl text-primary">
-              <span className="material-symbols-outlined">shield</span>
+          <div className="rounded-3xl p-5 shadow-sm border border-outline-variant/30 bg-primary-fixed-dim/20">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="material-symbols-outlined text-2xl text-primary">bug_report</span>
+              <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">{t('dashboard.disease_alert')}</p>
             </div>
-            <div>
-              <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Plant Protection</div>
-              <div className="text-base font-bold text-on-surface">Zero Active Alerts</div>
-              <div className="text-xs text-primary font-medium">Scan recommended</div>
-            </div>
+            <p className="text-2xl font-bold text-primary">{t('dashboard.no_disease')}</p>
           </div>
-        </section>
+        </div>
 
-        {/* Action Buttons */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <button
-            onClick={() => { setShowAdvisory(!showAdvisory); setShowDisease(false) }}
-            className="bg-primary text-on-primary hover:bg-primary-container transition-all rounded-2xl p-4 flex items-center justify-center gap-2 shadow-sm font-semibold text-sm h-14"
-          >
-            <span className="material-symbols-outlined">smart_toy</span>
-            <span>Request AI Crop Advisory</span>
+        <div className="flex gap-3 mb-8">
+          <button onClick={() => { setShowAdvisory(!showAdvisory); setShowDisease(false) }}
+            className="flex-1 py-3.5 rounded-full text-on-primary font-semibold shadow-sm text-sm bg-primary flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+            <span className="material-symbols-outlined text-lg">eco</span>
+            {t('dashboard.get_advisory')}
           </button>
-          
-          <button
-            onClick={() => { setShowDisease(!showDisease); setShowAdvisory(false) }}
-            className="bg-surface-container-lowest border-2 border-primary text-primary hover:bg-surface-container transition-all rounded-2xl p-4 flex items-center justify-center gap-2 shadow-sm font-semibold text-sm h-14"
-          >
-            <span className="material-symbols-outlined">camera_alt</span>
-            <span>Diagnose Plant Disease</span>
+          <button onClick={() => { setShowDisease(!showDisease); setShowAdvisory(false) }}
+            className="flex-1 py-3.5 rounded-full font-semibold text-sm bg-surface-container-low text-on-surface border border-outline-variant/40 flex items-center justify-center gap-2 hover:bg-surface-container transition-colors">
+            <span className="material-symbols-outlined text-lg">photo_camera</span>
+            {t('dashboard.diagnose_disease')}
           </button>
-        </section>
+        </div>
 
-        {/* Dynamic Accordion Components */}
-        {showAdvisory && advisory && (
-          <section className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/40 shadow-sm">
-            <AdvisoryCard advisory={advisory} />
-          </section>
+        {showAdvisory && advisory && <div className="mb-8"><AdvisoryCard advisory={advisory} /></div>}
+        {showDisease && <div className="mb-8"><DiseaseUploader /></div>}
+
+        {plot?.soil && (
+          <div className="bg-surface-container-lowest rounded-3xl shadow-sm border border-outline-variant/30 p-6 mb-8">
+            <h3 className="font-display font-bold mb-4 text-primary flex items-center gap-2">
+              <span className="material-symbols-outlined">landscape</span>
+              {t('dashboard.soil_data')}
+            </h3>
+            <div className="grid grid-cols-3 gap-3 text-sm">
+              {[
+                { label: t('dashboard.nitrogen'), value: plot.soil.N ?? '--', icon: 'N' },
+                { label: t('dashboard.phosphorus'), value: plot.soil.P ?? '--', icon: 'P' },
+                { label: t('dashboard.potassium'), value: plot.soil.K ?? '--', icon: 'K' },
+                { label: t('dashboard.ph'), value: plot.soil.pH?.toFixed(1) ?? '--', icon: 'pH' },
+                { label: t('dashboard.moisture'), value: plot.soil.moisture_pct?.toFixed(1) ?? '--', icon: '%' },
+                { label: t('dashboard.source'), value: plot.soil.source ?? '--', icon: '📡' },
+              ].map((item) => (
+                <div key={item.label} className="text-center p-3 rounded-2xl bg-surface-container-low border border-outline-variant/20">
+                  <p className="text-xs font-semibold text-on-surface-variant">{item.label}</p>
+                  <p className="text-lg font-bold text-on-surface mt-1">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
-        {showDisease && (
-          <section className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/40 shadow-sm">
-            <DiseaseUploader />
-          </section>
+        {plot?.plot && (
+          <div className="bg-surface-container-lowest rounded-3xl shadow-sm border border-outline-variant/30 p-6 mb-8">
+            <h3 className="font-display font-bold mb-3 text-primary flex items-center gap-2">
+              <span className="material-symbols-outlined">agriculture</span>
+              {t('dashboard.farm_details')}
+            </h3>
+            <div className="text-sm space-y-2 text-on-surface-variant">
+              <p>📍 Lat: {plot.plot.center_lat?.toFixed(4)}, Lon: {plot.plot.center_lon?.toFixed(4)}</p>
+              <p>🌾 {t('dashboard.current_crop')}: {plot.plot.current_crop || 'N/A'} | {t('dashboard.previous_crop')}: {plot.plot.last_crop || 'N/A'}</p>
+              <p>🗺 {plot.plot.district || ''}, {plot.plot.state || ''}, {plot.plot.country || ''}</p>
+              {plot.plot.area_ha && <p>📐 {t('dashboard.area')}: {plot.plot.area_ha} {t('dashboard.hectares')}</p>}
+            </div>
+          </div>
         )}
+      </div>
 
-        {/* Soil Nutrient Telemetry Panel */}
-        <section className="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/40 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-mono font-bold text-on-surface uppercase tracking-wider flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-base">science</span>
-              Soil Nutrient Telemetry
-            </h2>
-            <span className="text-xs text-on-surface-variant font-mono">Source: ISRIC SoilGrids</span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Nitrogen</span>
-              <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.N ?? 140} <span className="text-xs opacity-60">kg/ha</span>
-              </span>
-            </div>
-
-            <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Phosphorus</span>
-              <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.P ?? 45} <span className="text-xs opacity-60">kg/ha</span>
-              </span>
-            </div>
-
-            <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Potassium</span>
-              <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.K ?? 190} <span className="text-xs opacity-60">kg/ha</span>
-              </span>
-            </div>
-
-            <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Soil pH</span>
-              <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.pH?.toFixed(1) ?? '6.5'}
-              </span>
-            </div>
-
-            <div className="bg-surface-container-low rounded-2xl p-3.5 border border-outline-variant/30 flex flex-col">
-              <span className="text-xs text-on-surface-variant font-mono">Moisture</span>
-              <span className="text-lg font-bold font-mono text-primary mt-1">
-                {plot?.soil?.moisture_pct?.toFixed(1) ?? '22.4'}%
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {/* WhatsApp Bot Advisory Channel */}
-        <section className="bg-gradient-to-r from-emerald-900 to-green-950 text-white rounded-3xl p-6 shadow-md border border-emerald-700/40 relative overflow-hidden">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-700/60 text-emerald-200 text-[11px] font-mono font-bold uppercase">
-                  WhatsApp Bot Integration
-                </span>
-                <span className="text-xs font-mono text-emerald-300">Twilio Webhook Channel</span>
-              </div>
-              <h3 className="text-xl font-bold font-display text-white">AgriSetu WhatsApp Farmer Bot</h3>
-              <p className="text-xs text-emerald-100/80 max-w-xl">
-                Get crop advisories, disease scanning, and answers directly on WhatsApp. Send a leaf photo or question anytime!
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <a
-                href="https://wa.me/14155238886?text=join%20something"
-                target="_blank"
-                rel="noreferrer"
-                className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all shadow"
-              >
-                <span className="material-symbols-outlined text-base">chat</span>
-                <span>Open WhatsApp (+1 415 523 8886)</span>
-              </a>
-              <button
-                onClick={() => alert('WhatsApp Webhook Endpoint:\nPOST http://127.0.0.1:8000/api/v1/whatsapp/webhook')}
-                className="bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-200 border border-emerald-700/50 px-4 py-2.5 rounded-xl text-xs font-mono transition-colors"
-              >
-                View Webhook URL
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Floating AI Chat Assistant */}
       <ChatWidget plotId={plotId} />
     </div>
   )

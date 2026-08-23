@@ -14,13 +14,7 @@ router = APIRouter(prefix="/advisory")
 
 
 @router.get("/{plot_id}", response_model=FullAdvisory, tags=["Advisory"])
-def get_advisory(plot_id: str):
-    """
-    Get crop advisory for a registered plot.
-
-    Fetches plot context (soil, weather, NDVI), runs XGBoost model,
-    applies regenerative rules, and returns full advisory.
-    """
+async def get_advisory(plot_id: str):
     from config import settings
     from supabase import create_client
 
@@ -44,6 +38,23 @@ def get_advisory(plot_id: str):
     # Get latest NDVI
     ndvi_res = supabase.table("ndvi_snapshots").select("*").eq("plot_id", plot_id).order("fetched_at", desc=True).limit(1).execute()
     ndvi = ndvi_res.data[0] if ndvi_res.data else {}
+
+    # Normalize soil columns
+    if soil:
+        soil = {
+            "N": soil.get("n"),
+            "P": soil.get("p"),
+            "K": soil.get("k"),
+            "pH": soil.get("ph"),
+            "moisture_pct": soil.get("moisture_pct"),
+            "source": soil.get("source"),
+        }
+
+    # Normalize weather
+    if weather and not weather.get("description"):
+        forecast = weather.get("forecast_json")
+        if forecast and isinstance(forecast, dict):
+            weather["description"] = forecast.get("description", "")
 
     # Get soil/weather values with defaults
     N = soil.get("N", 50)
@@ -84,11 +95,10 @@ def get_advisory(plot_id: str):
         "orange": "January - February",
         "papaya": "Year-round",
         "coconut": "Year-round",
-        "cotton": "May - June",
         "jute": "March - April",
         "coffee": "June - July",
         "soybean": "June - July",
-        "groundnut": "June - July",
+        "groundnut": "June - July"
     }
 
     irrigation_days = {
@@ -134,21 +144,86 @@ def get_advisory(plot_id: str):
 
     # Store advisory in DB
     try:
-        data_to_insert = {
+        supabase.table("advisories").insert({
             "plot_id": plot_id,
             "recommended_crop": recommendations[0].crop,
             "confidence": recommendations[0].confidence,
             "sowing_window": recommendations[0].sowing_window,
             "irrigation_schedule": f"Every {recommendations[0].irrigation_days} days",
             "regenerative_practices": [p["practice"] if isinstance(p, dict) else p.practice for p in regen_practices],
-            "raw_input_snapshot": {"soil": soil, "weather": weather, "ndvi": ndvi, "risk_alerts": risk_alerts},
-        }
-        try:
-            supabase.table("advisories").insert({**data_to_insert, "risk_alerts": risk_alerts}).execute()
-        except Exception:
-            supabase.table("advisories").insert(data_to_insert).execute()
+            "risk_alerts": risk_alerts,
+            "raw_input_snapshot": {"soil": soil, "weather": weather, "ndvi": ndvi},
+        }).execute()
         logger.info(f"Advisory stored for plot {plot_id}")
     except Exception as e:
-        logger.warning(f"Advisory DB cache skipped: {e}")
+        logger.error(f"Failed to store advisory: {e}")
 
     return advisory
+
+
+@router.post("/{plot_id}/refresh", tags=["Advisory"])
+async def refresh_plot_data(plot_id: str):
+    """Refresh weather, soil, NDVI data for a plot."""
+    from config import settings
+    from supabase import create_client
+    from services.satellite import fetch_ndvi, fetch_ndmi
+    from services.weather import fetch_weather
+    from services.soil import fetch_soil
+
+    supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+
+    plot_res = supabase.table("farm_plots").select("*").eq("id", plot_id).execute()
+    if not plot_res.data:
+        raise HTTPException(status_code=404, detail="Plot not found")
+
+    plot = plot_res.data[0]
+    lat, lon = plot["center_lat"], plot["center_lon"]
+
+    import asyncio
+    ndvi_val, ndmi_val, weather_data, soil_data = await asyncio.gather(
+        fetch_ndvi(lat, lon),
+        fetch_ndmi(lat, lon),
+        fetch_weather(lat, lon),
+        fetch_soil(lat, lon),
+        return_exceptions=True,
+    )
+
+    results = {"ndvi": None, "weather": None, "soil": None}
+
+    if not isinstance(ndvi_val, Exception) and ndvi_val is not None:
+        supabase.table("ndvi_snapshots").insert({
+            "plot_id": plot_id,
+            "ndvi": ndvi_val,
+            "ndmi": ndmi_val if not isinstance(ndmi_val, Exception) else None,
+            "source": "Sentinel-2",
+        }).execute()
+        results["ndvi"] = ndvi_val
+
+    if not isinstance(weather_data, Exception) and weather_data:
+        supabase.table("weather_cache").insert({
+            "plot_id": plot_id,
+            "temp_c": weather_data.get("temp_c"),
+            "humidity_pct": weather_data.get("humidity_pct"),
+            "rainfall_mm": weather_data.get("rainfall_mm"),
+            "wind_speed_ms": weather_data.get("wind_speed_ms"),
+        }).execute()
+        results["weather"] = weather_data
+
+    if not isinstance(soil_data, Exception) and soil_data:
+        supabase.table("soil_data").insert({
+            "plot_id": plot_id,
+            "n": soil_data.get("N"),
+            "p": soil_data.get("P"),
+            "k": soil_data.get("K"),
+            "ph": soil_data.get("pH"),
+            "moisture_pct": soil_data.get("moisture_pct"),
+        }).execute()
+        results["soil"] = soil_data
+
+    return {"success": True, "results": results}
+
+
+@router.post("/{plot_id}/regenerate", tags=["Advisory"])
+async def regenerate_advisory(plot_id: str):
+    """Force regenerate advisory for a plot after data refresh."""
+    return await get_advisory(plot_id)

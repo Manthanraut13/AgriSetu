@@ -103,10 +103,10 @@ export default function OnboardingPage() {
       {/* Step 1: Farmer Info */}
       {step === 1 && (
         <form onSubmit={handleFarmerSubmit} className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4">Farmer Information</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('onboarding.title')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
+              <label className="block text-sm font-medium mb-1">{t('onboarding.name')}</label>
               <input
                 type="text" required
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
@@ -115,7 +115,7 @@ export default function OnboardingPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Phone</label>
+              <label className="block text-sm font-medium mb-1">{t('onboarding.phone')}</label>
               <input
                 type="tel" required
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
               className="w-full py-3 rounded-lg text-white font-semibold"
               style={{ background: loading ? '#ccc' : 'var(--green-primary)' }}
             >
-              {loading ? 'Loading...' : 'Next →'}
+              {loading ? '...' : t('onboarding.next')}
             </button>
           </div>
         </form>
@@ -155,26 +155,26 @@ export default function OnboardingPage() {
           <form onSubmit={handlePlotSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <input
-                type="text" placeholder="District"
+                type="text" placeholder={t('onboarding.district')}
                 className="px-4 py-2 border rounded-lg"
                 value={plotData.district}
                 onChange={(e) => setPlotData({ ...plotData, district: e.target.value })}
               />
               <input
-                type="text" placeholder="State"
+                type="text" placeholder={t('onboarding.state')}
                 className="px-4 py-2 border rounded-lg"
                 value={plotData.state}
                 onChange={(e) => setPlotData({ ...plotData, state: e.target.value })}
               />
             </div>
             <input
-              type="text" placeholder="Current crop (e.g., wheat)"
+              type="text" placeholder={t('onboarding.current_crop')}
               className="w-full px-4 py-2 border rounded-lg"
               value={plotData.current_crop}
               onChange={(e) => setPlotData({ ...plotData, current_crop: e.target.value })}
             />
             <input
-              type="text" placeholder="Previous crop"
+              type="text" placeholder={t('onboarding.last_crop')}
               className="w-full px-4 py-2 border rounded-lg"
               value={plotData.last_crop}
               onChange={(e) => setPlotData({ ...plotData, last_crop: e.target.value })}
@@ -197,7 +197,7 @@ export default function OnboardingPage() {
           <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--green-primary)' }}>
             {t('onboarding.success')}
           </h2>
-          <p className="text-gray-600 mb-6">Your farm data is being fetched in the background.</p>
+          <p className="text-gray-600 mb-6">{t('onboarding.loading')}</p>
           <button
             onClick={() => window.location.href = '/dashboard/farmer'}
             className="px-8 py-3 rounded-lg text-white font-semibold"

@@ -1,9 +1,12 @@
-"""Satellite NDVI/NDMI fetch service — Sentinel Hub API."""
+"""Satellite NDVI/NDMI fetch service — Sentinel Hub API (Process API with Instance ID)."""
 import time
 import logging
 import httpx
 from datetime import datetime, timedelta
 from typing import Optional
+import io
+from PIL import Image
+import numpy as np
 
 from config import settings
 
@@ -36,19 +39,20 @@ async def _get_access_token() -> str:
     token = data["access_token"]
     expires_in = data.get("expires_in", 3600)
     _token_cache["token"] = token
-    _token_cache["expires_at"] = now + expires_in - 60  # refresh 60s early
+    _token_cache["expires_at"] = now + expires_in - 60
 
     logger.info("Sentinel Hub token obtained")
     return token
 
 
-# NDVI evalscript
+# NDVI evalscript (Sentinel-2 L2A bands)
 NDVI_EVALSCRIPT = (
     "//VERSION=3\n"
     "function setup() {\n"
-    "  return { input: ['B04', 'B08'], output: { bands: 1 } };\n"
+    "  return { input: ['B04', 'B08', 'dataMask'], output: { bands: 1, sampleType: 'FLOAT32' } };\n"
     "}\n"
     "function evaluatePixel(sample) {\n"
+    "  if (sample.dataMask === 0) return [NaN];\n"
     "  return [(sample.B08 - sample.B04) / (sample.B08 + sample.B04)];\n"
     "}"
 )
@@ -57,9 +61,10 @@ NDVI_EVALSCRIPT = (
 NDMI_EVALSCRIPT = (
     "//VERSION=3\n"
     "function setup() {\n"
-    "  return { input: ['B08', 'B11'], output: { bands: 1 } };\n"
+    "  return { input: ['B08', 'B11', 'dataMask'], output: { bands: 1, sampleType: 'FLOAT32' } };\n"
     "}\n"
     "function evaluatePixel(sample) {\n"
+    "  if (sample.dataMask === 0) return [NaN];\n"
     "  return [(sample.B08 - sample.B11) / (sample.B08 + sample.B11)];\n"
     "}"
 )
@@ -67,9 +72,9 @@ NDMI_EVALSCRIPT = (
 
 def _bbox_from_point(lat: float, lon: float, size_km: float = 2.0) -> list:
     """Create a bounding box around a point."""
-    # Approximate degree offsets
+    import math
     lat_offset = size_km / 111.0
-    lon_offset = size_km / (111.0 * abs(__import__("math").cos(__import__("math").radians(lat))))
+    lon_offset = size_km / (111.0 * abs(math.cos(math.radians(lat))))
     return [
         lon - lon_offset,
         lat - lat_offset,
@@ -78,14 +83,19 @@ def _bbox_from_point(lat: float, lon: float, size_km: float = 2.0) -> list:
     ]
 
 
-async def _process_sentinel_image(
+async def _process_sentinel_index(
     bbox: list,
     evalscript: str,
     time_from: str,
     time_to: str,
 ) -> Optional[float]:
-    """Process a Sentinel image and return the mean pixel value."""
+    """Process a Sentinel index and return the mean pixel value."""
     token = await _get_access_token()
+
+    # Use instance ID if provided
+    base_url = "https://services.sentinel-hub.com/api/v1/process"
+    if settings.SENTINEL_HUB_INSTANCE_ID:
+        base_url = f"https://services.sentinel-hub.com/api/v1/process?instanceId={settings.SENTINEL_HUB_INSTANCE_ID}"
 
     payload = {
         "input": {
@@ -99,14 +109,15 @@ async def _process_sentinel_image(
                     "dataFilter": {
                         "timeRange": {"from": time_from, "to": time_to},
                         "maxCloudCoverage": 30,
+                        "mosaickingOrder": "mostRecent",
                     },
                 }
             ],
         },
         "evalscript": evalscript,
         "output": {
-            "width": 25,
-            "height": 25,
+            "width": 64,
+            "height": 64,
             "responses": [{"identifier": "default", "format": {"type": "image/tiff"}}],
         },
     }
@@ -120,38 +131,25 @@ async def _process_sentinel_image(
     async with httpx.AsyncClient() as client:
         try:
             resp = await client.post(
-                "https://services.sentinel-hub.com/api/v1/process",
+                base_url,
                 json=payload,
                 headers=headers,
                 timeout=60,
             )
             resp.raise_for_status()
         except httpx.HTTPStatusError as e:
-            logger.error(f"Sentinel Hub process error: {e.response.status_code} - {e.response.text[:200]}")
+            logger.error(f"Sentinel Hub process error: {e.response.status_code} - {e.response.text[:500]}")
             return None
         except Exception as e:
             logger.error(f"Sentinel Hub request failed: {e}")
             return None
 
-    # Parse TIFF response — extract mean value
-    # For simplicity, we'll approximate from the binary TIFF
-    # In production, use rasterio; for prototype, use the content length as rough proxy
-    # Actually, let's properly parse it
     try:
-        import io
-        from PIL import Image
-        import numpy as np
-
         img = Image.open(io.BytesIO(resp.content))
         arr = np.array(img, dtype=np.float32)
 
-        # Sentinel Hub returns scaled values (0-10000 range for L2A)
-        # Divide by 10000 for actual reflectance, then compute index
-        if arr.max() > 1.5:
-            arr = arr / 10000.0
-
-        # Mask invalid pixels
-        arr = arr[arr > 0]
+        # Handle NaN values
+        arr = arr[~np.isnan(arr)]
         if len(arr) == 0:
             return None
 
@@ -159,77 +157,39 @@ async def _process_sentinel_image(
         return round(mean_val, 4)
 
     except Exception as e:
-        logger.warning(f"Failed to parse TIFF: {e}")
-        # Fallback: return None
+        logger.error(f"Failed to parse TIFF response: {e}")
         return None
 
 
-async def fetch_ndvi(
-    lat: float,
-    lon: float,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-) -> Optional[float]:
-    """
-    Fetch NDVI for a location using Sentinel Hub.
-
-    Args:
-        lat: Latitude
-        lon: Longitude
-        start_date: ISO format start date (default: 30 days ago)
-        end_date: ISO format end date (default: today)
-
-    Returns:
-        NDVI value (float) or None if fetch fails
-    """
-    if end_date is None:
-        end_date = datetime.utcnow().strftime("%Y-%m-%dT23:59:59Z")
-    if start_date is None:
-        start_date = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%dT00:00:00Z")
-
-    # Ensure timezone format
-    if not start_date.endswith("Z"):
-        start_date += "T00:00:00Z"
-    if not end_date.endswith("Z"):
-        end_date += "T23:59:59Z"
-
-    bbox = _bbox_from_point(lat, lon)
-    logger.info(f"Fetching NDVI for ({lat}, {lon}) from {start_date} to {end_date}")
-
-    ndvi = await _process_sentinel_image(bbox, NDVI_EVALSCRIPT, start_date, end_date)
-    if ndvi is not None:
-        logger.info(f"NDVI for ({lat}, {lon}): {ndvi}")
-    else:
-        logger.warning(f"Failed to fetch NDVI for ({lat}, {lon})")
-    return ndvi
+async def fetch_ndvi(lat: float, lon: float) -> Optional[float]:
+    """Fetch NDVI for a location from Sentinel-2 L2A."""
+    logger.info(f"Fetching NDVI for ({lat}, {lon})")
+    
+    end = datetime.utcnow()
+    start = end - timedelta(days=30)  # Look back 30 days
+    
+    time_from = start.strftime("%Y-%m-%dT00:00:00Z")
+    time_to = end.strftime("%Y-%m-%dT23:59:59Z")
+    
+    bbox = _bbox_from_point(lat, lon, size_km=1.0)
+    
+    return await _process_sentinel_index(bbox, NDVI_EVALSCRIPT, time_from, time_to)
 
 
-async def fetch_ndmi(
-    lat: float,
-    lon: float,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-) -> Optional[float]:
-    """
-    Fetch NDMI (Normalized Difference Moisture Index) for a location.
-
-    Returns:
-        NDMI value (float) or None if fetch fails
-    """
-    if end_date is None:
-        end_date = datetime.utcnow().strftime("%Y-%m-%dT23:59:59Z")
-    if start_date is None:
-        start_date = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%dT00:00:00Z")
-
-    if not start_date.endswith("Z"):
-        start_date += "T00:00:00Z"
-    if not end_date.endswith("Z"):
-        end_date += "T23:59:59Z"
-
-    bbox = _bbox_from_point(lat, lon)
+async def fetch_ndmi(lat: float, lon: float) -> Optional[float]:
+    """Fetch NDMI for a location from Sentinel-2 L2A."""
     logger.info(f"Fetching NDMI for ({lat}, {lon})")
+    
+    end = datetime.utcnow()
+    start = end - timedelta(days=30)
+    
+    time_from = start.strftime("%Y-%m-%dT00:00:00Z")
+    time_to = end.strftime("%Y-%m-%dT23:59:59Z")
+    
+    bbox = _bbox_from_point(lat, lon, size_km=1.0)
+    
+    return await _process_sentinel_index(bbox, NDMI_EVALSCRIPT, time_from, time_to)
 
-    ndmi = await _process_sentinel_image(bbox, NDMI_EVALSCRIPT, start_date, end_date)
-    if ndmi is not None:
-        logger.info(f"NDMI for ({lat}, {lon}): {ndmi}")
-    return ndmi
+
+# For backward compatibility
+from datetime import timedelta
