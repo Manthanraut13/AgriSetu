@@ -34,7 +34,7 @@ export default function LandingPage() {
                 <button key={lang.code} onClick={() => switchLang(lang.code)}
                   className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                     i18n.language === lang.code
-                      ? 'bg-primary text-on-primary shadow-sm'
+                      ? 'bg-primary text-on-primary shadow-sm font-bold'
                       : 'text-on-surface-variant hover:text-primary'
                   }`}>
                   {lang.label}
@@ -43,17 +43,34 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="flex md:hidden items-center gap-1">
-            {[{ code: 'hi', label: 'हि' }, { code: 'mr', label: 'म' }, { code: 'en', label: 'EN' }].map((lang) => (
-              <button key={lang.code} onClick={() => switchLang(lang.code)}
-                className={`px-2 py-1 rounded text-xs font-bold ${
-                  i18n.language === lang.code
-                    ? 'bg-primary text-on-primary'
-                    : 'text-on-surface-variant'
-                }`}>
-                {lang.label}
-              </button>
-            ))}
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            {/* Language Selection on Mobile */}
+            <div className="flex md:hidden items-center gap-1 bg-surface-container p-0.5 rounded-full border border-outline-variant/40">
+              {[
+                { code: 'hi', label: 'हिं' },
+                { code: 'mr', label: 'मरा' },
+                { code: 'en', label: 'EN' },
+              ].map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => switchLang(lang.code)}
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-semibold transition-all ${
+                    i18n.language === lang.code
+                      ? 'bg-primary text-on-primary shadow-sm font-bold'
+                      : 'text-on-surface-variant'
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => navigate('/onboarding')}
+              className="bg-primary text-on-primary text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-primary-container transition-all active:scale-95 shadow-sm"
+            >
+              {t('landing.get_started')}
+            </button>
           </div>
         </div>
       </nav>
@@ -61,27 +78,32 @@ export default function LandingPage() {
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-10 py-8">
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center py-8 md:py-16">
           <div className="flex flex-col gap-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold w-fit bg-secondary-container text-on-secondary-container border border-outline-variant/40">
-              <span className="material-symbols-outlined text-sm">public</span>
-              {t('tagline')}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-container/50 border border-secondary-container text-secondary text-xs font-semibold w-fit">
+              <span className="material-symbols-outlined text-sm">hub</span>
+              {t('landing.network_badge')}
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold tracking-tight leading-tight text-primary">
-              {t('hero_title')}
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold text-primary tracking-tight leading-tight">
+              {t('landing.hero_title')}
             </h1>
-            <p className="text-lg max-w-lg leading-relaxed text-on-surface-variant">
-              {t('hero_desc')}
+            
+            <p className="text-lg text-on-surface-variant max-w-lg leading-relaxed">
+              {t('landing.hero_subtitle')}
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
-              <button onClick={() => navigate('/onboarding')}
-                className="bg-primary text-on-primary text-base font-semibold px-6 py-3.5 rounded-full shadow-sm flex items-center gap-2 hover:opacity-90 transition-opacity">
-                <span className="material-symbols-outlined text-xl">agriculture</span>
-                {t('register_your_farm')}
-                <span className="material-symbols-outlined text-xl">arrow_forward</span>
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="bg-primary text-on-primary text-base font-semibold px-6 py-3.5 rounded-xl hover:bg-primary-container transition-all shadow-sm flex items-center gap-2 group"
+              >
+                <span>{t('landing.register_farm')}</span>
+                <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">
+                  arrow_forward
+                </span>
               </button>
               <button onClick={() => navigate('/dashboard/farmer')}
                 className="bg-surface-container-low text-on-surface text-base font-semibold px-6 py-3.5 rounded-full flex items-center gap-2 border border-outline-variant/40 hover:bg-surface-container transition-colors">
                 <span className="material-symbols-outlined text-xl">dashboard</span>
-                {t('open_dashboard')}
+                <span>{t('landing.open_dashboard')}</span>
               </button>
             </div>
           </div>
@@ -142,8 +164,8 @@ export default function LandingPage() {
 
         <section className="py-12">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-3xl font-display font-extrabold mb-3 text-primary">{t('app_name')}</h2>
-            <p className="text-on-surface-variant">{t('hero_desc')}</p>
+            <h2 className="text-3xl font-display font-bold text-primary mb-3">{t('landing.suite_title')}</h2>
+            <p className="text-on-surface-variant">{t('landing.suite_subtitle')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -163,7 +185,42 @@ export default function LandingPage() {
                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </span>
               </div>
-            ))}
+              <h3 className="text-xl font-bold text-primary mb-2">{t('landing.hub_title')}</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-4">
+                {t('landing.hub_desc')}
+              </p>
+              <span className="text-sm font-semibold text-primary inline-flex items-center gap-1 group">
+                {t('landing.launch_hub')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </span>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-6 shadow-sm hover:border-primary transition-colors cursor-pointer" onClick={() => navigate('/dashboard/farmer')}>
+              <div className="w-12 h-12 rounded-2xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed mb-5">
+                <span className="material-symbols-outlined text-2xl">camera_alt</span>
+              </div>
+              <h3 className="text-xl font-bold text-primary mb-2">{t('landing.disease_title')}</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-4">
+                {t('landing.disease_desc')}
+              </p>
+              <span className="text-sm font-semibold text-primary inline-flex items-center gap-1">
+                {t('landing.scan_crop')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </span>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-6 shadow-sm hover:border-primary transition-colors cursor-pointer" onClick={() => navigate('/dashboard/agronomist')}>
+              <div className="w-12 h-12 rounded-2xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed mb-5">
+                <span className="material-symbols-outlined text-2xl">map</span>
+              </div>
+              <h3 className="text-xl font-bold text-primary mb-2">{t('landing.agronomist_title')}</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-4">
+                {t('landing.agronomist_desc')}
+              </p>
+              <span className="text-sm font-semibold text-primary inline-flex items-center gap-1">
+                {t('landing.open_command')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </span>
+            </div>
           </div>
         </section>
       </main>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
-import { getAllPlots } from '../api/agrisetu'
-import api from '../api/agrisetu'
+import api, { getAllPlots } from '../api/agrisetu'
+import { autoDetectAndSwitchLanguage } from '../utils/langDetect'
 
 function MapBounds({ plots }) {
   const map = useMap()
@@ -67,16 +67,92 @@ export default function AgronomistDashboard() {
             <span className="material-symbols-outlined text-primary text-3xl">eco</span>
             <span className="text-2xl font-display font-extrabold text-primary tracking-tight">{t('app_name')}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-surface-container-low p-1 rounded-full border border-outline-variant/40">
-              {[{ code: 'hi', label: 'हिंदी' }, { code: 'mr', label: 'मराठी' }, { code: 'en', label: 'EN' }].map((lang) => (
-                <button key={lang.code} onClick={() => i18n.changeLanguage(lang.code)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                    i18n.language === lang.code
-                      ? 'bg-primary text-on-primary shadow-sm'
-                      : 'text-on-surface-variant hover:text-primary'
-                  }`}>
-                  {lang.label}
+          <span className="h-4 w-[1px] bg-outline-variant/30"></span>
+          <span className="text-xs font-mono px-3 py-1 rounded-full bg-primary-container text-inverse-primary border border-inverse-primary/30">
+            Agronomist GIS Command Center
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 bg-[#1f402b]/60 p-1 rounded-full border border-outline-variant/30">
+            {[
+              { code: 'hi', label: 'हिंदी' },
+              { code: 'mr', label: 'मराठी' },
+              { code: 'en', label: 'EN' },
+            ].map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => i18n.changeLanguage(lang.code)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  i18n.language === lang.code
+                    ? 'bg-inverse-primary text-[#072a17] shadow-sm font-bold'
+                    : 'text-outline-variant hover:text-white'
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+          
+          <button onClick={() => window.location.href = '/dashboard/farmer'} className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-surface-tint/20 text-inverse-primary border border-inverse-primary/30 hover:bg-surface-tint/40 transition-colors">
+            {t('fpo.farmer_view')}
+          </button>
+          <button onClick={() => window.location.href = '/'} className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-inverse-surface text-white border border-outline-variant/30 hover:bg-surface-variant/20 transition-colors">
+            {t('fpo.exit')}
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Split Interface */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Sidebar Directory & Filters */}
+        <aside className="w-96 bg-[#1f402b]/40 backdrop-blur-md border-r border-outline-variant/20 flex flex-col z-20 h-full">
+          {/* Key Metrics */}
+          <div className="p-5 border-b border-outline-variant/20 grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-[11px] font-mono text-outline-variant uppercase mb-1">{t('fpo.total_plots')}</div>
+              <div className="text-2xl font-bold font-mono text-white">{plots.length || 24}</div>
+            </div>
+            <div>
+              <div className="text-[11px] font-mono text-outline-variant uppercase mb-1">{t('fpo.avg_ndvi')}</div>
+              <div className="text-2xl font-bold font-mono text-inverse-primary">{avgNdvi}</div>
+            </div>
+            <div className="col-span-2 bg-error/20 border border-error/30 rounded-xl p-3 flex items-center gap-3">
+              <span className="material-symbols-outlined text-error">warning</span>
+              <span className="text-xs font-semibold text-error">
+                {activeAlerts > 0 ? t('fpo.attention_req', { count: activeAlerts }) : t('fpo.good_range')}
+              </span>
+            </div>
+          </div>
+
+          {/* Search & Filter */}
+          <div className="p-4 border-b border-outline-variant/20 flex flex-col gap-3">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm">
+                search
+              </span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  autoDetectAndSwitchLanguage(e.target.value)
+                }}
+                placeholder={t('fpo.search_placeholder')}
+                className="w-full bg-[#1c1c16] border border-outline-variant/30 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-outline-variant focus:outline-none focus:border-inverse-primary"
+              />
+            </div>
+
+            <div className="flex bg-[#1c1c16] rounded-xl p-1 border border-outline-variant/20 text-xs font-mono">
+              {['ALL', 'HIGH', 'WARN', 'CRIT'].map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`flex-1 py-1 rounded-lg transition-colors text-[11px] font-semibold ${
+                    filter === f ? 'bg-primary-container text-inverse-primary shadow-sm' : 'text-outline-variant hover:text-white'
+                  }`}
+                >
+                  {f}
                 </button>
               ))}
             </div>

@@ -104,6 +104,62 @@ def predict_crop(
         return None
 
 
+def calculate_personalized_fertilizer_dosage(
+    crop_name: str,
+    N: float,
+    P: float,
+    K: float,
+    last_crop: Optional[str] = None,
+) -> dict:
+    """
+    Calculate personalized fertilizer dosage & bags based on crop NPK targets vs soil tests.
+    """
+    targets = {
+        "wheat": {"N": 120, "P": 60, "K": 40},
+        "rice": {"N": 100, "P": 50, "K": 50},
+        "maize": {"N": 120, "P": 60, "K": 50},
+        "cotton": {"N": 120, "P": 60, "K": 60},
+        "soybean": {"N": 30, "P": 80, "K": 40},
+        "sugarcane": {"N": 250, "P": 115, "K": 115},
+        "chickpea": {"N": 20, "P": 60, "K": 20},
+        "groundnut": {"N": 25, "P": 50, "K": 75},
+        "default": {"N": 90, "P": 50, "K": 40},
+    }
+
+    crop_key = crop_name.lower().strip() if crop_name else "default"
+    req = targets.get(crop_key, targets["default"])
+
+    # Legume nitrogen credit
+    legumes = ["chickpea", "lentil", "pea", "bean", "groundnut", "soybean"]
+    n_credit = 20.0 if last_crop and any(l in last_crop.lower() for l in legumes) else 0.0
+
+    n_deficit = max(0.0, req["N"] - (N + n_credit))
+    p_deficit = max(0.0, req["P"] - P)
+    k_deficit = max(0.0, req["K"] - K)
+
+    # Convert to standard fertilizer bags (45kg per bag)
+    # DAP gives 18% N + 46% P
+    dap_bags = round((p_deficit / 0.46) / 45.0, 1)
+    # Urea gives 46% N (subtract N provided by DAP)
+    n_from_dap = dap_bags * 45.0 * 0.18
+    n_rem = max(0.0, n_deficit - n_from_dap)
+    urea_bags = round((n_rem / 0.46) / 45.0, 1)
+    # MOP (Muriate of Potash) gives 60% K
+    mop_bags = round((k_deficit / 0.60) / 45.0, 1)
+
+    return {
+        "crop": crop_name,
+        "target_npk": req,
+        "legume_credit_n": n_credit,
+        "deficit": {"N": round(n_deficit, 1), "P": round(p_deficit, 1), "K": round(k_deficit, 1)},
+        "recommended_bags_per_hectare": {
+            "Urea_45kg": max(0.5, urea_bags),
+            "DAP_45kg": max(0.5, dap_bags),
+            "MOP_45kg": max(0.5, mop_bags),
+        },
+    }
+
+
 def apply_regenerative_rules(
     crop_recommendations: List[dict],
     soil_data: dict,
@@ -147,8 +203,8 @@ def apply_regenerative_rules(
         })
 
     # Rule 4: High rainfall forecast → delay sowing, use raised beds
-    rainfall = weather_data.get("rainfall_mm", 0)
-    if rainfall and rainfall > 100:
+    rainfall = weather_data.get("rainfall_mm") or 0
+    if rainfall > 100:
         practices.append({
             "practice": "Raised Bed Farming",
             "description": f"Heavy rainfall expected ({rainfall}mm). "

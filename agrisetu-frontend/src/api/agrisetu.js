@@ -28,11 +28,13 @@ export const getAdvisory = (plotId) => api.get(`/api/v1/advisory/${plotId}`)
 export const refreshPlotData = (plotId) => api.post(`/api/v1/advisory/${plotId}/refresh`)
 export const regenerateAdvisory = (plotId) => api.post(`/api/v1/advisory/${plotId}/regenerate`)
 
-// ── Chat ────────────────────────────────────────────────────
-export const sendChatMessage = (data) => api.post('/api/v1/chat/message', data)
-export const getChatHistory = (sessionId) => api.get(`/api/v1/chat/history/${sessionId}`)
-export const clearChatSession = (sessionId) => api.delete(`/api/v1/chat/session/${sessionId}`)
-export const getFarmerPlots = (farmerId) => api.get(`/api/v1/chat/farmer/${farmerId}/plots`)
+// ── Chat & Voice ────────────────────────────────────────────
+export const sendChatMessage = (data) => api.post('/api/v1/chat/ask', data)
+export const sendVoiceQuestion = (formData) =>
+  api.post('/api/v1/voice/ask', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
 
 // ── Dashboard ───────────────────────────────────────────────
 export const getFarmerPlotsDashboard = (farmerId) => api.get(`/api/v1/dashboard/plots/${farmerId}`)
