@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import DiseaseUploader from '../components/DiseaseUploader'
 import AdvisoryCard from '../components/AdvisoryCard'
 import ChatWidget from '../components/ChatWidget'
+import { supabase } from '../lib/supabase'
 import { getPlotSummary, getAdvisory, getAllPlots } from '../api/agrisetu'
 
 export default function FarmerDashboard() {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const [plot, setPlot] = useState(null)
   const [advisory, setAdvisory] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -16,12 +19,18 @@ export default function FarmerDashboard() {
   const [isRegistered, setIsRegistered] = useState(false)
   const [farmerInfo, setFarmerInfo] = useState(null)
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {
+      console.warn('Supabase signout failed:', e)
+    }
     localStorage.removeItem('agrisetu_farmer')
     localStorage.removeItem('agrisetu_active_plot_id')
     setIsRegistered(false)
     setFarmerInfo(null)
     setPlot(null)
+    navigate('/login', { replace: true })
   }
 
   useEffect(() => { loadData() }, [])
@@ -135,6 +144,16 @@ export default function FarmerDashboard() {
             </div>
             {isRegistered && (
               <button
+                onClick={() => navigate('/profile')}
+                title="Profile & Farm Registration"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-primary-container text-on-primary-container hover:bg-secondary-container transition-colors flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-sm">person</span>
+                <span>Profile</span>
+              </button>
+            )}
+            {isRegistered && (
+              <button
                 onClick={handleLogout}
                 title="Logout & Clear Registration"
                 className="px-3 py-1.5 rounded-full text-xs font-semibold bg-outline-variant/30 text-on-surface hover:bg-error/20 hover:text-error transition-colors flex items-center gap-1"
@@ -194,7 +213,7 @@ export default function FarmerDashboard() {
 
             <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
               <button
-                onClick={() => window.location.href = '/onboarding'}
+                onClick={() => navigate('/profile')}
                 className="px-8 py-3.5 bg-primary text-on-primary font-bold text-sm rounded-2xl shadow-md hover:bg-primary-container transition-all flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-lg">how_to_reg</span>

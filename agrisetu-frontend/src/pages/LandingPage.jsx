@@ -25,7 +25,7 @@ export default function LandingPage() {
 
           {/* Navigation Links (Desktop) */}
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-on-surface-variant">
-            <button onClick={() => navigate('/onboarding')} className="hover:text-primary transition-colors">
+            <button onClick={() => navigate('/login')} className="hover:text-primary transition-colors">
               {t('register_farm')}
             </button>
             <button onClick={() => navigate('/dashboard/farmer')} className="hover:text-primary transition-colors">
@@ -80,7 +80,7 @@ export default function LandingPage() {
               ))}
             </div>
             <button
-              onClick={() => navigate('/onboarding')}
+              onClick={() => navigate('/login')}
               className="bg-primary text-on-primary text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-primary-container transition-all active:scale-95 shadow-sm"
             >
               {t('landing.get_started')}
@@ -109,7 +109,7 @@ export default function LandingPage() {
 
             <div className="flex flex-wrap gap-4 pt-2">
               <button
-                onClick={() => navigate('/onboarding')}
+                onClick={() => navigate('/login')}
                 className="bg-primary text-on-primary text-base font-semibold px-6 py-3.5 rounded-xl hover:bg-primary-container transition-all shadow-sm flex items-center gap-2 group"
               >
                 <span>{t('landing.register_farm')}</span>

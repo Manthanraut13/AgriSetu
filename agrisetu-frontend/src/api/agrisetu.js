@@ -36,6 +36,15 @@ export const sendVoiceQuestion = (formData) =>
 export const getFarmerPlots = (farmerId) => api.get(`/api/v1/dashboard/plots/${farmerId}`)
 export const getAllPlots = () => api.get('/api/v1/dashboard/plots')
 
+// ── Auth ───────────────────────────────────────────────────
+export const getFarmerByPhone = (phone) => api.get(`/api/v1/onboarding/farmer/by-phone/${phone}`)
+export const linkUserToFarmer = (userId, phone) =>
+  api.post('/api/v1/auth/link', { user_id: userId, phone })
+export const getMeByUserId = (userId) =>
+  api.get('/api/v1/auth/me', { headers: { 'X-User-Id': userId } })
+export const updateFarmerProfile = (farmerId, updates) =>
+  api.patch(`/api/v1/onboarding/farmer/${farmerId}`, updates)
+
 // ── BRICS API ───────────────────────────────────────────────
 export const getBRICSAdvisory = (plotId) => api.get(`/api/v1/brics/advisory/${plotId}`)
 export const getBRICSAggregate = (country) => api.get(`/api/v1/brics/aggregate`, { params: { country } })

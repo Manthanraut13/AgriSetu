@@ -156,6 +156,14 @@ try:
 except ImportError as e:
     logger.debug(f"BRICS API router not yet available: {e}")
 
+# Auth
+try:
+    from routers.auth import router as auth_router
+    app.include_router(auth_router, prefix="/api/v1", tags=["Auth"])
+    logger.info("✓ Auth router mounted")
+except ImportError as e:
+    logger.debug(f"Auth router not yet available: {e}")
+
 
 # ── Global Error Handler ────────────────────────────────────
 @app.exception_handler(Exception)
