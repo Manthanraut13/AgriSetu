@@ -28,14 +28,10 @@ async def lifespan(app: FastAPI):
     validate_config()
 
     # Load ML models (lazy import to avoid circular deps)
-    from services.disease_model import load_cnn_model
+    # CNN disease model is NOT loaded at startup — it lazy-loads on first
+    # request via load_cnn_model(). This keeps startup memory under 200MB,
+    # critical for free-tier hosts like Render (512MB limit).
     from services.crop_model import load_crop_model
-
-    try:
-        load_cnn_model()
-        logger.info("✓ Disease model loaded (Gemini Vision + CNN)")
-    except Exception as e:
-        logger.warning(f"Disease model load failed: {e}")
 
     try:
         load_crop_model()

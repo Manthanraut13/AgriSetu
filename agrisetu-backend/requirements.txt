@@ -1,5 +1,14 @@
 # AgriSetu Backend Dependencies
 # Python 3.11+
+#
+# NOTE: PyTorch, torchvision, timm, openai-whisper, and sentence-transformers
+# are intentionally NOT included. All heavy ML imports are lazy in the code,
+# and the deployed prototype uses Gemini Vision (disease) and pgvector/keyword
+# search (RAG) instead of local models. This keeps the container under 500MB
+# and runtime memory well below Render free-tier limits.
+#
+# For local development WITH local CNN inference, additionally run:
+#   pip install torch torchvision timm sentence-transformers openai-whisper
 
 fastapi>=0.110.0
 uvicorn[standard]>=0.27.0
@@ -12,17 +21,14 @@ python-dotenv>=1.0.0
 python-multipart>=0.0.6
 Pillow>=10.0.0
 
-# ML / AI
-torch>=2.1.0
-torchvision>=0.16.0
-timm>=0.9.0
+# ML (lightweight)
 xgboost>=2.0.0
-scikit-learn>=1.3.0
-sentence-transformers>=2.2.0
+numpy<2.3
+
+# LLM / Vision / Translation
 google-generativeai>=0.5.0
 
-# Voice (ASR + TTS)
-openai-whisper>=20231117
+# Voice (TTS; ASR handled by Gemini API)
 gTTS>=2.5.0
 
 # WhatsApp
@@ -30,7 +36,3 @@ twilio>=9.0.0
 
 # Security
 slowapi>=0.1.9
-
-# Utilities
-ruff>=0.1.0
-numpy

@@ -1,23 +1,15 @@
-"""Disease Model Service — Gemini Vision + CNN for known plants."""
+"""Disease Model Service — Gemini Vision + CNN for known plants.
+
+PyTorch/timm are imported lazily inside the functions that use them.
+This keeps startup memory under 200MB — critical for free-tier hosts
+like Render (512MB limit).
+"""
 import io
 import base64
 import json
 import logging
 from typing import Optional
 
-try:
-    import torch
-    import torch.nn as nn
-    import timm
-    _TORCH_AVAILABLE = True
-except ImportError:
-    torch = None
-    nn = None
-    timm = None
-    _TORCH_AVAILABLE = False
-
-from PIL import Image
-import numpy as np
 import google.generativeai as genai
 import concurrent.futures
 
@@ -106,13 +98,16 @@ Rules:
 # ─── CNN Functions ───────────────────────────────────────────
 
 def load_cnn_model():
-    """Load the CNN model into memory."""
+    """Load the CNN model into memory. Lazy-imports torch/timm."""
     global _model, _class_names, _device, _cnn_loaded
 
     if _cnn_loaded:
         return
 
-    if not _TORCH_AVAILABLE:
+    try:
+        import torch
+        import timm
+    except ImportError:
         logger.warning("PyTorch/timm not available — Gemini Vision mode enabled")
         return
 
@@ -148,7 +143,9 @@ def _cnn_predict_disease(image_bytes: bytes, plant_group: str) -> Optional[dict]
         return None
 
     try:
+        import torch
         from torchvision import transforms
+        from PIL import Image
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         transform = transforms.Compose([
             transforms.Resize((DISEASE_MODEL_INPUT_SIZE, DISEASE_MODEL_INPUT_SIZE)),
@@ -208,6 +205,7 @@ _VISION_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 def _call_gemini_vision(prompt: str, image_bytes: bytes) -> Optional[str]:
     """Robust Gemini Vision call with fallback and reasonable timeout."""
     try:
+        from PIL import Image
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     except Exception as img_err:
         logger.error(f"Failed to open image for Gemini Vision: {img_err}")
@@ -329,6 +327,8 @@ Rules:
 def _cv_analyze_leaf(image_bytes: bytes, language: str = "hi") -> dict:
     """Analyze leaf color spectrum (green/yellow/brown ratio) using PIL & NumPy."""
     try:
+        from PIL import Image
+        import numpy as np
         img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         arr = np.array(img, dtype=np.float32)
         r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
