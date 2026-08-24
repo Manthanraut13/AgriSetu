@@ -16,6 +16,14 @@ export default function FarmerDashboard() {
   const [isRegistered, setIsRegistered] = useState(false)
   const [farmerInfo, setFarmerInfo] = useState(null)
 
+  const handleLogout = () => {
+    localStorage.removeItem('agrisetu_farmer')
+    localStorage.removeItem('agrisetu_active_plot_id')
+    setIsRegistered(false)
+    setFarmerInfo(null)
+    setPlot(null)
+  }
+
   useEffect(() => { loadData() }, [])
 
   const loadData = async () => {
@@ -125,6 +133,16 @@ export default function FarmerDashboard() {
                 </button>
               ))}
             </div>
+            {isRegistered && (
+              <button
+                onClick={handleLogout}
+                title="Logout & Clear Registration"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold bg-outline-variant/30 text-on-surface hover:bg-error/20 hover:text-error transition-colors flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-sm">logout</span>
+                <span>Reset / Logout</span>
+              </button>
+            )}
             <button
               onClick={() => window.location.href = '/dashboard/agronomist'}
               className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary-container text-on-primary hover:bg-primary transition-colors flex items-center gap-1"
