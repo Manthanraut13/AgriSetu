@@ -61,21 +61,28 @@ async def create_plot(body: PlotCreate):
     plot_id = result.data[0]["id"]
     logger.info(f"Plot created: {plot_id}")
 
-    # Fetch data INLINE so dashboard has data immediately
+    # Fetch telemetry data with 3s timeout so response never hangs
     lat, lon = body.center_lat, body.center_lon
     try:
         import asyncio
-        ndvi_val, ndmi_val, weather, soil = await asyncio.gather(
-            fetch_ndvi(lat, lon),
-            fetch_ndmi(lat, lon),
-            fetch_weather(lat, lon),
-            fetch_soil(lat, lon),
-            return_exceptions=True,
-        )
+        try:
+            ndvi_val, ndmi_val, weather, soil = await asyncio.wait_for(
+                asyncio.gather(
+                    fetch_ndvi(lat, lon),
+                    fetch_ndmi(lat, lon),
+                    fetch_weather(lat, lon),
+                    fetch_soil(lat, lon),
+                    return_exceptions=True,
+                ),
+                timeout=3.0
+            )
+        except asyncio.TimeoutError:
+            logger.warning(f"Telemetry fetch timed out for plot {plot_id}, using defaults")
+            ndvi_val, ndmi_val, weather, soil = 0.68, 0.42, {}, {}
 
         # Store NDVI (or default 0.68)
-        ndvi = ndvi_val if not isinstance(ndvi_val, Exception) and ndvi_val is not None else 0.68
-        ndmi = ndmi_val if not isinstance(ndmi_val, Exception) and ndmi_val is not None else 0.42
+        ndvi = ndvi_val if not isinstance(ndvi_val, Exception) and isinstance(ndvi_val, (int, float)) else 0.68
+        ndmi = ndmi_val if not isinstance(ndmi_val, Exception) and isinstance(ndmi_val, (int, float)) else 0.42
         supabase.table("ndvi_snapshots").insert({
             "plot_id": plot_id,
             "ndvi": ndvi,
@@ -85,11 +92,11 @@ async def create_plot(body: PlotCreate):
         logger.info(f"Stored NDVI {ndvi} for plot {plot_id}")
 
         # Store weather (or default)
-        w_temp = weather.get("temp_c") if not isinstance(weather, Exception) and weather and weather.get("temp_c") is not None else 28.0
-        w_hum = weather.get("humidity_pct") if not isinstance(weather, Exception) and weather and weather.get("humidity_pct") is not None else 65.0
-        w_rain = weather.get("rainfall_mm") if not isinstance(weather, Exception) and weather and weather.get("rainfall_mm") is not None else 0.0
-        w_wind = weather.get("wind_speed_ms") if not isinstance(weather, Exception) and weather and weather.get("wind_speed_ms") is not None else 2.5
-        w_desc = weather.get("description") if not isinstance(weather, Exception) and weather and weather.get("description") else "Partly Cloudy"
+        w_temp = weather.get("temp_c") if isinstance(weather, dict) and weather.get("temp_c") is not None else 28.0
+        w_hum = weather.get("humidity_pct") if isinstance(weather, dict) and weather.get("humidity_pct") is not None else 65.0
+        w_rain = weather.get("rainfall_mm") if isinstance(weather, dict) and weather.get("rainfall_mm") is not None else 0.0
+        w_wind = weather.get("wind_speed_ms") if isinstance(weather, dict) and weather.get("wind_speed_ms") is not None else 2.5
+        w_desc = weather.get("description") if isinstance(weather, dict) and weather.get("description") else "Partly Cloudy"
         supabase.table("weather_cache").insert({
             "plot_id": plot_id,
             "temp_c": w_temp,
@@ -102,11 +109,11 @@ async def create_plot(body: PlotCreate):
         logger.info(f"Stored weather for plot {plot_id}")
 
         # Store soil (or default)
-        s_n = soil.get("N") if not isinstance(soil, Exception) and soil and soil.get("N") is not None else 140.0
-        s_p = soil.get("P") if not isinstance(soil, Exception) and soil and soil.get("P") is not None else 45.0
-        s_k = soil.get("K") if not isinstance(soil, Exception) and soil and soil.get("K") is not None else 190.0
-        s_ph = soil.get("pH") if not isinstance(soil, Exception) and soil and soil.get("pH") is not None else 6.5
-        s_moist = soil.get("moisture_pct") if not isinstance(soil, Exception) and soil and soil.get("moisture_pct") is not None else 22.4
+        s_n = soil.get("N") if isinstance(soil, dict) and soil.get("N") is not None else 140.0
+        s_p = soil.get("P") if isinstance(soil, dict) and soil.get("P") is not None else 45.0
+        s_k = soil.get("K") if isinstance(soil, dict) and soil.get("K") is not None else 190.0
+        s_ph = soil.get("pH") if isinstance(soil, dict) and soil.get("pH") is not None else 6.5
+        s_moist = soil.get("moisture_pct") if isinstance(soil, dict) and soil.get("moisture_pct") is not None else 22.4
         supabase.table("soil_data").insert({
             "plot_id": plot_id,
             "n": s_n,

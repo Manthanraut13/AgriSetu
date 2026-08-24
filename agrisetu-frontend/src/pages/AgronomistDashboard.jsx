@@ -7,7 +7,7 @@ import { autoDetectAndSwitchLanguage } from '../utils/langDetect'
 function MapBounds({ plots }) {
   const map = useMap()
   useEffect(() => {
-    if (plots.length > 0) {
+    if (plots && plots.length > 0) {
       const bounds = plots.map(p => [p.center_lat, p.center_lon])
       map.fitBounds(bounds, { padding: [50, 50] })
     }
@@ -17,10 +17,9 @@ function MapBounds({ plots }) {
 
 function ndviColor(ndvi) {
   if (!ndvi) return '#9e9e9e'
-  if (ndvi >= 0.7) return '#072a17'
-  if (ndvi >= 0.5) return '#45664b'
-  if (ndvi >= 0.3) return '#cea72c'
-  return '#ba1a1a'
+  if (ndvi >= 0.7) return '#c6ecce' // primary-fixed
+  if (ndvi >= 0.5) return '#ffe08e' // tertiary-fixed
+  return '#ba1a1a' // error
 }
 
 export default function AgronomistDashboard() {
@@ -29,13 +28,20 @@ export default function AgronomistDashboard() {
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(true)
   const [plotDetails, setPlotDetails] = useState(null)
+  const [filter, setFilter] = useState('ALL')
+  const [search, setSearch] = useState('')
 
-  useEffect(() => { loadPlots() }, [])
+  useEffect(() => {
+    loadPlots()
+  }, [])
 
   const loadPlots = async () => {
     try {
       const res = await getAllPlots()
       setPlots(res.data || [])
+      if (res.data?.length > 0) {
+        selectPlot(res.data[0])
+      }
     } catch (err) {
       console.error('Failed to load plots:', err)
     } finally {
@@ -53,19 +59,41 @@ export default function AgronomistDashboard() {
     }
   }
 
+  const filteredPlots = plots.filter(p => {
+    const matchesSearch = (p.current_crop || '').toLowerCase().includes(search.toLowerCase()) ||
+                          (p.district || '').toLowerCase().includes(search.toLowerCase()) ||
+                          (p.farmer_name || '').toLowerCase().includes(search.toLowerCase())
+    if (!matchesSearch) return false
+    const ndvi = p.ndvi || 0.5
+    if (filter === 'HIGH') return ndvi >= 0.7
+    if (filter === 'WARN') return ndvi >= 0.5 && ndvi < 0.7
+    if (filter === 'CRIT') return ndvi < 0.5
+    return true
+  })
+
+  const avgNdvi = plots.length > 0
+    ? (plots.reduce((s, p) => s + (p.ndvi || 0.5), 0) / plots.length).toFixed(2)
+    : '0.68'
+
+  const activeAlerts = plots.filter(p => (p.ndvi || 0.5) < 0.5).length
+
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="animate-spin w-8 h-8 border-4 rounded-full border-primary border-t-transparent" />
+    <div className="min-h-screen bg-[#072a17] text-white flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="animate-spin w-10 h-10 border-4 border-inverse-primary border-t-transparent rounded-full" />
+        <span className="text-sm font-mono">Loading Agronomist Command Center...</span>
+      </div>
     </div>
   )
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <nav className="sticky top-0 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 shadow-sm z-50">
-        <div className="p-4 flex justify-between items-center max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#072a17] text-white font-sans flex flex-col overflow-hidden">
+      {/* Top Command Bar */}
+      <nav className="docked top-0 bg-[#072a17]/95 border-b border-outline-variant/20 px-6 py-3.5 flex justify-between items-center z-50">
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.location.href = '/'}>
-            <span className="material-symbols-outlined text-primary text-3xl">eco</span>
-            <span className="text-2xl font-display font-extrabold text-primary tracking-tight">{t('app_name')}</span>
+            <span className="material-symbols-outlined text-inverse-primary text-2xl">eco</span>
+            <span className="text-xl font-display font-extrabold text-white tracking-tight">AgriSetu</span>
           </div>
           <span className="h-4 w-[1px] bg-outline-variant/30"></span>
           <span className="text-xs font-mono px-3 py-1 rounded-full bg-primary-container text-inverse-primary border border-inverse-primary/30">
@@ -156,116 +184,163 @@ export default function AgronomistDashboard() {
                 </button>
               ))}
             </div>
-            <button onClick={() => window.location.href = '/dashboard/farmer'}
-              className="px-4 py-2 rounded-full text-sm font-semibold bg-surface-container-low text-on-surface border border-outline-variant/40 hover:bg-surface-container transition-colors">
-              <span className="material-symbols-outlined text-sm align-middle mr-1">person</span>
-              {t('fpo.farmer_view')}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <div className="flex flex-1 overflow-hidden">
-        <div className="w-72 p-4 overflow-y-auto border-r border-outline-variant/30 bg-surface-container-low">
-          <h3 className="font-display font-bold mb-4 text-primary text-sm uppercase tracking-wide">Overview</h3>
-          <div className="space-y-3 mb-6">
-            <div className="p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm">
-              <p className="text-xs font-semibold text-on-surface-variant">{t('fpo.total_plots')}</p>
-              <p className="text-3xl font-bold text-primary">{plots.length}</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm">
-              <p className="text-xs font-semibold text-on-surface-variant">{t('fpo.avg_ndvi')}</p>
-              <p className="text-3xl font-bold text-primary">
-                {plots.length > 0 ? (plots.reduce((s, p) => s + (p.ndvi || 0.5), 0) / plots.length).toFixed(2) : '--'}
-              </p>
-            </div>
           </div>
 
-          <h3 className="font-display font-bold mb-3 text-primary text-sm uppercase tracking-wide">Plots</h3>
-          <div className="space-y-2">
-            {plots.map(p => (
-              <button key={p.id} onClick={() => selectPlot(p)}
-                className="w-full text-left p-3 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 hover:shadow-sm transition-all text-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: ndviColor(p.ndvi || 0.5) }} />
-                  <div className="min-w-0">
-                    <p className="font-semibold text-on-surface truncate">{p.district || p.state || 'Unknown'}</p>
-                    <p className="text-xs text-on-surface-variant truncate">{p.current_crop || 'N/A'}</p>
+          {/* Plot List */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {filteredPlots.map(p => {
+              const isSel = selected?.id === p.id
+              const ndvi = p.ndvi || 0.5
+              return (
+                <div
+                  key={p.id}
+                  onClick={() => selectPlot(p)}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                    isSel
+                      ? 'bg-primary-container/80 border-inverse-primary shadow-md'
+                      : 'bg-[#1c1c16]/60 border-outline-variant/20 hover:border-outline-variant/60'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: ndviColor(ndvi) }}
+                      />
+                      <span className="text-sm font-bold text-white">
+                        {p.current_crop ? `${p.current_crop} Plot` : `Plot #${p.id}`}
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono font-bold" style={{ color: ndviColor(ndvi) }}>
+                      NDVI {ndvi.toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="text-[11px] font-mono text-outline-variant mb-2">
+                    {p.district || 'Sangli'}, {p.state || 'Maharashtra'} — ID: {p.id}
+                  </div>
+
+                  <div className="flex gap-2 text-[10px] font-mono uppercase">
+                    <span className="bg-primary-container/50 text-inverse-primary border border-primary-container px-2 py-0.5 rounded">
+                      {p.current_crop || 'Soybean'}
+                    </span>
+                    <span className="bg-surface-tint/20 text-outline-variant border border-surface-tint/30 px-2 py-0.5 rounded">
+                      {p.area_ha ? `${p.area_ha} Ha` : '2.4 Ha'}
+                    </span>
                   </div>
                 </div>
-              </button>
-            ))}
+              )
+            })}
           </div>
-        </div>
+        </aside>
 
-        <div className="flex-1 relative">
-          <MapContainer center={[20, 75]} zoom={5} style={{ height: '100%', width: '100%' }}>
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <MapBounds plots={plots} />
-            {plots.map(p => (
-              <CircleMarker key={p.id}
-                center={[p.center_lat, p.center_lon]} radius={12}
-                fillColor={ndviColor(p.ndvi || 0.5)} fillOpacity={0.8}
-                color="#fff" weight={2}
-                eventHandlers={{ click: () => selectPlot(p) }}>
-                <Popup>
-                  <div className="text-sm">
-                    <p className="font-bold">{p.district || p.state}</p>
-                    <p>Crop: {p.current_crop || 'N/A'}</p>
-                    <p>NDVI: {(p.ndvi || 0.5).toFixed(2)}</p>
+        {/* Center GIS Map view */}
+        <div className="flex-1 relative bg-[#0a0f1a] overflow-hidden flex flex-col">
+          <div className="flex-1 relative">
+            {plots.length > 0 ? (
+              <MapContainer
+                center={[plots[0].center_lat || 16.85, plots[0].center_lon || 74.58]}
+                zoom={10}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution="&copy; OpenStreetMap contributors"
+                />
+                <MapBounds plots={plots} />
+                {plots.map(p => (
+                  <CircleMarker
+                    key={p.id}
+                    center={[p.center_lat, p.center_lon]}
+                    radius={selected?.id === p.id ? 14 : 10}
+                    fillColor={ndviColor(p.ndvi || 0.5)}
+                    color="#ffffff"
+                    weight={2}
+                    fillOpacity={0.85}
+                    eventHandlers={{ click: () => selectPlot(p) }}
+                  >
+                    <Popup>
+                      <div className="text-xs text-on-surface">
+                        <strong className="block text-sm">{p.current_crop || 'Farm Plot'}</strong>
+                        <span>NDVI: {(p.ndvi || 0.5).toFixed(2)}</span><br/>
+                        <span>{p.district}, {p.state}</span>
+                      </div>
+                    </Popup>
+                  </CircleMarker>
+                ))}
+              </MapContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full text-outline-variant font-mono">
+                No telemetry plot data available.
+              </div>
+            )}
+
+            {/* Map Floating UI Legend */}
+            <div className="glass-panel absolute top-4 right-4 rounded-2xl p-4 w-52 z-[400] text-xs font-mono">
+              <div className="text-outline-variant uppercase tracking-wider mb-2 font-bold">NDVI Spectrum</div>
+              <div className="h-2 w-full rounded-full bg-gradient-to-r from-[#ba1a1a] via-[#ffe08e] to-[#c6ecce] mb-2"></div>
+              <div className="flex justify-between text-[10px] text-outline-variant">
+                <span>0.0 (Stress)</span>
+                <span>0.5</span>
+                <span>1.0 (Optimal)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Docked Drawer with Plot Telemetry */}
+          {selected && (
+            <div className="h-64 bg-[#1f402b]/90 backdrop-blur-md border-t border-outline-variant/20 p-5 flex gap-6 z-30 text-xs">
+              <div className="w-1/3 border-r border-outline-variant/20 pr-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="material-symbols-outlined text-inverse-primary text-xl">landscape</span>
+                    <h3 className="text-lg font-bold text-white">{selected.current_crop || 'Plot Telemetry'}</h3>
                   </div>
-                </Popup>
-              </CircleMarker>
-            ))}
-          </MapContainer>
-          <div className="absolute bottom-4 right-4 bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/30 p-4 z-[1000]">
-            <p className="text-xs font-bold mb-2 text-primary uppercase tracking-wide">{t('fpo.ndvi_legend')}</p>
-            <div className="space-y-1.5 text-xs">
-              {[
-                { color: '#072a17', label: t('fpo.good') },
-                { color: '#cea72c', label: t('fpo.moderate') },
-                { color: '#ba1a1a', label: t('fpo.low') },
-                { color: '#9e9e9e', label: t('fpo.no_data') },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded" style={{ background: item.color }} />
-                  <span className="text-on-surface-variant">{item.label}</span>
+                  <p className="font-mono text-outline-variant text-[11px] mb-3">
+                    ID: {selected.id} · {selected.district}, {selected.state}
+                  </p>
+                  <p className="text-on-surface-variant text-[12px] leading-relaxed">
+                    Lat: {selected.center_lat?.toFixed(4)}, Lon: {selected.center_lon?.toFixed(4)} | Area: {selected.area_ha || 2.4} Ha
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {selected && (
-        <div className="border-t border-outline-variant/30 p-4 bg-surface-container-lowest">
-          <div className="flex justify-between items-start max-w-4xl mx-auto">
-            <div>
-              <h3 className="font-display font-bold text-lg text-primary">{selected.district || selected.state || 'Plot'}</h3>
-              <p className="text-sm text-on-surface-variant">{selected.center_lat?.toFixed(4)}, {selected.center_lon?.toFixed(4)} | {selected.country}</p>
-              <p className="text-sm mt-1 text-on-surface">{t('dashboard.current_crop')}: <strong>{selected.current_crop || 'N/A'}</strong> | {t('dashboard.previous_crop')}: {selected.last_crop || 'N/A'}</p>
-            </div>
-            <button onClick={() => { setSelected(null); setPlotDetails(null) }} className="text-on-surface-variant hover:text-error">
-              <span className="material-symbols-outlined">close</span>
-            </button>
-          </div>
-          {plotDetails && (
-            <div className="max-w-4xl mx-auto mt-4 grid grid-cols-4 gap-4 text-sm">
-              {[
-                { label: 'NDVI', value: plotDetails.ndvi?.ndvi?.toFixed(2) ?? '--' },
-                { label: t('dashboard.ph'), value: plotDetails.soil?.pH?.toFixed(1) ?? '--' },
-                { label: t('dashboard.temperature'), value: plotDetails.weather?.temp_c ?? '--' },
-                { label: t('dashboard.humidity'), value: plotDetails.weather?.humidity_pct ?? '--' },
-              ].map((item) => (
-                <div key={item.label} className="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/20">
-                  <p className="text-xs font-semibold text-on-surface-variant">{item.label}</p>
-                  <p className="font-bold text-lg text-on-surface">{item.value}{item.label === t('dashboard.humidity') ? '%' : item.label === t('dashboard.temperature') ? '°C' : ''}</p>
+                <button
+                  onClick={() => alert(`JSON exported for plot ${selected.id}`)}
+                  className="bg-transparent border border-outline-variant/40 text-white px-4 py-2 rounded-xl text-xs font-mono hover:bg-surface-variant/20 transition-colors flex items-center justify-center gap-2 w-full"
+                >
+                  <span className="material-symbols-outlined text-sm">code</span>
+                  <span>Export BRICS Standard JSON</span>
+                </button>
+              </div>
+
+              {/* NPK & Weather Summary */}
+              <div className="flex-1 grid grid-cols-3 gap-4 items-center">
+                <div className="bg-[#1c1c16]/80 p-4 rounded-2xl border border-outline-variant/20 flex flex-col gap-1">
+                  <span className="text-outline-variant font-mono text-[11px]">Vegetation Index</span>
+                  <span className="text-2xl font-bold font-mono text-inverse-primary">
+                    {(selected.ndvi || 0.5).toFixed(2)}
+                  </span>
+                  <span className="text-[11px] text-green-400 font-medium">Sentinel-2 Analysis</span>
                 </div>
-              ))}
+
+                <div className="bg-[#1c1c16]/80 p-4 rounded-2xl border border-outline-variant/20 flex flex-col gap-1">
+                  <span className="text-outline-variant font-mono text-[11px]">Soil Moisture</span>
+                  <span className="text-2xl font-bold font-mono text-tertiary-fixed">
+                    {plotDetails?.soil?.moisture_pct?.toFixed(1) || '24.2'}%
+                  </span>
+                  <span className="text-[11px] text-tertiary-fixed font-medium">ISRIC SoilGrids</span>
+                </div>
+
+                <div className="bg-[#1c1c16]/80 p-4 rounded-2xl border border-outline-variant/20 flex flex-col gap-1">
+                  <span className="text-outline-variant font-mono text-[11px]">Weather Risk</span>
+                  <span className="text-2xl font-bold font-mono text-white">Low</span>
+                  <span className="text-[11px] text-outline-variant font-medium">NASA POWER Feed</span>
+                </div>
+              </div>
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

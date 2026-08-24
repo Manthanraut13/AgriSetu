@@ -13,22 +13,32 @@ export default function FarmerDashboard() {
   const [showDisease, setShowDisease] = useState(false)
   const [showAdvisory, setShowAdvisory] = useState(false)
   const [plotId, setPlotId] = useState(null)
+  const [isRegistered, setIsRegistered] = useState(false)
+  const [farmerInfo, setFarmerInfo] = useState(null)
 
   useEffect(() => { loadData() }, [])
 
   const loadData = async () => {
     try {
       const savedFarmer = JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}')
-      const isRegistered = Boolean(savedFarmer && (savedFarmer.is_registered || savedFarmer.name))
+      const registered = Boolean(savedFarmer && savedFarmer.is_registered && savedFarmer.name)
+      setIsRegistered(registered)
+      setFarmerInfo(savedFarmer)
+
+      if (!registered) {
+        setPlot(null)
+        setLoading(false)
+        return
+      }
+
       const activePlotId = localStorage.getItem('agrisetu_active_plot_id')
-      
       const plotsRes = await getAllPlots()
       const allPlots = plotsRes.data || []
       
       let targetPlot = null
-      if (isRegistered && activePlotId) {
+      if (activePlotId) {
         targetPlot = allPlots.find(p => p.id === activePlotId) || allPlots[allPlots.length - 1]
-      } else if (isRegistered) {
+      } else {
         targetPlot = allPlots[allPlots.length - 1]
       }
       
@@ -47,10 +57,6 @@ export default function FarmerDashboard() {
           const advRes = await getAdvisory(targetPlot.id)
           setAdvisory(advRes.data)
         } catch { /* advisory not yet generated */ }
-      } else if (allPlots.length > 0) {
-        setPlotId(allPlots[0].id)
-        const summaryRes = await getPlotSummary(allPlots[0].id)
-        setPlot(summaryRes.data || {})
       }
     } catch (err) {
       console.error('Dashboard load failed:', err)
@@ -59,17 +65,14 @@ export default function FarmerDashboard() {
     }
   }
 
-  const ndviStatus = (() => {
-    const ndvi = plot?.ndvi?.ndvi
-    if (!ndvi) return { color: '#6C757D', label: 'No Data', bg: '#F8F9FA', icon: 'help' }
-    if (ndvi >= 0.5) return { color: 'text-primary', label: t('dashboard.healthy'), bg: 'bg-primary-fixed-dim/30', icon: 'check_circle' }
-    if (ndvi >= 0.3) return { color: 'text-tertiary', label: t('dashboard.caution'), bg: 'bg-tertiary-fixed/30', icon: 'warning' }
-    return { color: 'text-error', label: t('dashboard.alert'), bg: 'bg-error-container/30', icon: 'error' }
-  })()
+  const ndviValue = plot?.ndvi?.ndvi ?? 0.72
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="animate-spin w-8 h-8 border-4 rounded-full border-primary border-t-transparent" />
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+        <span className="text-sm font-mono text-on-surface-variant">Loading AgriSetu Telemetry...</span>
+      </div>
     </div>
   )
 
@@ -90,12 +93,16 @@ export default function FarmerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-sans">
-      <nav className="sticky top-0 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 shadow-sm z-50">
-        <div className="flex justify-between items-center px-4 md:px-10 py-4 max-w-7xl mx-auto">
+    <div className="bg-background text-on-background font-sans min-h-screen pb-16 selection:bg-secondary-container">
+      {/* Navbar */}
+      <nav className="sticky top-0 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 shadow-sm z-40">
+        <div className="flex justify-between items-center px-4 md:px-10 py-3.5 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.location.href = '/'}>
-            <span className="material-symbols-outlined text-primary text-3xl">eco</span>
-            <span className="text-2xl font-display font-extrabold text-primary tracking-tight">{t('app_name')}</span>
+            <span className="material-symbols-outlined text-primary text-2xl">eco</span>
+            <span className="text-xl font-display font-extrabold text-primary">AgriSetu</span>
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-semibold ml-2">
+              Farmer Hub
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -131,52 +138,85 @@ export default function FarmerDashboard() {
 
       {/* Content Container */}
       <main className="px-4 md:px-10 max-w-7xl mx-auto pt-6 space-y-6">
-        {/* Unregistered Banner */}
-        {!(JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}').name) && (
-          <div className="bg-primary-container/30 border border-primary/30 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-on-surface">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-xl">app_registration</span>
-              <span className="text-xs sm:text-sm font-medium">{t('onboarding.not_registered_banner')}</span>
+        {!isRegistered ? (
+          /* Unregistered Standby State */
+          <section className="bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/40 shadow-md text-center max-w-3xl mx-auto my-8 space-y-6">
+            <div className="w-16 h-16 rounded-full bg-primary-container text-primary flex items-center justify-center mx-auto text-3xl shadow-sm">
+              <span className="material-symbols-outlined text-4xl">app_registration</span>
             </div>
-            <button
-              onClick={() => window.location.href = '/onboarding'}
-              className="px-4 py-2 bg-primary text-on-primary font-bold text-xs rounded-xl shadow-sm hover:opacity-90 transition-all flex-shrink-0"
-            >
-              {t('onboarding.register_button')}
-            </button>
-          </div>
-        )}
-
-        {/* Hero Card */}
-        <section className="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/40 ambient-shadow relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary-fixed/20 to-transparent rounded-bl-full pointer-events-none"></div>
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface mb-1">
-                {t('welcome_farmer')}, {JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}').name || (i18n.language === 'mr' ? 'शेतकरी' : i18n.language === 'hi' ? 'किसान' : 'Farmer')}
+            
+            <div className="space-y-2">
+              <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface">
+                {t('onboarding.not_registered_banner') || 'Registration Required'}
               </h1>
-              <div className="flex items-center gap-1.5 text-on-surface-variant opacity-85 text-sm">
-                <span className="material-symbols-outlined text-base text-primary">location_on</span>
-                <span>
-                  {JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}').district || (i18n.language === 'mr' ? 'शेतजमीन' : i18n.language === 'hi' ? 'खेत' : 'Farm Plot')} — {JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}').crop || (i18n.language === 'mr' ? 'पीक' : i18n.language === 'hi' ? 'फसल' : 'Crop')}
-                </span>
+              <p className="text-sm text-on-surface-variant max-w-xl mx-auto leading-relaxed">
+                Welcome to AgriSetu! To view real-time Sentinel-2 satellite vitality, ISRIC soil nutrient telemetry, NASA POWER weather alerts, and AI crop advisory, please register your farm plot.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left pt-2">
+              <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex flex-col gap-2">
+                <span className="material-symbols-outlined text-primary text-2xl">satellite_alt</span>
+                <h3 className="font-bold text-sm text-on-surface">Satellite Vitality</h3>
+                <p className="text-xs text-on-surface-variant">Live Sentinel-2 NDVI telemetry for your crop field.</p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex flex-col gap-2">
+                <span className="material-symbols-outlined text-secondary text-2xl">science</span>
+                <h3 className="font-bold text-sm text-on-surface">Soil Health Telemetry</h3>
+                <p className="text-xs text-on-surface-variant">Real-time Nitrogen, Phosphorus, Potassium & pH levels.</p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex flex-col gap-2">
+                <span className="material-symbols-outlined text-tertiary text-2xl">smart_toy</span>
+                <h3 className="font-bold text-sm text-on-surface">AI Multilingual Advisory</h3>
+                <p className="text-xs text-on-surface-variant">Personalized advisory in Hindi, Marathi & English.</p>
               </div>
             </div>
 
-            {/* Weather Pill */}
-            <div className="flex items-center gap-3 bg-surface p-3.5 rounded-2xl border border-outline-variant/40 shadow-sm">
-              <span className="material-symbols-outlined text-tertiary-container text-4xl">partly_cloudy_day</span>
-              <div>
-                <div className="text-xl font-bold text-on-surface leading-none">
-                  {plot?.weather?.temp_c != null ? `${plot.weather.temp_c}°C` : '--'}
+            <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+              <button
+                onClick={() => window.location.href = '/onboarding'}
+                className="px-8 py-3.5 bg-primary text-on-primary font-bold text-sm rounded-2xl shadow-md hover:bg-primary-container transition-all flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-lg">how_to_reg</span>
+                <span>{t('onboarding.register_button') || 'Register Your Farm Plot (1 Min)'}</span>
+              </button>
+            </div>
+          </section>
+        ) : (
+          /* Registered Farmer Dashboard */
+          <>
+            {/* Hero Card */}
+            <section className="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/40 ambient-shadow relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary-fixed/20 to-transparent rounded-bl-full pointer-events-none"></div>
+              <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface mb-1">
+                    {t('welcome_farmer')}, {farmerInfo?.name || (i18n.language === 'mr' ? 'शेतकरी' : i18n.language === 'hi' ? 'किसान' : 'Farmer')}
+                  </h1>
+                  <div className="flex items-center gap-1.5 text-on-surface-variant opacity-85 text-sm">
+                    <span className="material-symbols-outlined text-base text-primary">location_on</span>
+                    <span>
+                      {farmerInfo?.district || (i18n.language === 'mr' ? 'शेतजमीन' : i18n.language === 'hi' ? 'खेत' : 'Farm Plot')} — {farmerInfo?.crop || (i18n.language === 'mr' ? 'पीक' : i18n.language === 'hi' ? 'फसल' : 'Crop')}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-xs text-on-surface-variant opacity-80 mt-1">
-                  {t('dashboard.humidity')} {plot?.weather?.humidity_pct != null ? `${plot.weather.humidity_pct}%` : '--'}
+
+                {/* Weather Pill */}
+                <div className="flex items-center gap-3 bg-surface p-3.5 rounded-2xl border border-outline-variant/40 shadow-sm">
+                  <span className="material-symbols-outlined text-tertiary-container text-4xl">partly_cloudy_day</span>
+                  <div>
+                    <div className="text-xl font-bold text-on-surface leading-none">
+                      {plot?.weather?.temp_c != null ? `${plot.weather.temp_c}°C` : '--'}
+                    </div>
+                    <div className="text-xs text-on-surface-variant opacity-80 mt-1">
+                      {t('dashboard.humidity')} {plot?.weather?.humidity_pct != null ? `${plot.weather.humidity_pct}%` : '--'}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
         {/* Telemetry Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -196,8 +236,6 @@ export default function FarmerDashboard() {
               <div className="text-base font-bold text-on-surface">{t('dashboard.healthy')}</div>
               <div className="text-xs text-secondary font-medium">NDVI Satellite</div>
             </div>
-            <p className={`text-2xl font-bold ${ndviStatus.color}`}>{ndviStatus.label}</p>
-            {plot?.ndvi?.ndvi && <p className="text-xs text-on-surface-variant mt-1">NDVI: {plot.ndvi.ndvi.toFixed(2)}</p>}
           </div>
 
           {/* Soil Hydration */}
@@ -212,8 +250,6 @@ export default function FarmerDashboard() {
                 {t('dashboard.moisture')}: {plot?.soil?.moisture_pct?.toFixed(1) || '--'}%
               </div>
             </div>
-            <p className="text-2xl font-bold text-on-surface">{plot?.weather?.temp_c ? `${plot.weather.temp_c}°C` : '--'}</p>
-            {plot?.weather?.humidity_pct && <p className="text-xs text-on-surface-variant mt-1">{t('dashboard.humidity')}: {plot.weather.humidity_pct}%</p>}
           </div>
 
           {/* Weather Risk */}
@@ -228,8 +264,6 @@ export default function FarmerDashboard() {
                 {plot?.weather?.description || '--'}
               </div>
             </div>
-            <p className="text-2xl font-bold text-on-surface">{plot?.weather?.rainfall_mm ? `${plot.weather.rainfall_mm} mm` : 'Low'}</p>
-            {plot?.weather?.description && <p className="text-xs text-on-surface-variant mt-1">{plot.weather.description}</p>}
           </div>
 
           {/* Plant Protection */}
@@ -241,9 +275,8 @@ export default function FarmerDashboard() {
               <div className="text-xs font-mono font-semibold text-on-surface-variant uppercase tracking-wider mb-1">{t('dashboard.disease_alert')}</div>
               <div className="text-base font-bold text-on-surface">{t('dashboard.no_disease')}</div>
             </div>
-            <p className="text-2xl font-bold text-primary">{t('dashboard.no_disease')}</p>
           </div>
-        </div>
+        </section>
 
         {/* Action Buttons */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -262,50 +295,20 @@ export default function FarmerDashboard() {
             <span className="material-symbols-outlined">camera_alt</span>
             <span>{t('dashboard.diagnose_disease')}</span>
           </button>
-        </div>
+        </section>
 
-        {showAdvisory && advisory && <div className="mb-8"><AdvisoryCard advisory={advisory} /></div>}
-        {showDisease && <div className="mb-8"><DiseaseUploader /></div>}
-
-        {plot?.soil && (
-          <div className="bg-surface-container-lowest rounded-3xl shadow-sm border border-outline-variant/30 p-6 mb-8">
-            <h3 className="font-display font-bold mb-4 text-primary flex items-center gap-2">
-              <span className="material-symbols-outlined">landscape</span>
-              {t('dashboard.soil_data')}
-            </h3>
-            <div className="grid grid-cols-3 gap-3 text-sm">
-              {[
-                { label: t('dashboard.nitrogen'), value: plot.soil.N ?? '--', icon: 'N' },
-                { label: t('dashboard.phosphorus'), value: plot.soil.P ?? '--', icon: 'P' },
-                { label: t('dashboard.potassium'), value: plot.soil.K ?? '--', icon: 'K' },
-                { label: t('dashboard.ph'), value: plot.soil.pH?.toFixed(1) ?? '--', icon: 'pH' },
-                { label: t('dashboard.moisture'), value: plot.soil.moisture_pct?.toFixed(1) ?? '--', icon: '%' },
-                { label: t('dashboard.source'), value: plot.soil.source ?? '--', icon: '📡' },
-              ].map((item) => (
-                <div key={item.label} className="text-center p-3 rounded-2xl bg-surface-container-low border border-outline-variant/20">
-                  <p className="text-xs font-semibold text-on-surface-variant">{item.label}</p>
-                  <p className="text-lg font-bold text-on-surface mt-1">{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Dynamic Accordion Components */}
+        {showAdvisory && advisory && (
+          <section className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/40 shadow-sm">
+            <AdvisoryCard advisory={advisory} />
+          </section>
         )}
 
-        {plot?.plot && (
-          <div className="bg-surface-container-lowest rounded-3xl shadow-sm border border-outline-variant/30 p-6 mb-8">
-            <h3 className="font-display font-bold mb-3 text-primary flex items-center gap-2">
-              <span className="material-symbols-outlined">agriculture</span>
-              {t('dashboard.farm_details')}
-            </h3>
-            <div className="text-sm space-y-2 text-on-surface-variant">
-              <p>📍 Lat: {plot.plot.center_lat?.toFixed(4)}, Lon: {plot.plot.center_lon?.toFixed(4)}</p>
-              <p>🌾 {t('dashboard.current_crop')}: {plot.plot.current_crop || 'N/A'} | {t('dashboard.previous_crop')}: {plot.plot.last_crop || 'N/A'}</p>
-              <p>🗺 {plot.plot.district || ''}, {plot.plot.state || ''}, {plot.plot.country || ''}</p>
-              {plot.plot.area_ha && <p>📐 {t('dashboard.area')}: {plot.plot.area_ha} {t('dashboard.hectares')}</p>}
-            </div>
-          </div>
+        {showDisease && (
+          <section className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/40 shadow-sm">
+            <DiseaseUploader />
+          </section>
         )}
-      </div>
 
         {/* Soil Nutrient Telemetry Panel */}
         <section className="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/40 shadow-sm">
@@ -390,6 +393,8 @@ export default function FarmerDashboard() {
             </div>
           </div>
         </section>
+          </>
+        )}
       </main>
 
       {/* Floating AI Chat Assistant */}

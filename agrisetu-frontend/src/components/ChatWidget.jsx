@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sendChatMessage, sendVoiceQuestion } from '../api/agrisetu'
-import { autoDetectAndSwitchLanguage } from '../utils/langDetect'
+import { detectLanguage } from '../utils/langDetect'
 
 function FormattedMessage({ text, isUser }) {
   if (isUser) {
@@ -91,7 +91,9 @@ export default function ChatWidget({ plotId }) {
   const mediaStreamRef = useRef(null)
   const messagesEndRef = useRef(null)
 
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   // Setup Web Speech Recognition instance
   useEffect(() => {
@@ -117,7 +119,6 @@ export default function ChatWidget({ plotId }) {
         }
         if (transcript) {
           setInput(transcript)
-          autoDetectAndSwitchLanguage(transcript)
         }
       }
 
@@ -319,16 +320,17 @@ export default function ChatWidget({ plotId }) {
     const textToSend = (customText || input).trim()
     if (!textToSend || loading) return
 
+    const detectedLang = detectLanguage(textToSend) || i18n.language || 'hi'
+
     setInput('')
     setMessages(prev => [...prev, { role: 'user', text: textToSend }])
     setLoading(true)
     setSpeechError(null)
 
     try {
-      const lang = i18n.language === 'mr' ? 'mr' : i18n.language === 'hi' ? 'hi' : 'en'
       const res = await sendChatMessage({
         message: textToSend,
-        language: i18n.language || 'hi',
+        language: detectedLang,
         plot_id: plotId || '00000000-0000-0000-0000-000000000000',
       })
       const responseText = res.data.response
@@ -339,9 +341,9 @@ export default function ChatWidget({ plotId }) {
         {
           role: 'advisor',
           text:
-            i18n.language === 'mr'
+            detectedLang === 'mr'
               ? 'क्षमस्व, आत्ता सल्ला मिळवण्यात अडचण येत आहे. कृपया पुन्हा प्रयत्न करा.'
-              : i18n.language === 'hi'
+              : detectedLang === 'hi'
               ? 'क्षमा करें, इस समय सलाह उपलब्ध कराने में समस्या आ रही है। कृपया पुनः प्रयास करें।'
               : 'Sorry, I could not process your request right now. Please try again.',
         },
@@ -364,8 +366,9 @@ export default function ChatWidget({ plotId }) {
     window.speechSynthesis.cancel()
     const cleanText = text.replace(/[*#•-]/g, '').trim()
     const utterance = new SpeechSynthesisUtterance(cleanText)
+    const detectedMsgLang = detectLanguage(cleanText) || i18n.language || 'hi'
     const langMap = { hi: 'hi-IN', mr: 'mr-IN', en: 'en-IN' }
-    utterance.lang = langMap[i18n.language] || 'hi-IN'
+    utterance.lang = langMap[detectedMsgLang] || 'hi-IN'
     utterance.rate = 0.95
 
     utterance.onend = () => setSpeakingIdx(null)
@@ -424,7 +427,9 @@ export default function ChatWidget({ plotId }) {
           <span className="material-symbols-outlined text-xl">close</span>
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface-container-low">
+
+      {/* Messages Scroll Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface-container-low/40">
         {messages.length === 0 && (
           <div className="text-center py-8 px-4">
             <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
@@ -442,6 +447,7 @@ export default function ChatWidget({ plotId }) {
             </p>
           </div>
         )}
+
         {messages.map((msg, i) => (
           <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
             <div
@@ -564,7 +570,6 @@ export default function ChatWidget({ plotId }) {
           onChange={(e) => {
             setInput(e.target.value)
             setSpeechError(null)
-            autoDetectAndSwitchLanguage(e.target.value)
           }}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder={t('chat_input') || 'Ask any question or tap mic...'}
