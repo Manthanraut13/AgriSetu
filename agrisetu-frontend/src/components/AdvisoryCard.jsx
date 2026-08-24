@@ -128,7 +128,7 @@ export default function AdvisoryCard({ advisory }) {
         </div>
       </div>
 
-      {/* Top Crop Recommendation */}
+      {/* Top Recommendation */}
       {topCrop && (
         <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/30 relative overflow-hidden">
           <div className="flex justify-between items-start mb-3">
@@ -157,6 +157,8 @@ export default function AdvisoryCard({ advisory }) {
               <span className="text-sm font-bold text-on-surface mt-1">{t('every_x_days', { days: topCrop.irrigation_days })}</span>
             </div>
           </div>
+          <p className="text-sm">📅 Sowing: {topCrop.sowing_window}</p>
+          <p className="text-sm">💧 Irrigation: Every {topCrop.irrigation_days} days</p>
         </div>
       )}
 
@@ -177,7 +179,7 @@ export default function AdvisoryCard({ advisory }) {
             ))}
           </div>
         </div>
-      )}
+      ))}
 
       {/* Regenerative Practices */}
       {advisory.regenerative_practices?.length > 0 && (
@@ -211,19 +213,13 @@ export default function AdvisoryCard({ advisory }) {
 
       {/* Risk Alerts */}
       {advisory.risk_alerts?.length > 0 && (
-        <div className="bg-tertiary-fixed/30 border border-tertiary-fixed-dim/50 rounded-2xl p-4">
-          <h4 className="text-xs font-mono font-semibold text-on-tertiary-container uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-sm">warning</span>
-            Active Agronomic Alerts
-          </h4>
-          <div className="space-y-1 text-xs text-on-tertiary-container">
-            {advisory.risk_alerts.map((alert, i) => (
-              <p key={i} className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
-                <span>{alert}</span>
-              </p>
-            ))}
-          </div>
+        <div className="mt-4">
+          <h4 className="font-semibold mb-2">⚠️ Risk Alerts</h4>
+          {advisory.risk_alerts.map((alert, i) => (
+            <div key={i} className="p-2 rounded text-sm mb-1" style={{ background: 'var(--yellow-bg)' }}>
+              {alert}
+            </div>
+          ))}
         </div>
       )}
     </div>

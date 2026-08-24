@@ -1,11 +1,28 @@
-"""Chat Router — LLM + RAG agricultural advisory."""
+"""Chat Router — AI Farming Advisor with session & long-term memory."""
 import logging
 from typing import Optional
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+
+from config import settings
+from supabase import create_client
+import google.generativeai as genai
 
 logger = logging.getLogger("agrisetu.chat")
 router = APIRouter(prefix="/chat")
+
+genai.configure(api_key=settings.GEMINI_API_KEY)
+
+# In-memory session store (for short-term/session memory)
+# In production, use Redis
+_session_memory: dict = {}
+
+
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 
 class ChatRequest(BaseModel):
@@ -17,7 +34,6 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """Chat response schema."""
     response: str
     language: str
     plot_id: str
@@ -30,14 +46,84 @@ def chat_ask(body: ChatRequest):
     """
     Ask the AI advisor a farming question.
 
-    Full pipeline: fetch plot context -> RAG retrieval -> Gemini LLM -> translate -> respond
-    """
-    from config import settings
-    from supabase import create_client
-    from services.rag import retrieve_relevant_chunks
-    from services.llm import generate_advisory
-    from services.translation import translate_to_english, translate_from_english
 
+def _get_system_prompt(language: str, farmer_context: dict) -> str:
+    """Build system prompt with farmer context."""
+    lang_names = {"en": "English", "hi": "Hindi", "mr": "Marathi"}
+    lang = lang_names.get(language, "English")
+    
+    context_parts = [
+        f"You are an expert AI farming advisor. Respond in {lang}.",
+        "You have access to the farmer's real-time data and history.",
+        "Provide specific, actionable advice based on their actual farm conditions.",
+    ]
+    
+    if farmer_context:
+        context_parts.append("\n--- FARMER CONTEXT ---")
+        if farmer_context.get("farmer"):
+            f = farmer_context["farmer"]
+            context_parts.append(f"Farmer: {f.get('name', 'Unknown')}")
+            context_parts.append(f"Phone: {f.get('phone', 'N/A')}")
+            context_parts.append(f"Preferred Language: {f.get('language_pref', 'en')}")
+        
+        if farmer_context.get("plot"):
+            p = farmer_context["plot"]
+            context_parts.append(f"\nPlot: {p.get('district', '')}, {p.get('state', '')}")
+            context_parts.append(f"Location: {p.get('center_lat', 0):.4f}, {p.get('center_lon', 0):.4f}")
+            context_parts.append(f"Current Crop: {p.get('current_crop', 'Not set')}")
+            context_parts.append(f"Previous Crop: {p.get('last_crop', 'Not set')}")
+            context_parts.append(f"Area: {p.get('area_ha', 'Not set')} hectares")
+        
+        if farmer_context.get("soil"):
+            s = farmer_context["soil"]
+            context_parts.append(f"\nSoil (latest):")
+            context_parts.append(f"  N: {s.get('N', s.get('n', 'N/A'))}")
+            context_parts.append(f"  P: {s.get('P', s.get('p', 'N/A'))}")
+            context_parts.append(f"  K: {s.get('K', s.get('k', 'N/A'))}")
+            context_parts.append(f"  pH: {s.get('pH', s.get('ph', 'N/A'))}")
+            context_parts.append(f"  Moisture: {s.get('moisture_pct', 'N/A')}%")
+            context_parts.append(f"  Source: {s.get('source', 'N/A')}")
+        
+        if farmer_context.get("weather"):
+            w = farmer_context["weather"]
+            context_parts.append(f"\nWeather (latest):")
+            context_parts.append(f"  Temperature: {w.get('temp_c', 'N/A')}°C")
+            context_parts.append(f"  Humidity: {w.get('humidity_pct', 'N/A')}%")
+            context_parts.append(f"  Rainfall: {w.get('rainfall_mm', 'N/A')} mm")
+            context_parts.append(f"  Wind: {w.get('wind_speed_ms', 'N/A')} m/s")
+            context_parts.append(f"  Description: {w.get('description', 'N/A')}")
+        
+        if farmer_context.get("ndvi"):
+            n = farmer_context["ndvi"]
+            context_parts.append(f"\nSatellite (latest):")
+            context_parts.append(f"  NDVI: {n.get('ndvi', 'N/A')}")
+            context_parts.append(f"  NDMI: {n.get('ndmi', 'N/A')}")
+            context_parts.append(f"  Image Date: {n.get('image_date', 'N/A')}")
+            context_parts.append(f"  Source: {n.get('source', 'N/A')}")
+        
+        if farmer_context.get("disease_reports"):
+            context_parts.append(f"\nRecent Disease Reports:")
+            for d in farmer_context["disease_reports"][-3:]:
+                context_parts.append(f"  - {d.get('disease_name', 'N/A')} (confidence: {d.get('confidence', 'N/A')}%)")
+        
+        if farmer_context.get("advisories"):
+            context_parts.append(f"\nRecent Advisories:")
+            for a in farmer_context["advisories"][-2:]:
+                context_parts.append(f"  - Recommended: {a.get('recommended_crop', 'N/A')} ({a.get('confidence', 0)*100:.0f}%)")
+    
+    context_parts.append("\n--- GUIDELINES ---")
+    context_parts.append("1. Always use the farmer's actual data when answering")
+    context_parts.append("2. Be specific to their crop, soil, and weather conditions")
+    context_parts.append("3. Give practical, actionable advice")
+    context_parts.append("4. If you don't know, say so and suggest next steps")
+    context_parts.append("5. Keep responses concise but complete")
+    
+    return "\n".join(context_parts)
+
+
+async def _get_farmer_context(plot_id: Optional[str]) -> dict:
+    """Fetch all relevant farmer data for context."""
+    from supabase import create_client
     supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
     plot_id_str = body.plot_id or ""

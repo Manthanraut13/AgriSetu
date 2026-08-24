@@ -8,7 +8,6 @@ export default function DiseaseUploader() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
   const [preview, setPreview] = useState(null)
-  const [activeTab, setActiveTab] = useState('organic')
 
   const handleUpload = async (e) => {
     const file = e.target.files[0]
@@ -33,10 +32,18 @@ export default function DiseaseUploader() {
       } else if (detail) {
         setError(typeof detail === 'object' ? JSON.stringify(detail) : String(detail))
       } else {
-        setError('Prediction failed — please try uploading a clearer image of a leaf.')
+        setError('Prediction failed — please try a clearer photo of a leaf.')
       }
     } finally {
       setLoading(false)
+    }
+  }
+
+  const severityColor = (severity) => {
+    switch (severity) {
+      case 'high': return { bg: 'bg-error-container/40', text: 'text-error', border: 'border-error/30' }
+      case 'moderate': return { bg: 'bg-tertiary-fixed/30', text: 'text-tertiary', border: 'border-tertiary/30' }
+      default: return { bg: 'bg-primary-fixed-dim/30', text: 'text-primary', border: 'border-primary/30' }
     }
   }
 
@@ -70,15 +77,11 @@ export default function DiseaseUploader() {
 
       {/* Preview */}
       {preview && (
-        <div className="mt-4 relative rounded-2xl overflow-hidden border border-outline-variant/40 h-52">
-          <img src={preview} alt="Uploaded leaf" className="w-full h-full object-cover" />
-          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-mono">
-            Preview
-          </div>
+        <div className="mb-4">
+          <img src={preview} alt="Leaf" className="w-full h-48 object-cover rounded-2xl border border-outline-variant/30" />
         </div>
       )}
 
-      {/* Loading state */}
       {loading && (
         <div className="text-center py-8">
           <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-3" />
@@ -87,7 +90,6 @@ export default function DiseaseUploader() {
         </div>
       )}
 
-      {/* Error state */}
       {error && (
         <div className="mt-4 p-4 rounded-2xl bg-error-container text-on-error-container text-xs font-mono">
           <strong className="block font-bold mb-1">{t('disease.error')}</strong>
@@ -95,15 +97,14 @@ export default function DiseaseUploader() {
         </div>
       )}
 
-      {/* Result Card */}
       {result && (
-        <div className="mt-6 space-y-5">
-          <div className="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/30">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <span className="inline-flex items-center gap-1 bg-primary-fixed/60 text-on-primary-fixed-variant px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold mb-2">
-                  <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                  {result.source || 'Vision Model'}
+        <div className="rounded-2xl p-5 mt-4 border border-outline-variant/30 bg-surface-container-lowest">
+          <div className="flex justify-between items-start mb-3">
+            <h4 className="font-display font-bold text-lg text-on-surface">{result.disease_name}</h4>
+            <div className="flex items-center gap-2">
+              {result.source && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-primary text-on-primary">
+                  {result.source}
                 </span>
                 <h4 className="text-xl font-bold text-primary">{result.disease_name}</h4>
               </div>
@@ -148,13 +149,9 @@ export default function DiseaseUploader() {
                 <span>🧪</span> {t('disease.treatment')}
               </button>
             </div>
-
-            <div className="bg-surface p-4 rounded-2xl border border-outline-variant/30 text-xs text-on-surface-variant leading-relaxed">
-              {activeTab === 'organic' ? (
-                <p>{result.organic_remedy || result.treatment}</p>
-              ) : (
-                <p>{result.treatment || 'Consult local agronomy officer for approved chemical application.'}</p>
-              )}
+            <div>
+              <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">{t('disease.organic_remedy')}</p>
+              <p className="text-sm text-on-surface mt-1">{result.organic_remedy}</p>
             </div>
           </div>
         </div>

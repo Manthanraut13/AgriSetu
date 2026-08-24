@@ -91,9 +91,7 @@ export default function ChatWidget({ plotId }) {
   const mediaStreamRef = useRef(null)
   const messagesEndRef = useRef(null)
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   // Setup Web Speech Recognition instance
   useEffect(() => {
@@ -327,6 +325,7 @@ export default function ChatWidget({ plotId }) {
     setSpeechError(null)
 
     try {
+      const lang = i18n.language === 'mr' ? 'mr' : i18n.language === 'hi' ? 'hi' : 'en'
       const res = await sendChatMessage({
         message: textToSend,
         language: i18n.language || 'hi',
@@ -425,9 +424,7 @@ export default function ChatWidget({ plotId }) {
           <span className="material-symbols-outlined text-xl">close</span>
         </button>
       </div>
-
-      {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface-container-low/40">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface-container-low">
         {messages.length === 0 && (
           <div className="text-center py-8 px-4">
             <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
@@ -445,7 +442,6 @@ export default function ChatWidget({ plotId }) {
             </p>
           </div>
         )}
-
         {messages.map((msg, i) => (
           <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
             <div

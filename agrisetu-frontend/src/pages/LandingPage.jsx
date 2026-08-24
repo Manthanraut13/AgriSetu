@@ -6,24 +6,19 @@ export default function LandingPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
 
-  const switchLang = (lng) => {
-    i18n.changeLanguage(lng)
-  }
+  const switchLang = (lng) => i18n.changeLanguage(lng)
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container">
-      {/* Top Bar Navigation */}
       <nav className="sticky top-0 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 shadow-sm z-50">
         <div className="flex justify-between items-center w-full px-4 md:px-10 py-4 max-w-7xl mx-auto">
-          {/* Brand */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
             <span className="material-symbols-outlined text-primary text-3xl font-bold">eco</span>
             <span className="text-2xl font-display font-extrabold text-primary tracking-tight">
-              AgriSetu
+              {t('app_name')}
             </span>
           </div>
 
-          {/* Navigation Links (Desktop) */}
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-on-surface-variant">
             <button onClick={() => navigate('/onboarding')} className="hover:text-primary transition-colors">
               {t('register_farm')}
@@ -34,23 +29,14 @@ export default function LandingPage() {
             <button onClick={() => navigate('/dashboard/agronomist')} className="hover:text-primary transition-colors">
               {t('agronomist_hub')}
             </button>
-
-            {/* Language Selection Pills */}
-            <div className="flex items-center gap-1 bg-surface-container p-1 rounded-full border border-outline-variant/40">
-              {[
-                { code: 'hi', label: 'हिंदी' },
-                { code: 'mr', label: 'मराठी' },
-                { code: 'en', label: 'EN' },
-              ].map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => switchLang(lang.code)}
+            <div className="flex items-center gap-1 bg-surface-container-low p-1 rounded-full border border-outline-variant/40">
+              {[{ code: 'hi', label: 'हिंदी' }, { code: 'mr', label: 'मराठी' }, { code: 'en', label: 'EN' }].map((lang) => (
+                <button key={lang.code} onClick={() => switchLang(lang.code)}
                   className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                     i18n.language === lang.code
                       ? 'bg-primary text-on-primary shadow-sm font-bold'
                       : 'text-on-surface-variant hover:text-primary'
-                  }`}
-                >
+                  }`}>
                   {lang.label}
                 </button>
               ))}
@@ -89,9 +75,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Main Container */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-10 py-8">
-        {/* Hero Section */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center py-8 md:py-16">
           <div className="flex flex-col gap-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-container/50 border border-secondary-container text-secondary text-xs font-semibold w-fit">
@@ -106,7 +90,6 @@ export default function LandingPage() {
             <p className="text-lg text-on-surface-variant max-w-lg leading-relaxed">
               {t('landing.hero_subtitle')}
             </p>
-
             <div className="flex flex-wrap gap-4 pt-2">
               <button
                 onClick={() => navigate('/onboarding')}
@@ -117,101 +100,90 @@ export default function LandingPage() {
                   arrow_forward
                 </span>
               </button>
-              <button
-                onClick={() => navigate('/dashboard/farmer')}
-                className="bg-surface-container border border-outline-variant text-primary text-base font-semibold px-6 py-3.5 rounded-xl hover:bg-surface-container-high transition-all flex items-center gap-2"
-              >
+              <button onClick={() => navigate('/dashboard/farmer')}
+                className="bg-surface-container-low text-on-surface text-base font-semibold px-6 py-3.5 rounded-full flex items-center gap-2 border border-outline-variant/40 hover:bg-surface-container transition-colors">
                 <span className="material-symbols-outlined text-xl">dashboard</span>
                 <span>{t('landing.open_dashboard')}</span>
               </button>
             </div>
           </div>
 
-          {/* Hero Mockup Card */}
           <div className="relative w-full flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-secondary-container/30 to-tertiary-fixed/20 rounded-full blur-3xl opacity-60"></div>
-            
-            <div className="relative w-full max-w-md bg-surface-container-lowest border border-outline-variant rounded-3xl p-6 ambient-shadow hover:scale-[1.01] transition-transform">
+            <div className="absolute inset-0 rounded-full blur-3xl opacity-30 bg-primary-fixed-dim"></div>
+            <div className="relative w-full max-w-md bg-surface-container-lowest border border-outline-variant/40 rounded-3xl p-6 shadow-sm">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="text-base font-bold text-primary">Rampur Plot A</h3>
-                  <p className="text-xs text-on-surface-variant font-mono">Nashik, Maharashtra — 2.4 Ha</p>
+                  <h3 className="text-base font-bold text-on-surface">Rampur Plot A</h3>
+                  <p className="text-xs text-on-surface-variant">Nashik, Maharashtra — 2.4 Ha</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
-                  <span className="material-symbols-outlined">eco</span>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary-container text-on-secondary-container">
+                  <span className="material-symbols-outlined">grass</span>
                 </div>
               </div>
-
-              {/* Stat Cards */}
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-surface-container-low p-3.5 rounded-2xl border border-outline-variant/30 flex flex-col gap-1">
-                  <div className="flex items-center gap-1 text-secondary text-xs font-semibold">
-                    <span className="material-symbols-outlined text-sm">nature</span>
-                    <span>NDVI Index</span>
-                  </div>
-                  <span className="text-2xl font-mono font-bold text-primary">0.74</span>
-                  <span className="text-[11px] text-secondary font-medium">Optimal Health</span>
+                <div className="p-3.5 rounded-2xl border border-outline-variant/40 bg-surface-container-low">
+                  <p className="text-xs font-semibold text-primary">🛰 {t('ndvi_index')}</p>
+                  <p className="text-2xl font-bold text-on-surface">0.74</p>
+                  <p className="text-[11px] text-primary">{t('optimal_health')}</p>
                 </div>
-
-                <div className="bg-surface-container-low p-3.5 rounded-2xl border border-outline-variant/30 flex flex-col gap-1">
-                  <div className="flex items-center gap-1 text-tertiary text-xs font-semibold">
-                    <span className="material-symbols-outlined text-sm">water_drop</span>
-                    <span>Soil Moisture</span>
-                  </div>
-                  <span className="text-2xl font-mono font-bold text-primary">24.2%</span>
-                  <span className="text-[11px] text-tertiary font-medium">Balanced</span>
+                <div className="p-3.5 rounded-2xl border border-outline-variant/40 bg-surface-container-low">
+                  <p className="text-xs font-semibold text-tertiary">💧 {t('soil_moisture')}</p>
+                  <p className="text-2xl font-bold text-on-surface">24.2%</p>
+                  <p className="text-[11px] text-tertiary">{t('balanced')}</p>
                 </div>
               </div>
-
-              {/* Status Banner */}
-              <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></div>
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-primary">Real-time Telemetry Active</p>
-                  <p className="text-[11px] text-on-surface-variant">Sentinel-2 Satellite + ISRIC SoilGrids Integration</p>
+              <div className="p-4 flex items-center gap-3 rounded-2xl bg-secondary-container/40 border border-outline-variant/20">
+                <div className="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
+                <div>
+                  <p className="text-xs font-semibold text-on-surface">📡 {t('realtime_active')}</p>
+                  <p className="text-[11px] text-on-surface-variant">{t('satellite_integration')}</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Global Science Badges */}
-        <section className="py-8 border-y border-outline-variant/30 my-8">
-          <p className="text-center text-xs font-mono font-semibold text-outline uppercase tracking-widest mb-6">
-            Powered by Global Earth Observation & Agronomy Networks
+        <section className="py-8 border-t border-b border-outline-variant/30 my-8">
+          <p className="text-center text-xs font-mono font-semibold uppercase tracking-widest mb-6 text-on-surface-variant">
+            {t('powered_by')}
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4">
-            <div className="bg-surface-container-high/60 px-5 py-2.5 rounded-full border border-outline-variant/40 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-lg">satellite_alt</span>
-              <span className="text-sm font-semibold text-on-surface-variant">Sentinel-2 Satellite</span>
-            </div>
-            <div className="bg-surface-container-high/60 px-5 py-2.5 rounded-full border border-outline-variant/40 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-lg">public</span>
-              <span className="text-sm font-semibold text-on-surface-variant">NASA POWER Weather</span>
-            </div>
-            <div className="bg-surface-container-high/60 px-5 py-2.5 rounded-full border border-outline-variant/40 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-lg">layers</span>
-              <span className="text-sm font-semibold text-on-surface-variant">ISRIC SoilGrids</span>
-            </div>
-            <div className="bg-tertiary-fixed/40 px-5 py-2.5 rounded-full border border-tertiary-fixed-dim/60 flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-tertiary"></div>
-              <span className="text-sm font-bold text-on-tertiary-container">Indore Declaration 2026 Aligned</span>
-            </div>
+            {[
+              { icon: 'satellite_alt', label: 'Sentinel-2 Satellite' },
+              { icon: 'weather_snowy', label: 'NASA POWER Weather' },
+              { icon: 'public', label: 'ISRIC SoilGrids' },
+              { icon: 'flag', label: 'Indore Declaration 2026' },
+            ].map((item) => (
+              <div key={item.label} className="px-5 py-2.5 rounded-full border border-outline-variant/40 flex items-center gap-2 bg-surface-container-low">
+                <span className="material-symbols-outlined text-sm text-primary">{item.icon}</span>
+                <span className="text-sm font-semibold text-on-surface-variant">{item.label}</span>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Feature Cards Grid */}
         <section className="py-12">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-3xl font-display font-bold text-primary mb-3">{t('landing.suite_title')}</h2>
             <p className="text-on-surface-variant">{t('landing.suite_subtitle')}</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1 */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-6 shadow-sm hover:border-primary transition-colors cursor-pointer" onClick={() => navigate('/dashboard/farmer')}>
-              <div className="w-12 h-12 rounded-2xl bg-secondary-container flex items-center justify-center text-on-secondary-container mb-5">
-                <span className="material-symbols-outlined text-2xl">agriculture</span>
+            {[
+              { icon: 'grass', title: t('feature_farmer_title'), desc: t('feature_farmer_desc'), link: '/dashboard/farmer', btn: t('launch_hub') },
+              { icon: 'photo_camera', title: t('feature_disease_title'), desc: t('feature_disease_desc'), link: '/dashboard/farmer', btn: t('scan_crop') },
+              { icon: 'map', title: t('feature_agronomist_title'), desc: t('feature_agronomist_desc'), link: '/dashboard/agronomist', btn: t('open_dashboard') },
+            ].map((f) => (
+              <div key={f.title} className="bg-surface-container-lowest border border-outline-variant/40 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer card-hover"
+                onClick={() => navigate(f.link)}>
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-secondary-container text-on-secondary-container mb-5">
+                  <span className="material-symbols-outlined">{f.icon}</span>
+                </div>
+                <h3 className="text-xl font-display font-bold mb-2 text-primary">{f.title}</h3>
+                <p className="text-sm leading-relaxed mb-4 text-on-surface-variant">{f.desc}</p>
+                <span className="text-sm font-semibold inline-flex items-center gap-1 text-primary">
+                  {f.btn}
+                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                </span>
               </div>
               <h3 className="text-xl font-bold text-primary mb-2">{t('landing.hub_title')}</h3>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-4">
@@ -253,16 +225,13 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-surface-container-high py-8 border-t border-outline-variant/30 text-center">
+      <footer className="py-8 border-t border-outline-variant/30 text-center bg-surface-container-low">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">eco</span>
-            <span className="font-display font-bold text-primary">AgriSetu</span>
+            <span className="material-symbols-outlined text-primary">eco</span>
+            <span className="font-display font-bold text-primary">{t('app_name')}</span>
           </div>
-          <p className="text-xs text-on-surface-variant font-mono">
-            Aligned with BRICS AgriN & BRICS Network on Digital Agriculture | Indore Declaration 2026
-          </p>
+          <p className="text-xs font-mono text-on-surface-variant">{t('footer_text')}</p>
         </div>
       </footer>
     </div>

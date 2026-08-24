@@ -88,7 +88,7 @@ async def fetch_soil(lat: float, lon: float) -> Optional[dict]:
         "K": 45.0,  # Default moderate K (not available from SoilGrids)
         "pH": ph if ph else 6.5,
         "moisture_pct": round(
-            (all_data.get("clay", 30) / 100) * 40,  # Rough estimate from clay content
+            ((all_data.get("clay") or 30) / 100) * 40,
             1,
         ),
         "organic_carbon_pct": soc if soc else 1.0,

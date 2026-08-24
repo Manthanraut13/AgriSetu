@@ -1,10 +1,10 @@
-"""Onboarding Router — farmer and plot registration."""
+"""Onboarding Router — farmer and plot registration with inline data fetch."""
 import logging
+import asyncio
 from uuid import UUID
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 
-from schemas.farm import FarmerCreate, FarmerResponse, PlotCreate, PlotResponse, PlotSummary
-from schemas.advisory import SoilSummary, WeatherSummary, NdviSummary
+from schemas.farm import FarmerCreate, FarmerResponse, PlotCreate, PlotResponse
 from services.satellite import fetch_ndvi, fetch_ndmi
 from services.weather import fetch_weather
 from services.soil import fetch_soil
@@ -13,13 +13,56 @@ logger = logging.getLogger("agrisetu.onboarding")
 router = APIRouter(prefix="/onboarding")
 
 
-async def _fetch_and_store_plot_data(plot_id: str, lat: float, lon: float):
-    """Background task: fetch NDVI, soil, weather for a new plot and store in Supabase."""
+@router.post("/farmer", response_model=FarmerResponse, tags=["Onboarding"])
+async def create_farmer(body: FarmerCreate):
+    from config import settings
+    from supabase import create_client
+
+    supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+    existing = supabase.table("farmers").select("*").eq("phone", body.phone).execute()
+    if existing.data:
+        return FarmerResponse(**existing.data[0])
+
+    result = supabase.table("farmers").insert(body.model_dump()).execute()
+    if not result.data:
+        raise HTTPException(status_code=500, detail="Failed to create farmer")
+    logger.info(f"Farmer created: {result.data[0]['id']}")
+    return FarmerResponse(**result.data[0])
+
+
+@router.post("/plot", response_model=PlotResponse, tags=["Onboarding"])
+async def create_plot(body: PlotCreate):
+    """Create a new farm plot and fetch satellite/soil/weather data inline."""
     from config import settings
     from supabase import create_client
 
     supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
+    farmer = supabase.table("farmers").select("id").eq("id", str(body.farmer_id)).execute()
+    if not farmer.data:
+        raise HTTPException(status_code=404, detail="Farmer not found")
+
+    plot_data = {
+        "farmer_id": str(body.farmer_id),
+        "center_lat": body.center_lat,
+        "center_lon": body.center_lon,
+        "district": body.district,
+        "state": body.state,
+        "country": body.country,
+        "current_crop": body.current_crop,
+        "last_crop": body.last_crop,
+    }
+    plot_data = {k: v for k, v in plot_data.items() if v is not None}
+
+    result = supabase.table("farm_plots").insert(plot_data).execute()
+    if not result.data:
+        raise HTTPException(status_code=500, detail="Failed to create plot")
+
+    plot_id = result.data[0]["id"]
+    logger.info(f"Plot created: {plot_id}")
+
+    # Fetch data INLINE so dashboard has data immediately
+    lat, lon = body.center_lat, body.center_lon
     try:
         import asyncio
         ndvi_val, ndmi_val, weather, soil = await asyncio.gather(
@@ -76,83 +119,19 @@ async def _fetch_and_store_plot_data(plot_id: str, lat: float, lon: float):
         logger.info(f"Stored soil data for plot {plot_id}")
 
     except Exception as e:
-        logger.error(f"Failed to fetch/store data for plot {plot_id}: {e}")
+        logger.error(f"Data fetch failed for plot {plot_id}: {e}")
+
+    return result.data[0]
 
 
-@router.post("/farmer", response_model=FarmerResponse, tags=["Onboarding"])
-def create_farmer(body: FarmerCreate):
-    """Create a new farmer record."""
+@router.get("/plot/{plot_id}", tags=["Onboarding"])
+async def get_plot_summary(plot_id: str):
+    """Get full plot summary with soil, weather, NDVI data."""
     from config import settings
     from supabase import create_client
 
     supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
-    # Check if farmer with this phone already exists
-    existing = supabase.table("farmers").select("*").eq("phone", body.phone).execute()
-    if existing.data:
-        return FarmerResponse(**existing.data[0])
-
-    result = supabase.table("farmers").insert(body.model_dump()).execute()
-    if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to create farmer")
-
-    logger.info(f"Farmer created: {result.data[0]['id']}")
-    return FarmerResponse(**result.data[0])
-
-
-@router.post("/plot", response_model=PlotResponse, tags=["Onboarding"])
-def create_plot(body: PlotCreate, background_tasks: BackgroundTasks):
-    """Create a new farm plot and trigger data fetch."""
-    from config import settings
-    from supabase import create_client
-
-    supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
-
-    # Verify farmer exists
-    farmer = supabase.table("farmers").select("id").eq("id", str(body.farmer_id)).execute()
-    if not farmer.data:
-        raise HTTPException(status_code=404, detail="Farmer not found")
-
-    # Insert plot — only columns that exist in the DB
-    plot_data = {
-        "farmer_id": str(body.farmer_id),
-        "center_lat": body.center_lat,
-        "center_lon": body.center_lon,
-        "area_ha": body.area_ha,
-        "district": body.district,
-        "state": body.state,
-        "country": body.country,
-        "current_crop": body.current_crop,
-        "last_crop": body.last_crop,
-    }
-    # Remove None values so Postgres defaults apply
-    plot_data = {k: v for k, v in plot_data.items() if v is not None}
-
-    result = supabase.table("farm_plots").insert(plot_data).execute()
-    if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to create plot")
-
-    plot = result.data[0]
-    plot_id = plot["id"]
-
-    # Trigger background data fetch
-    background_tasks.add_task(
-        _fetch_and_store_plot_data, plot_id, body.center_lat, body.center_lon
-    )
-
-    logger.info(f"Plot created: {plot_id}, data fetch triggered")
-    return PlotResponse(**plot)
-
-
-@router.get("/plot/{plot_id}", response_model=PlotSummary, tags=["Onboarding"])
-def get_plot_summary(plot_id: str):
-    """Get plot with latest soil/weather/NDVI summary."""
-    from config import settings
-    from supabase import create_client
-
-    supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
-
-    # Get plot
     plot_res = supabase.table("farm_plots").select("*").eq("id", plot_id).execute()
     if not plot_res.data:
         raise HTTPException(status_code=404, detail="Plot not found")
