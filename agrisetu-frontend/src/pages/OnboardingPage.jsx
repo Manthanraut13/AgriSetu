@@ -66,11 +66,24 @@ export default function OnboardingPage() {
     setLoading(true)
     setError(null)
     try {
-      const res = await createPlot({ ...plotData, farmer_id: farmerId })
-      localStorage.setItem('agrisetu_active_plot_id', res.data.id)
       const existing = JSON.parse(localStorage.getItem('agrisetu_farmer') || '{}')
+      let activeFarmerId = farmerId || existing.id
+
+      if (!activeFarmerId) {
+        const defaultName = farmerData.name || existing.name || 'Farmer'
+        const defaultPhone = farmerData.phone || existing.phone || `98${Math.floor(10000000 + Math.random() * 90000000)}`
+        const fRes = await createFarmer({ ...farmerData, name: defaultName, phone: defaultPhone, language_pref: i18n.language })
+        activeFarmerId = fRes.data.id
+        setFarmerId(activeFarmerId)
+      }
+
+      const res = await createPlot({ ...plotData, farmer_id: activeFarmerId })
+      localStorage.setItem('agrisetu_active_plot_id', res.data.id)
       localStorage.setItem('agrisetu_farmer', JSON.stringify({
         ...existing,
+        id: activeFarmerId,
+        name: farmerData.name || existing.name || 'Farmer',
+        phone: farmerData.phone || existing.phone,
         district: plotData.district,
         state: plotData.state,
         crop: plotData.current_crop,
@@ -79,7 +92,8 @@ export default function OnboardingPage() {
       }))
       setStep(3)
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create plot')
+      console.error('Plot creation error:', err)
+      setError(err.response?.data?.detail || 'Failed to register plot. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -64,34 +64,29 @@ def voice_ask(
         except Exception as e:
             logger.error(f"Failed to fetch plot context: {e}")
 
-    # 4. Translate to English if needed
+    # 4. Detect language from transcribed question & translate to English if needed for KB lookup
+    from services.llm import detect_language_from_text
+    detected_lang = detect_language_from_text(question_text, fallback_lang=language)
+
     question_en = question_text
-    if language != "en":
+    if detected_lang != "en":
         try:
-            question_en = translate_to_english(question_text, language)
+            question_en = translate_to_english(question_text, detected_lang)
         except Exception:
             pass
 
     # 5. RAG + LLM
     kb_chunks = retrieve_relevant_chunks(question_en, top_k=3)
-    response_en = generate_advisory(plot_context, kb_chunks, question_en, language)
-    if not response_en:
+    response_final = generate_advisory(plot_context, kb_chunks, question_text, detected_lang)
+    if not response_final:
         raise HTTPException(status_code=500, detail="AI advisor unavailable")
 
-    # 6. Translate response back
-    response_final = response_en
-    if language != "en":
-        try:
-            response_final = translate_from_english(response_en, language)
-        except Exception:
-            pass
-
-    # 7. Generate speech
-    audio_response = synthesize_speech(response_final, language)
+    # 6. Generate speech
+    audio_response = synthesize_speech(response_final, detected_lang)
 
     return {
         "text_response": response_final,
         "transcribed_question": question_text,
-        "language": language,
+        "language": detected_lang,
         "has_audio": len(audio_response) > 0,
     }
