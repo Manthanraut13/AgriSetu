@@ -85,7 +85,6 @@ export default function ChatWidget({ plotId }) {
   const [speakingIdx, setSpeakingIdx] = useState(null)
   const [micPermissionDenied, setMicPermissionDenied] = useState(false)
 
-  const recognitionRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const audioChunksRef = useRef([])
   const mediaStreamRef = useRef(null)
@@ -94,51 +93,6 @@ export default function ChatWidget({ plotId }) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
-
-  // Setup Web Speech Recognition instance
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition()
-      recognition.continuous = false
-      recognition.interimResults = true
-
-      const langMap = { hi: 'hi-IN', mr: 'mr-IN', en: 'en-IN' }
-      recognition.lang = langMap[i18n.language] || 'hi-IN'
-
-      recognition.onstart = () => {
-        setIsListening(true)
-        setSpeechError(null)
-        setMicPermissionDenied(false)
-      }
-
-      recognition.onresult = (event) => {
-        let transcript = ''
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          transcript += event.results[i][0].transcript
-        }
-        if (transcript) {
-          setInput(transcript)
-        }
-      }
-
-      recognition.onerror = (event) => {
-        console.warn('Speech recognition event error:', event.error)
-        setIsListening(false)
-
-        // Fallback to MediaRecorder if stream is active
-        if (mediaStreamRef.current && event.error !== 'not-allowed') {
-          startMediaRecorder(mediaStreamRef.current)
-        }
-      }
-
-      recognition.onend = () => {
-        setIsListening(false)
-      }
-
-      recognitionRef.current = recognition
-    }
-  }, [i18n.language])
 
   // Stop media stream tracks helper
   const stopMediaStream = () => {
@@ -247,41 +201,19 @@ export default function ChatWidget({ plotId }) {
     }
   }
 
-  // Request camera/mic permission explicitly & toggle recording
+  // Toggle mic recording: record audio → send to backend ASR → show response
   const toggleListening = async () => {
     setSpeechError(null)
 
-    // Stop current listening/recording if active
+    // Stop current recording if active
     if (isListening) {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop()
       }
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop()
-        } catch {
-          // ignore
-        }
-      }
-      setIsListening(false)
-      stopMediaStream()
       return
     }
 
-    // 1. Try Web Speech Recognition if supported
-    if (recognitionRef.current) {
-      try {
-        const langMap = { hi: 'hi-IN', mr: 'mr-IN', en: 'en-IN' }
-        recognitionRef.current.lang = langMap[i18n.language] || 'hi-IN'
-        recognitionRef.current.start()
-        setIsListening(true)
-        return
-      } catch (e) {
-        console.warn('Web Speech Recognition start failed, falling back to MediaRecorder:', e)
-      }
-    }
-
-    // 2. Acquire mic stream explicitly for MediaRecorder
+    // Acquire mic stream and start recording
     let stream = null
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } })
@@ -312,7 +244,7 @@ export default function ChatWidget({ plotId }) {
       return
     }
 
-    // 3. We have a working microphone stream! Start recording directly
+    // Start recording
     startMediaRecorder(stream)
   }
 
@@ -419,6 +351,9 @@ export default function ChatWidget({ plotId }) {
         <button
           onClick={() => {
             window.speechSynthesis?.cancel()
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+              mediaRecorderRef.current.stop()
+            }
             stopMediaStream()
             setIsOpen(false)
           }}
