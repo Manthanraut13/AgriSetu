@@ -42,6 +42,14 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
     SECRET_KEY: str = "dev-secret-change-in-production"
 
+    # ── Infrastructure (Phase 1 — all optional) ───────────────
+    REDIS_URL: str = ""
+    SENTRY_DSN: str = ""
+    LOG_LEVEL: str = "INFO"
+    LOG_FORMAT: str = "pretty"        # "json" for production structured logs
+    RATE_LIMIT_DEFAULT: str = "120/minute"
+    CORS_ORIGINS: str = ""            # comma-separated; empty = allow all in dev
+
     # ── Computed properties ───────────────────────────────────
     @property
     def database_url(self) -> str:

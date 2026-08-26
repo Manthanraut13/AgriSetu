@@ -25,8 +25,14 @@ Pillow>=10.0.0
 xgboost>=2.0.0
 numpy<2.3
 
+# Cache (Redis optional; in-memory fallback when REDIS_URL is empty)
+redis>=5.0.0
+
 # LLM / Vision / Translation
 google-generativeai>=0.5.0
+
+# Error tracking (optional; only activates if SENTRY_DSN is set)
+sentry-sdk[fastapi]>=2.0.0
 
 # Voice (TTS; ASR handled by Gemini API)
 gTTS>=2.5.0

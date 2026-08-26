@@ -14,7 +14,15 @@ async def fetch_soil(lat: float, lon: float) -> Optional[dict]:
 
     Returns dict with N, P, K, pH, moisture_pct, organic_carbon_pct.
     Note: SoilGrids provides depth-wise data. We use the 0-5cm layer (topsoil).
+    Cached for 6 hours.
     """
+    from services.cache import get_json, set_json
+
+    cache_key = f"soil:v1:{lat:.4f}:{lon:.4f}"
+    cached = await get_json(cache_key)
+    if cached is not None:
+        return cached
+
     logger.info(f"Fetching SoilGrids data for ({lat}, {lon})")
 
     # SoilGrids properties we need
@@ -102,4 +110,5 @@ async def fetch_soil(lat: float, lon: float) -> Optional[dict]:
     }
 
     logger.info(f"Soil data for ({lat}, {lon}): pH={result['pH']}, SOC={result['organic_carbon_pct']}%, N={result['N']}")
+    await set_json(cache_key, result, ttl=21600)  # 6h
     return result

@@ -162,7 +162,14 @@ async def _process_sentinel_index(
 
 
 async def fetch_ndvi(lat: float, lon: float) -> Optional[float]:
-    """Fetch NDVI for a location from Sentinel-2 L2A."""
+    """Fetch NDVI for a location from Sentinel-2 L2A. Cached for 6 hours."""
+    from services.cache import get_json, set_json
+
+    cache_key = f"ndvi:v1:{lat:.4f}:{lon:.4f}"
+    cached = await get_json(cache_key)
+    if cached is not None:
+        return cached
+
     logger.info(f"Fetching NDVI for ({lat}, {lon})")
     
     end = datetime.utcnow()
@@ -173,11 +180,21 @@ async def fetch_ndvi(lat: float, lon: float) -> Optional[float]:
     
     bbox = _bbox_from_point(lat, lon, size_km=1.0)
     
-    return await _process_sentinel_index(bbox, NDVI_EVALSCRIPT, time_from, time_to)
+    result = await _process_sentinel_index(bbox, NDVI_EVALSCRIPT, time_from, time_to)
+    if result is not None:
+        await set_json(cache_key, result, ttl=21600)  # 6h
+    return result
 
 
 async def fetch_ndmi(lat: float, lon: float) -> Optional[float]:
-    """Fetch NDMI for a location from Sentinel-2 L2A."""
+    """Fetch NDMI for a location from Sentinel-2 L2A. Cached for 6 hours."""
+    from services.cache import get_json, set_json
+
+    cache_key = f"ndmi:v1:{lat:.4f}:{lon:.4f}"
+    cached = await get_json(cache_key)
+    if cached is not None:
+        return cached
+
     logger.info(f"Fetching NDMI for ({lat}, {lon})")
     
     end = datetime.utcnow()
@@ -188,7 +205,10 @@ async def fetch_ndmi(lat: float, lon: float) -> Optional[float]:
     
     bbox = _bbox_from_point(lat, lon, size_km=1.0)
     
-    return await _process_sentinel_index(bbox, NDMI_EVALSCRIPT, time_from, time_to)
+    result = await _process_sentinel_index(bbox, NDMI_EVALSCRIPT, time_from, time_to)
+    if result is not None:
+        await set_json(cache_key, result, ttl=21600)  # 6h
+    return result
 
 
 # For backward compatibility

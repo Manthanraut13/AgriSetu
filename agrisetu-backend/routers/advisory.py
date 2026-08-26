@@ -15,8 +15,18 @@ router = APIRouter(prefix="/advisory")
 
 @router.get("/{plot_id}", response_model=FullAdvisory, tags=["Advisory"])
 async def get_advisory(plot_id: str):
+    """Get full advisory for a plot. Cached for 1 hour."""
     from config import settings
     from supabase import create_client
+    from services.cache import get_json, set_json
+
+    cache_key = f"advisory:v1:{plot_id}"
+    cached = await get_json(cache_key)
+    if cached is not None:
+        try:
+            return FullAdvisory(**cached)
+        except Exception:
+            pass  # cache miss if shape changed
 
     supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
@@ -168,17 +178,20 @@ async def get_advisory(plot_id: str):
     except Exception as e:
         logger.error(f"Failed to store advisory: {e}")
 
+    # Cache advisory for 1 hour
+    await set_json(cache_key, advisory.model_dump(mode="json"), ttl=3600)
     return advisory
 
 
 @router.post("/{plot_id}/refresh", tags=["Advisory"])
 async def refresh_plot_data(plot_id: str):
-    """Refresh weather, soil, NDVI data for a plot."""
+    """Refresh weather, soil, NDVI data for a plot and invalidate advisory cache."""
     from config import settings
     from supabase import create_client
     from services.satellite import fetch_ndvi, fetch_ndmi
     from services.weather import fetch_weather
     from services.soil import fetch_soil
+    from services.cache import invalidate_prefix
 
     supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
@@ -230,10 +243,16 @@ async def refresh_plot_data(plot_id: str):
         }).execute()
         results["soil"] = soil_data
 
+    # Invalidate advisory cache after fresh data
+    from services.cache import delete as cache_delete
+    await cache_delete(f"advisory:v1:{plot_id}")
+
     return {"success": True, "results": results}
 
 
 @router.post("/{plot_id}/regenerate", tags=["Advisory"])
 async def regenerate_advisory(plot_id: str):
     """Force regenerate advisory for a plot after data refresh."""
+    from services.cache import delete as cache_delete
+    await cache_delete(f"advisory:v1:{plot_id}")
     return await get_advisory(plot_id)

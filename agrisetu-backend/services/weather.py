@@ -125,7 +125,15 @@ async def fetch_weather(lat: float, lon: float) -> dict:
     Fetch comprehensive weather data combining NASA POWER and OpenWeatherMap.
 
     Returns merged dict with best available data from both sources.
+    Cached for 6 hours to avoid redundant external API calls.
     """
+    from services.cache import get_json, set_json
+
+    cache_key = f"weather:v1:{lat:.4f}:{lon:.4f}"
+    cached = await get_json(cache_key)
+    if cached is not None:
+        return cached
+
     nasa_data = await fetch_nasa_power(lat, lon)
     ow_data = await fetch_openweather(lat, lon)
 
@@ -160,4 +168,5 @@ async def fetch_weather(lat: float, lon: float) -> dict:
         result["sources"].append("NASA POWER")
 
     logger.info(f"Weather for ({lat}, {lon}): {result}")
+    await set_json(cache_key, result, ttl=21600)  # 6h
     return result

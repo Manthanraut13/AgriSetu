@@ -264,3 +264,78 @@ Before starting Day 1 coding, verify every item below works:
 - [ ] Bhashini API: test ASR call returns transcription (or fallback Whisper works)
 
 **Do not start coding until all checkboxes above are ticked.**
+
+---
+
+## 11. Phase 1 Infrastructure (Optional — Production Hardening)
+
+These variables are **optional** and do not block prototype operation. The backend
+degrades gracefully when they are absent (in-memory cache, no error tracking,
+human-readable logs, relaxed CORS).
+
+### 11.1 Redis (Recommended for Production)
+
+Redis provides shared caching across multiple backend workers and persists
+across restarts (unlike in-memory).
+
+**Quick start with Upstash (free 256 MB):**
+1. Create account at [upstash.com](https://upstash.com)
+2. Create a Redis database
+3. Copy the connection string → set as `REDIS_URL`
+
+```env
+REDIS_URL=rediss://default:xxxxx@your-upstash-endpoint:6379
+```
+
+**Local Docker (no cloud account needed):**
+
+```bash
+docker run -d --name agrisetu-redis -p 6379:6379 redis:7-alpine
+```
+
+Then set: `REDIS_URL=redis://localhost:6379`
+
+When `REDIS_URL` is empty, the backend uses a simple in-memory dictionary
+with per-entry TTL — sufficient for single-worker prototype use.
+
+### 11.2 Sentry (Error Tracking)
+
+1. Create account at [sentry.io](https://sentry.io)
+2. Create a Python project → copy DSN
+3. Set in `.env`:
+
+```env
+SENTRY_DSN=https://xxxxxxxx@sentry.io/xxxxxxxx
+```
+
+When absent, error tracking is completely disabled with zero runtime cost.
+
+### 11.3 Logging
+
+| Variable | Default | Options |
+|---|---|---|
+| `LOG_LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR` |
+| `LOG_FORMAT` | `pretty` | `pretty` (human-readable), `json` (structured) |
+
+Use `LOG_FORMAT=json` in production for log aggregation (CloudWatch, Datadog,
+Grafana Loki). Use `pretty` for local development.
+
+### 11.4 Rate Limiting
+
+```env
+RATE_LIMIT_DEFAULT=120/minute
+```
+
+Default allows 120 requests per minute per IP address. Adjust as needed.
+Uses Redis when `REDIS_URL` is set; otherwise falls back to in-memory
+per-process limiting.
+
+### 11.5 CORS Lockdown
+
+```env
+CORS_ORIGINS=https://your-frontend.vercel.app
+```
+
+When set, only the listed origins are allowed. Comma-separated for multiple.
+When empty in **development**, all origins are allowed (`*`).
+When empty in **production**, defaults to `FRONTEND_URL` only.
