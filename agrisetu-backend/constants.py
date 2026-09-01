@@ -13,12 +13,14 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/jpg", "im
 MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 # ── Disease Model ───────────────────────────────────────────
-DISEASE_MODEL_PATH = "models/disease_model/disease_model_best.pth"
-DISEASE_CLASS_NAMES_PATH = "models/disease_model/class_names.json"
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DISEASE_MODEL_PATH = os.path.join(BASE_DIR, "models", "disease_model", "disease_model_best.pth")
+DISEASE_CLASS_NAMES_PATH = os.path.join(BASE_DIR, "models", "disease_model", "class_names.json")
 DISEASE_MODEL_INPUT_SIZE = 224
 
 # ── Crop Model ──────────────────────────────────────────────
-CROP_MODEL_PATH = "models/crop_model/xgboost_crop.json"
+CROP_MODEL_PATH = os.path.join(BASE_DIR, "models", "crop_model", "xgboost_crop.json")
 CROP_FEATURES = ["N", "P", "K", "temperature", "humidity", "ph", "rainfall"]
 
 # ── Scheduler ───────────────────────────────────────────────

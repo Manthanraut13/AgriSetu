@@ -19,6 +19,26 @@
     "treatment": "No treatment needed. Plant is healthy.",
     "organic_remedy": "Continue regular maintenance."
   },
+  "Cassava___Bacterial_blight": {
+    "treatment": "Apply copper-based bactericides (Copper Oxychloride 3g/L). Prune infected stems with sanitized tools.",
+    "organic_remedy": "Remove and burn infected stems. Plant certified disease-free stem cuttings."
+  },
+  "Cassava___Brown_streak": {
+    "treatment": "No chemical cure once infected. Remove and destroy infected plants to prevent whitefly spread.",
+    "organic_remedy": "Use certified virus-free planting stakes and control whitefly vector using neem extract."
+  },
+  "Cassava___Green_mottle": {
+    "treatment": "Rogue out symptomatic cassava plants immediately to prevent plot contamination.",
+    "organic_remedy": "Use clean planting material and maintain strict field hygiene."
+  },
+  "Cassava___Mosaic_disease": {
+    "treatment": "No cure. Remove infected plants. Apply insecticides (Imidacloprid 0.3ml/L) to control whitefly vector.",
+    "organic_remedy": "Plant CMD-resistant varieties and install yellow sticky traps for whitefly control."
+  },
+  "Cassava___healthy": {
+    "treatment": "No treatment needed. Crop is healthy.",
+    "organic_remedy": "Continue regular weed management and soil health maintenance."
+  },
   "Cherry_(including_sour)___Powdery_mildew": {
     "treatment": "Apply sulfur or fungicides at first sign. Improve air circulation.",
     "organic_remedy": "Spray milk solution (40% milk, 60% water). Remove affected leaves."
@@ -28,43 +48,43 @@
     "organic_remedy": "Continue regular care."
   },
   "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
-    "treatment": "Apply fungicides (strobilurins). Practice crop rotation.",
+    "treatment": "Apply fungicides (strobilurins or azoxystrobin). Practice crop rotation.",
     "organic_remedy": "Remove infected debris. Rotate with non-host crops."
   },
   "Corn_(maize)___Common_rust_": {
-    "treatment": "Apply fungicides if severe. Choose resistant hybrids.",
+    "treatment": "Apply fungicides if severe (mancozeb 2g/L). Choose resistant hybrids.",
     "organic_remedy": "Remove infected plants early. Use resistant varieties."
-  },
-  "Corn_(maize)___healthy": {
-    "treatment": "No treatment needed.",
-    "organic_remedy": "Continue regular maintenance."
   },
   "Corn_(maize)___Northern_Leaf_Blight": {
     "treatment": "Apply fungicides. Use resistant hybrids.",
     "organic_remedy": "Rotate crops. Till under infected residue."
   },
+  "Corn_(maize)___healthy": {
+    "treatment": "No treatment needed.",
+    "organic_remedy": "Continue regular maintenance."
+  },
   "Grape___Black_rot": {
-    "treatment": "Apply fungicides before bloom. Remove infected fruit.",
+    "treatment": "Apply fungicides before bloom (myclobutanil). Remove infected fruit.",
     "organic_remedy": "Prune for air flow. Remove mummified berries."
   },
   "Grape___Esca_(Black_Measles)": {
     "treatment": "No cure. Remove infected vines. Manage trunk wounds.",
     "organic_remedy": "Protect pruning wounds. Maintain vine vigor."
   },
+  "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
+    "treatment": "Apply fungicides (copper hydroxide). Remove fallen leaves.",
+    "organic_remedy": "Improve air circulation. Apply copper sprays."
+  },
   "Grape___healthy": {
     "treatment": "No treatment needed.",
     "organic_remedy": "Continue regular vineyard management."
   },
-  "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
-    "treatment": "Apply fungicides. Remove fallen leaves.",
-    "organic_remedy": "Improve air circulation. Apply copper sprays."
-  },
   "Orange___Haunglongbing_(Citrus_greening)": {
-    "treatment": "No cure. Remove infected trees. Control psyllid vector.",
-    "organic_remedy": "Remove affected trees. Plant disease-free nursery stock."
+    "treatment": "No cure. Remove infected trees. Control psyllid vector with imidacloprid.",
+    "organic_remedy": "Remove affected trees. Plant certified disease-free nursery stock."
   },
   "Peach___Bacterial_spot": {
-    "treatment": "Apply copper sprays. Use resistant varieties.",
+    "treatment": "Apply copper sprays during dormancy and early season.",
     "organic_remedy": "Prune for air circulation. Avoid overhead irrigation."
   },
   "Peach___healthy": {
@@ -80,55 +100,67 @@
     "organic_remedy": "Continue regular maintenance."
   },
   "Potato___Early_blight": {
-    "treatment": "Apply fungicides (chlorothalonil or mancozeb). Remove infected leaves.",
+    "treatment": "Apply fungicides (chlorothalonil or mancozeb 2.5g/L). Remove infected leaves.",
     "organic_remedy": "Mulch around plants. Rotate crops. Remove infected debris."
+  },
+  "Potato___Late_blight": {
+    "treatment": "Apply fungicides immediately (metalaxyl + mancozeb). Destroy infected plants.",
+    "organic_remedy": "Remove and destroy infected plants. Apply copper sulfate spray."
   },
   "Potato___healthy": {
     "treatment": "No treatment needed.",
     "organic_remedy": "Continue regular care."
   },
-  "Potato___Late_blight": {
-    "treatment": "Apply fungicides immediately (metalaxyl). Destroy infected plants.",
-    "organic_remedy": "Remove and destroy infected plants. Apply copper spray."
-  },
   "Raspberry___healthy": {
     "treatment": "No treatment needed.",
     "organic_remedy": "Continue regular maintenance."
   },
+  "Rice___Bacterial_blight": {
+    "treatment": "Spray Copper Oxychloride (3g/L) or Streptocycline (1g/10L). Avoid excess nitrogen.",
+    "organic_remedy": "Drain field temporarily, spray fresh cow dung extract (20%) or neem oil (5ml/L)."
+  },
+  "Rice___Blast": {
+    "treatment": "Apply Tricyclazole 75 WP (0.6g/L) or Isoprothiolane at first sign of blast spots.",
+    "organic_remedy": "Apply Pseudomonas fluorescens (10g/L) as foliar spray. Avoid high nitrogen dosage."
+  },
+  "Rice___Brown_spot": {
+    "treatment": "Apply Mancozeb (2g/L) or Carbendazim (1g/L). Ensure adequate soil potassium.",
+    "organic_remedy": "Seed treatment with Trichoderma viride (10g/kg). Apply vermicompost and bio-potash."
+  },
+  "Rice___Tungro": {
+    "treatment": "Apply Imidacloprid (0.3ml/L) or Thiamethoxam to control green leafhopper vector.",
+    "organic_remedy": "Eradicate alternate weed hosts. Apply neem seed kernel extract (5%) to repel leafhoppers."
+  },
   "Soybean___healthy": {
     "treatment": "No treatment needed.",
-    "organic_remedy": "Continue regular maintenance."
+    "organic_remedy": "Continue regular maintenance and monitoring."
   },
   "Squash___Powdery_mildew": {
     "treatment": "Apply fungicides (sulfur or potassium bicarbonate).",
-    "organic_remedy": "Spray milk solution. Plant resistant varieties."
+    "organic_remedy": "Spray milk solution (1:9 ratio). Plant resistant varieties."
+  },
+  "Strawberry___Leaf_scorch": {
+    "treatment": "Apply fungicides (captan or copper). Remove infected leaves.",
+    "organic_remedy": "Remove affected leaves. Mulch to prevent soil splashing."
   },
   "Strawberry___healthy": {
     "treatment": "No treatment needed.",
     "organic_remedy": "Continue regular care."
-  },
-  "Strawberry___Leaf_scorch": {
-    "treatment": "Apply fungicides. Remove infected leaves.",
-    "organic_remedy": "Remove affected leaves. Mulch to prevent splashing."
   },
   "Tomato___Bacterial_spot": {
     "treatment": "Apply copper-based sprays. Use disease-free transplants.",
     "organic_remedy": "Remove infected plants. Avoid overhead watering."
   },
   "Tomato___Early_blight": {
-    "treatment": "Apply fungicides. Remove lower infected leaves.",
+    "treatment": "Apply fungicides (chlorothalonil or mancozeb 2g/L). Remove lower infected leaves.",
     "organic_remedy": "Mulch around plants. Water at base. Rotate crops."
   },
-  "Tomato___healthy": {
-    "treatment": "No treatment needed. Plant is healthy!",
-    "organic_remedy": "Continue regular care and monitoring."
-  },
   "Tomato___Late_blight": {
-    "treatment": "Apply fungicides (metalaxyl). Remove and destroy infected plants.",
+    "treatment": "Apply fungicides (metalaxyl or cymoxanil). Remove and destroy infected plants.",
     "organic_remedy": "Remove infected plants immediately. Apply copper spray."
   },
   "Tomato___Leaf_Mold": {
-    "treatment": "Improve air circulation. Apply fungicides.",
+    "treatment": "Improve air circulation. Apply copper fungicides.",
     "organic_remedy": "Increase spacing. Remove affected leaves."
   },
   "Tomato___Septoria_leaf_spot": {
@@ -136,19 +168,83 @@
     "organic_remedy": "Remove affected leaves. Mulch to prevent soil splash."
   },
   "Tomato___Spider_mites Two-spotted_spider_mite": {
-    "treatment": "Apply miticide. Increase humidity.",
-    "organic_remedy": "Spray with water to dislodge mites. Introduce ladybugs."
+    "treatment": "Apply miticide (abamectin or fenpyroximate). Increase humidity.",
+    "organic_remedy": "Spray with strong water jet. Apply neem oil or introduce predatory mites."
   },
   "Tomato___Target_Spot": {
-    "treatment": "Apply fungicides. Remove infected plant debris.",
+    "treatment": "Apply fungicides (azoxystrobin). Remove infected plant debris.",
     "organic_remedy": "Improve air circulation. Remove fallen leaves."
   },
   "Tomato___Tomato_mosaic_virus": {
-    "treatment": "No cure. Remove infected plants. Disinfect tools.",
+    "treatment": "No cure. Remove infected plants. Disinfect tools with trisodium phosphate.",
     "organic_remedy": "Remove infected plants. Use disease-free seed."
   },
   "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
-    "treatment": "No cure. Control whitefly vector. Remove infected plants.",
-    "organic_remedy": "Use reflective mulch to repel whiteflies. Remove weeds."
+    "treatment": "No cure. Control whitefly vector with imidacloprid. Remove infected plants.",
+    "organic_remedy": "Use reflective yellow mulch to repel whiteflies. Remove weed hosts."
+  },
+  "Tomato___healthy": {
+    "treatment": "No treatment needed. Plant is healthy!",
+    "organic_remedy": "Continue regular care and monitoring."
+  },
+  "Wheat___Aphid": {
+    "treatment": "Apply Dimethoate 30 EC (1.5ml/L) or Imidacloprid 17.8 SL (0.5ml/L) at economic threshold.",
+    "organic_remedy": "Spray Neem oil (5ml/L) or release natural predators like ladybird beetles and lacewings."
+  },
+  "Wheat___Black_rust": {
+    "treatment": "Apply Propiconazole 25 EC (1ml/L) or Tebuconazole (1ml/L) at first symptom appearance.",
+    "organic_remedy": "Plant resistant wheat cultivars. Apply Trichoderma and remove volunteer grass hosts."
+  },
+  "Wheat___Blast": {
+    "treatment": "Spray Tebuconazole + Trifloxystrobin or Mancozeb before and during flowering stages.",
+    "organic_remedy": "Use certified clean seeds. Practice strict crop rotation and seed treatment with biocontrols."
+  },
+  "Wheat___Common_root_rot": {
+    "treatment": "Seed treatment with Carboxin + Thiram (2.5g/kg seed). Ensure well-drained soil.",
+    "organic_remedy": "Practice crop rotation with non-cereal crops and enhance soil organic matter with compost."
+  },
+  "Wheat___Fusarium_head_blight": {
+    "treatment": "Apply Prothioconazole or Tebuconazole during early flowering stage (anthesis).",
+    "organic_remedy": "Avoid overhead irrigation during flowering. Practice deep tillage to bury crop residues."
+  },
+  "Wheat___Leaf_blight": {
+    "treatment": "Apply Mancozeb 75 WP (2.5g/L) or Propiconazole 25 EC (1ml/L) at tillering stage.",
+    "organic_remedy": "Spray Trichoderma harzianum (5g/L). Maintain proper plant spacing for sunlight penetration."
+  },
+  "Wheat___Leaf_rust": {
+    "treatment": "Apply Propiconazole 25 EC (1ml/L) at first detection of orange-brown pustules.",
+    "organic_remedy": "Use rust-resistant varieties. Spray fermented buttermilk solution or neem oil (5ml/L)."
+  },
+  "Wheat___Mite": {
+    "treatment": "Apply Hexythiazox 5.45 EC (1ml/L) or Wettable Sulfur (3g/L) when mite colonies form.",
+    "organic_remedy": "Spray wettable sulfur or horticultural oil spray. Conserve predatory phytoseiid mites."
+  },
+  "Wheat___Powdery_mildew": {
+    "treatment": "Apply Propiconazole (1ml/L) or Dinocap (1ml/L). Avoid excessive nitrogen fertilizer.",
+    "organic_remedy": "Spray potassium bicarbonate or milk solution (1:9 ratio). Prune dense canopy."
+  },
+  "Wheat___Septoria": {
+    "treatment": "Apply Chlorothalonil (2g/L) or Pyraclostrobin at flag leaf emergence stage.",
+    "organic_remedy": "Remove stubble after harvest. Practice 2-year crop rotation and apply compost tea."
+  },
+  "Wheat___Smut": {
+    "treatment": "Seed treatment with Tebuconazole 2 DS (1.5g/kg seed) or Carboxin 75 WP (2.5g/kg seed).",
+    "organic_remedy": "Solar heat treatment of seeds in summer before sowing. Use certified smut-free seed."
+  },
+  "Wheat___Stem_fly": {
+    "treatment": "Apply Chlorpyriphos 20 EC (2ml/L) or soil application of Phorate granules at sowing.",
+    "organic_remedy": "Early sowing to escape peak infestation. Install yellow sticky traps (10-12 traps/acre)."
+  },
+  "Wheat___Tan_spot": {
+    "treatment": "Apply Azoxystrobin or Propiconazole fungicides at early leaf spotting.",
+    "organic_remedy": "Rotate with broadleaf crops like legumes/mustard. Shred and bury straw residues."
+  },
+  "Wheat___Yellow_rust": {
+    "treatment": "Apply Propiconazole 25 EC (1ml/L) or Tebuconazole (1ml/L) immediately upon seeing yellow stripes.",
+    "organic_remedy": "Plant yellow rust-resistant varieties (e.g. PBW 725, HD 3086). Apply bio-agents early."
+  },
+  "Wheat___healthy": {
+    "treatment": "No treatment needed. Wheat crop is in healthy vigorous condition.",
+    "organic_remedy": "Continue standard irrigation and balanced nutrient management."
   }
 }

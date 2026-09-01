@@ -1,0 +1,68 @@
+                                                    precision    recall  f1-score   support
+
+                                Apple___Apple_scab       1.00      1.00      1.00        35
+                                 Apple___Black_rot       1.00      1.00      1.00        35
+                          Apple___Cedar_apple_rust       1.00      1.00      1.00        28
+                                   Apple___healthy       1.00      1.00      1.00        35
+                               Blueberry___healthy       1.00      1.00      1.00        35
+                        Cassava___Bacterial_blight       0.69      0.77      0.73        35
+                            Cassava___Brown_streak       0.67      0.40      0.50        35
+                            Cassava___Green_mottle       0.76      0.71      0.74        35
+                          Cassava___Mosaic_disease       0.74      0.80      0.77        35
+                                 Cassava___healthy       0.49      0.63      0.55        35
+          Cherry_(including_sour)___Powdery_mildew       0.97      1.00      0.99        35
+                 Cherry_(including_sour)___healthy       1.00      1.00      1.00        35
+Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot       0.92      0.94      0.93        35
+                       Corn_(maize)___Common_rust_       1.00      1.00      1.00        35
+               Corn_(maize)___Northern_Leaf_Blight       0.97      0.91      0.94        35
+                            Corn_(maize)___healthy       1.00      1.00      1.00        35
+                                 Grape___Black_rot       0.97      1.00      0.99        35
+                      Grape___Esca_(Black_Measles)       1.00      1.00      1.00        35
+        Grape___Leaf_blight_(Isariopsis_Leaf_Spot)       1.00      1.00      1.00        35
+                                   Grape___healthy       1.00      1.00      1.00        35
+          Orange___Haunglongbing_(Citrus_greening)       1.00      1.00      1.00        35
+                            Peach___Bacterial_spot       1.00      1.00      1.00        35
+                                   Peach___healthy       1.00      1.00      1.00        35
+                     Pepper,_bell___Bacterial_spot       1.00      1.00      1.00        35
+                            Pepper,_bell___healthy       1.00      1.00      1.00        35
+                             Potato___Early_blight       1.00      1.00      1.00        35
+                              Potato___Late_blight       1.00      1.00      1.00        35
+                                  Potato___healthy       1.00      1.00      1.00        15
+                               Raspberry___healthy       1.00      1.00      1.00        35
+                           Rice___Bacterial_blight       0.97      0.97      0.97        35
+                                      Rice___Blast       0.97      0.97      0.97        35
+                                 Rice___Brown_spot       0.97      1.00      0.99        35
+                                     Rice___Tungro       0.90      1.00      0.95        35
+                                 Soybean___healthy       1.00      1.00      1.00        35
+                           Squash___Powdery_mildew       1.00      1.00      1.00        35
+                          Strawberry___Leaf_scorch       1.00      1.00      1.00        35
+                              Strawberry___healthy       1.00      1.00      1.00        35
+                           Tomato___Bacterial_spot       0.97      0.97      0.97        35
+                             Tomato___Early_blight       1.00      0.97      0.99        35
+                              Tomato___Late_blight       1.00      1.00      1.00        35
+                                Tomato___Leaf_Mold       0.97      1.00      0.99        35
+                       Tomato___Septoria_leaf_spot       1.00      0.97      0.99        35
+     Tomato___Spider_mites Two-spotted_spider_mite       0.97      1.00      0.99        35
+                              Tomato___Target_Spot       0.97      0.97      0.97        35
+            Tomato___Tomato_Yellow_Leaf_Curl_Virus       1.00      0.97      0.99        35
+                      Tomato___Tomato_mosaic_virus       1.00      1.00      1.00        35
+                                  Tomato___healthy       1.00      1.00      1.00        35
+                                     Wheat___Aphid       0.78      0.91      0.84        35
+                                Wheat___Black_rust       0.75      0.77      0.76        35
+                                     Wheat___Blast       0.78      0.89      0.83        35
+                           Wheat___Common_root_rot       0.90      0.74      0.81        35
+                      Wheat___Fusarium_head_blight       0.89      0.91      0.90        35
+                               Wheat___Leaf_blight       0.63      0.69      0.66        35
+                                 Wheat___Leaf_rust       0.83      0.86      0.85        35
+                                      Wheat___Mite       0.75      0.60      0.67        35
+                            Wheat___Powdery_mildew       0.88      0.83      0.85        35
+                                  Wheat___Septoria       0.94      0.89      0.91        35
+                                      Wheat___Smut       0.93      0.74      0.83        35
+                                  Wheat___Stem_fly       0.76      0.76      0.76        17
+                                  Wheat___Tan_spot       0.49      0.51      0.50        35
+                               Wheat___Yellow_rust       0.94      0.94      0.94        35
+                                   Wheat___healthy       0.91      0.89      0.90        35
+
+                                          accuracy                           0.92      2125
+                                         macro avg       0.92      0.92      0.92      2125
+                                      weighted avg       0.92      0.92      0.92      2125

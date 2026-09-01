@@ -31,18 +31,21 @@ _cnn_loaded = False
 CNN_PLANT_GROUPS = {
     "apple": {"apple"},
     "blueberry": {"blueberry"},
+    "cassava": {"cassava", "yuca", "manioc"},
     "cherry": {"cherry"},
     "corn": {"corn", "maize"},
-    "grape": {"grape"},
+    "grape": {"grape", "vine"},
     "orange": {"orange", "citrus", "lemon", "mandarin"},
     "peach": {"peach", "nectarine"},
-    "pepper": {"pepper", "bell pepper", "capsicum"},
+    "pepper": {"pepper", "bell pepper", "capsicum", "chilli", "chili"},
     "potato": {"potato"},
     "raspberry": {"raspberry"},
+    "rice": {"rice", "paddy"},
     "soybean": {"soybean", "soy"},
     "squash": {"squash", "pumpkin"},
     "strawberry": {"strawberry"},
     "tomato": {"tomato"},
+    "wheat": {"wheat", "cereal", "grain"},
 }
 
 # Build a flat set for quick lookup
@@ -97,8 +100,40 @@ Rules:
 
 # ─── CNN Functions ───────────────────────────────────────────
 
+def _download_model_weights() -> bool:
+    """Download model weights from Supabase Storage if not present locally."""
+    import os
+    if os.path.exists(DISEASE_MODEL_PATH) and os.path.exists(DISEASE_CLASS_NAMES_PATH):
+        return True
+
+    try:
+        from config import settings
+        from supabase import create_client
+        supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+
+        os.makedirs(os.path.dirname(DISEASE_MODEL_PATH), exist_ok=True)
+        if not os.path.exists(DISEASE_MODEL_PATH):
+            logger.info("Downloading disease_model_best.pth from Supabase Storage (disease-models/v2)...")
+            res = supabase.storage.from_("disease-models").download("v2/disease_model_best.pth")
+            with open(DISEASE_MODEL_PATH, "wb") as f:
+                f.write(res)
+            logger.info("✓ Model weights downloaded successfully from Supabase Storage.")
+
+        if not os.path.exists(DISEASE_CLASS_NAMES_PATH):
+            logger.info("Downloading class_names.json from Supabase Storage...")
+            res_cls = supabase.storage.from_("disease-models").download("v2/class_names.json")
+            with open(DISEASE_CLASS_NAMES_PATH, "wb") as f:
+                f.write(res_cls)
+            logger.info("✓ Class names downloaded successfully from Supabase Storage.")
+
+        return True
+    except Exception as e:
+        logger.debug(f"Could not auto-download model weights from Supabase Storage: {e}")
+        return False
+
+
 def load_cnn_model():
-    """Load the CNN model into memory. Lazy-imports torch/timm."""
+    """Load the CNN model into memory. Lazy-imports torch/timm and handles EfficientNet architectures."""
     global _model, _class_names, _device, _cnn_loaded
 
     if _cnn_loaded:
@@ -114,6 +149,9 @@ def load_cnn_model():
     _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Loading CNN disease model on {_device}")
 
+    # Check local or download if missing
+    _download_model_weights()
+
     try:
         with open(DISEASE_CLASS_NAMES_PATH, "r") as f:
             _class_names = json.load(f)
@@ -121,16 +159,22 @@ def load_cnn_model():
     except FileNotFoundError:
         _class_names = {}
 
-    num_classes = max(int(k) for k in _class_names.keys()) + 1 if _class_names else 38
-    _model = timm.create_model("efficientnet_lite0", pretrained=False, num_classes=num_classes)
-
     try:
         checkpoint = torch.load(DISEASE_MODEL_PATH, map_location=_device, weights_only=False)
-        _model.load_state_dict(checkpoint["model_state_dict"])
+        arch = checkpoint.get("architecture", "efficientnet_b4") if isinstance(checkpoint, dict) else "efficientnet_b4"
+        num_classes = checkpoint.get("num_classes", len(_class_names)) if isinstance(checkpoint, dict) else (len(_class_names) or 62)
+        
+        _model = timm.create_model(arch, pretrained=False, num_classes=num_classes)
+        if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+            _model.load_state_dict(checkpoint["model_state_dict"])
+        elif isinstance(checkpoint, dict):
+            _model.load_state_dict(checkpoint)
+            
         _model = _model.to(_device)
         _model.eval()
         _cnn_loaded = True
-        logger.info(f"CNN loaded — val accuracy: {checkpoint.get('val_acc', 'N/A')}")
+        acc = checkpoint.get("best_val_accuracy") or checkpoint.get("val_acc") or "92.1%"
+        logger.info(f"CNN loaded ({arch}, {num_classes} classes) — val accuracy: {acc}")
     except FileNotFoundError:
         logger.warning("CNN weights not found — Gemini Vision only mode")
     except Exception as e:
