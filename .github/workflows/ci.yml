@@ -86,6 +86,16 @@ jobs:
             -e TWILIO_WHATSAPP_TO=test \
             -e REDIS_URL="" \
             agrisetu-backend:test
-          sleep 5
-          docker exec test-agrisetu curl -sf http://localhost:8000/api/v1/health
+          # Poll health up to 90s (cold start imports xgboost/google libs)
+          for i in $(seq 1 30); do
+            if docker exec test-agrisetu curl -sf http://localhost:8000/api/v1/health; then
+              echo "Health check passed after ${i}x3s"
+              docker stop test-agrisetu
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Health check failed — container logs:"
+          docker logs test-agrisetu
           docker stop test-agrisetu
+          exit 1
