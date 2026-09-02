@@ -11,8 +11,7 @@ from middleware.rate_limit import limiter
 from middleware.sentry import init_sentry
 from services import cache as cache
 
-logger = None  # configured in lifespan after logging setup
-
+logger = logging.getLogger("agrisetu")  # configured in lifespan after logging setup
 
 # ── Lifespan ─────────────────────────────────────────────────
 @asynccontextmanager
