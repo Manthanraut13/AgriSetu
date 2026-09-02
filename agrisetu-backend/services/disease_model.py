@@ -100,24 +100,51 @@ Rules:
 
 # ─── CNN Functions ───────────────────────────────────────────
 
+# GitHub Releases hosts model weights (68MB — exceeds Supabase free 50MB limit).
+MODEL_WEIGHTS_URL = "https://github.com/Manthanraut13/AgriSetu/releases/download/disease-model-v2/disease_model_best.pth"
+MODEL_CLASSES_URL = "https://github.com/Manthanraut13/AgriSetu/releases/download/disease-model-v2/class_names.json"
+
+
 def _download_model_weights() -> bool:
-    """Download model weights from Supabase Storage if not present locally."""
+    """Download model weights from GitHub Releases (or Supabase fallback)."""
     import os
     if os.path.exists(DISEASE_MODEL_PATH) and os.path.exists(DISEASE_CLASS_NAMES_PATH):
         return True
 
+    os.makedirs(os.path.dirname(DISEASE_MODEL_PATH), exist_ok=True)
+
+    try:
+        import httpx
+    except ImportError:
+        return False
+
+    def _download(url: str, dest: str) -> bool:
+        try:
+            r = httpx.get(url, timeout=300, follow_redirects=True)
+            if r.status_code == 200:
+                with open(dest, "wb") as f:
+                    f.write(r.content)
+                logger.info(f"Downloaded {os.path.basename(dest)} from GitHub Releases")
+                return True
+            logger.warning(f"GitHub release download failed ({r.status_code}) for {url}")
+        except Exception as e:
+            logger.warning(f"GitHub release download error: {e}")
+        return False
+
+    ok = True
+    if not os.path.exists(DISEASE_MODEL_PATH):
+        ok = _download(MODEL_WEIGHTS_URL, DISEASE_MODEL_PATH) and ok
+    if not os.path.exists(DISEASE_CLASS_NAMES_PATH):
+        ok = _download(MODEL_CLASSES_URL, DISEASE_CLASS_NAMES_PATH) and ok
+
+    if ok:
+        return True
+
+    # Fallback: Supabase Storage (works for small class_names.json even if model exceeds free-tier 50MB)
     try:
         from config import settings
         from supabase import create_client
         supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
-
-        os.makedirs(os.path.dirname(DISEASE_MODEL_PATH), exist_ok=True)
-        if not os.path.exists(DISEASE_MODEL_PATH):
-            logger.info("Downloading disease_model_best.pth from Supabase Storage (disease-models/v2)...")
-            res = supabase.storage.from_("disease-models").download("v2/disease_model_best.pth")
-            with open(DISEASE_MODEL_PATH, "wb") as f:
-                f.write(res)
-            logger.info("✓ Model weights downloaded successfully from Supabase Storage.")
 
         if not os.path.exists(DISEASE_CLASS_NAMES_PATH):
             logger.info("Downloading class_names.json from Supabase Storage...")
@@ -126,7 +153,7 @@ def _download_model_weights() -> bool:
                 f.write(res_cls)
             logger.info("✓ Class names downloaded successfully from Supabase Storage.")
 
-        return True
+        return os.path.exists(DISEASE_MODEL_PATH) and os.path.exists(DISEASE_CLASS_NAMES_PATH)
     except Exception as e:
         logger.debug(f"Could not auto-download model weights from Supabase Storage: {e}")
         return False
