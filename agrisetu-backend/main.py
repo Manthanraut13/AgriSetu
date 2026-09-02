@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from config import settings, validate_config
 from middleware.logging import setup_logging, RequestLoggingMiddleware
+from slowapi.errors import RateLimitExceeded
 from middleware.rate_limit import limiter
 from middleware.sentry import init_sentry
 from services import cache as cache
@@ -102,7 +103,7 @@ init_sentry(settings.SENTRY_DSN or None, settings.ENVIRONMENT)
 # ── Rate limiting ────────────────────────────────────────────
 app.state.limiter = limiter
 app.add_exception_handler(
-    limiter,
+    RateLimitExceeded,
     lambda request, exc: JSONResponse(
         status_code=429,
         content={"error": "Rate limit exceeded", "detail": str(exc.detail)},
