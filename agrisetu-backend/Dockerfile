@@ -35,6 +35,7 @@ COPY services/ ./services/
 COPY schemas/ ./schemas/
 COPY data/ ./data/
 COPY models/ ./models/
+COPY middleware/ ./middleware/
 COPY main.py config.py constants.py ./
 
 EXPOSE 8000
