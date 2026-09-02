@@ -30,6 +30,11 @@ export default function AgronomistDashboard() {
   const [plotDetails, setPlotDetails] = useState(null)
   const [filter, setFilter] = useState('ALL')
   const [search, setSearch] = useState('')
+  const [reviewItems, setReviewItems] = useState([])
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const [reviewLoading, setReviewLoading] = useState(false)
+  const [verifyTarget, setVerifyTarget] = useState(null)
+  const [verifyLabel, setVerifyLabel] = useState('')
 
   useEffect(() => {
     loadPlots()
@@ -56,6 +61,33 @@ export default function AgronomistDashboard() {
       setPlotDetails(res.data)
     } catch {
       setPlotDetails(null)
+    }
+  }
+
+  const loadReview = async () => {
+    setReviewLoading(true)
+    try {
+      const res = await api.get('/api/v1/disease/review', { params: { limit: 20 } })
+      setReviewItems(res.data || [])
+    } catch (err) {
+      console.error('Failed to load review items:', err)
+    } finally {
+      setReviewLoading(false)
+    }
+  }
+
+  const verifyReport = async (reportId) => {
+    if (!verifyLabel.trim()) return
+    try {
+      await api.post(`/api/v1/disease/review/${reportId}`, {
+        verified_label: verifyLabel.trim(),
+        verified_by: 'agronomist',
+      })
+      setReviewItems(prev => prev.filter(r => r.id !== reportId))
+      setVerifyTarget(null)
+      setVerifyLabel('')
+    } catch (err) {
+      console.error('Verify failed:', err)
     }
   }
 
@@ -340,6 +372,97 @@ export default function AgronomistDashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Disease Review Queue — toggle bar at bottom */}
+      <div className="border-t border-outline-variant/20">
+        <button
+          onClick={() => { setReviewOpen(!reviewOpen); if (!reviewOpen) loadReview() }}
+          className="w-full px-6 py-3 flex items-center justify-between hover:bg-surface-tint/10 transition-colors"
+        >
+          <span className="text-xs font-semibold tracking-wide text-primary-container uppercase flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm">bug_report</span>
+            Uncertain Predictions — Review Queue
+            {reviewItems.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 text-[10px] rounded-full bg-error-container text-white font-bold">
+                {reviewItems.length}
+              </span>
+            )}
+          </span>
+          <span className="material-symbols-outlined text-sm text-outline-variant">
+            {reviewOpen ? 'expand_less' : 'expand_more'}
+          </span>
+        </button>
+
+        {reviewOpen && (
+          <div className="px-6 pb-6">
+            {reviewLoading ? (
+              <div className="flex items-center gap-2 py-8 justify-center text-outline-variant">
+                <div className="animate-spin w-5 h-5 border-2 border-inverse-primary border-t-transparent rounded-full" />
+                <span className="text-xs">Loading uncertain predictions…</span>
+              </div>
+            ) : reviewItems.length === 0 ? (
+              <div className="py-8 text-center text-xs text-outline-variant">
+                No uncertain predictions awaiting review.
+              </div>
+            ) : (
+              <div className="grid gap-3 max-h-80 overflow-y-auto">
+                {reviewItems.map(r => (
+                  <div key={r.id} className="bg-surface-tint/10 border border-outline-variant/20 rounded-xl p-3 flex gap-3 items-start">
+                    {r.image_url && (
+                      <img
+                        src={r.image_url}
+                        alt="Leaf"
+                        className="w-14 h-14 rounded-lg object-cover border border-outline-variant/30 flex-shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-white truncate">{r.disease_name}</div>
+                      <div className="text-[11px] text-outline-variant">
+                        {(r.confidence * 100).toFixed(1)}% confidence · {new Date(r.reported_at).toLocaleDateString()}
+                      </div>
+                      {verifyTarget === r.id ? (
+                        <div className="flex gap-2 mt-2">
+                          <input
+                            value={verifyLabel}
+                            onChange={e => setVerifyLabel(e.target.value)}
+                            placeholder="True disease name"
+                            className="flex-1 bg-surface-tint/20 border border-outline-variant/30 rounded-lg px-2 py-1 text-xs text-white placeholder:text-outline-variant/50 focus:outline-none focus:border-primary-container"
+                            onKeyDown={e => e.key === 'Enter' && verifyReport(r.id)}
+                          />
+                          <button
+                            onClick={() => verifyReport(r.id)}
+                            className="px-3 py-1 rounded-lg bg-primary-container text-[#072a17] text-xs font-bold hover:opacity-90"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => { setVerifyTarget(null); setVerifyLabel('') }}
+                            className="px-3 py-1 rounded-lg bg-surface-tint/20 text-outline-variant text-xs hover:bg-surface-tint/40"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={() => { setVerifyTarget(r.id); setVerifyLabel(r.disease_name.split(' — ')[1] || '') }}
+                            className="px-3 py-1 rounded-lg bg-primary-container text-[#072a17] text-[10px] font-bold hover:opacity-90"
+                          >
+                            Verify / Correct
+                          </button>
+                          <span className="text-[10px] text-outline-variant/50 self-center">
+                            {r.image_url ? '📷 has image' : 'no image'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

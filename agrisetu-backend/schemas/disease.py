@@ -38,3 +38,16 @@ class DiseaseReportResponse(BaseModel):
     reported_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class DiseaseReviewItem(DiseaseReportResponse):
+    """Uncertain prediction awaiting agronomist review."""
+    verified_label: Optional[str] = None
+    verified_by: Optional[str] = None
+    verified_at: Optional[datetime] = None
+
+
+class DiseaseReviewUpdate(BaseModel):
+    """Agronomist verdict on an uncertain prediction."""
+    verified_label: str
+    verified_by: str = "agronomist"

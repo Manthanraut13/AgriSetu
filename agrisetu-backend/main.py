@@ -18,6 +18,8 @@ logger = None  # configured in lifespan after logging setup
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events."""
+    _scheduler_running = False
+
     # 1. Structured logging (must run before anything logs)
     setup_logging(
         log_level=settings.LOG_LEVEL,
@@ -47,10 +49,21 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Crop model load failed: {e}")
 
+    # 5. Start background scheduler (plot refresh + disease alerts every 6h)
+    if settings.ENVIRONMENT == "production":
+        from services.scheduler import start_scheduler, stop_scheduler
+        try:
+            start_scheduler()
+            _scheduler_running = True
+        except Exception as e:
+            logger.warning(f"Scheduler failed to start: {e}")
+
     logger.info("AgriSetu Backend Ready")
     yield
 
     # Shutdown
+    if _scheduler_running:
+        stop_scheduler()
     await cache.close()
     logger.info("AgriSetu Backend Shutting Down")
 

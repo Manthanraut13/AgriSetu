@@ -74,6 +74,49 @@ async def refresh_all_plot_data():
             logger.error(f"Failed to refresh plot {plot_id}: {e}")
 
 
+async def check_disease_alerts():
+    """Check for disease outbreak conditions (3+ reports in same district, 7 days)."""
+    from config import settings
+    from supabase import create_client
+
+    supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+
+    try:
+        result = supabase.rpc("check_disease_outbreaks").execute()
+
+        if not result.data:
+            logger.info("Disease alerts: no outbreak conditions found")
+            return
+
+        for alert in result.data:
+            district = alert["district"]
+            disease = alert["disease_name"]
+            count = alert["report_count"]
+
+            existing = supabase.table("disease_alerts").select("*").eq(
+                "district", district
+            ).eq("disease_name", disease).eq("is_active", True).execute()
+
+            if existing.data:
+                supabase.table("disease_alerts").update({
+                    "report_count": count,
+                    "last_updated_at": "now()",
+                }).eq("id", existing.data[0]["id"]).execute()
+            else:
+                supabase.table("disease_alerts").insert({
+                    "region_name": district,
+                    "district": district,
+                    "disease_name": disease,
+                    "crop": alert.get("crop", "unknown"),
+                    "severity": "high" if count >= 5 else "medium",
+                    "report_count": count,
+                }).execute()
+
+        logger.info(f"Disease alerts: {len(result.data)} conditions checked")
+    except Exception as e:
+        logger.error(f"Disease alert check failed: {e}")
+
+
 scheduler = AsyncIOScheduler()
 
 
@@ -85,8 +128,14 @@ def start_scheduler():
         id="refresh_plot_data",
         replace_existing=True,
     )
+    scheduler.add_job(
+        check_disease_alerts,
+        trigger=IntervalTrigger(hours=6),
+        id="check_disease_alerts",
+        replace_existing=True,
+    )
     scheduler.start()
-    logger.info("Scheduler started — will refresh plot data every 6 hours")
+    logger.info("Scheduler started — plot refresh + disease alerts every 6 hours")
 
 
 def stop_scheduler():
